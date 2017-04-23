@@ -38,7 +38,11 @@ build-engine:
 	cmake --build ${ENGINE_BUILD} -- -j${NPROC}
 
 build-game:
-	cmake -H${GAMEVM_DIR} -B${GAMEVM_BUILD} -G"Unix Makefiles" \
+	# workaround: some git stuff computing version number based on git refs
+	# makes cmake complaining when building game code out of source tree,
+	# so let's change directory before building
+
+	cd ${GAMEVM_DIR} ; cmake -H${GAMEVM_DIR} -B${GAMEVM_BUILD} -G"Unix Makefiles" \
 		-DBUILD_SERVER=0 -DBUILD_CLIENT=0 -DBUILD_TTY_CLIENT=0 \
 		-DBUILD_GAME_NACL=0 -DBUILD_GAME_NACL_NEXE=0 \
 		-DDAEMON_DIR=${ENGINE_DIR}
