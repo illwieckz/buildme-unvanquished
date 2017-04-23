@@ -34,7 +34,7 @@ clone-bin: clone-engine clone-gamevm
 clone: clone-bin clone-assets
 
 build-engine:
-	cmake -H${ENGINE_DIR} -B${ENGINE_BUILD} -G"Unix Makefiles"
+	cmake ${ENGINE_DIR} -B${ENGINE_BUILD} -G"Unix Makefiles"
 	cmake --build ${ENGINE_BUILD} -- -j${NPROC}
 
 build-gamevm:
@@ -42,7 +42,7 @@ build-gamevm:
 	# makes cmake complaining when building game code out of source tree,
 	# so let's change directory before building
 
-	cd ${GAMEVM_DIR} ; cmake -H${GAMEVM_DIR} -B${GAMEVM_BUILD} -G"Unix Makefiles" \
+	cd ${GAMEVM_DIR} ; cmake ${GAMEVM_DIR} -B${GAMEVM_BUILD} -G"Unix Makefiles" \
 		-DBUILD_SERVER=0 -DBUILD_CLIENT=0 -DBUILD_TTY_CLIENT=0 \
 		-DBUILD_GAME_NACL=0 -DBUILD_GAME_NACL_NEXE=0 \
 		-DDAEMON_DIR=${ENGINE_DIR}
