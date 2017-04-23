@@ -67,4 +67,3 @@ run:
 		+set logs.logLevel.common.commands debug \
 		+set logs.logLevel.common.cm debug \
 		+set logs.logLevel.fs verbose \
-		+nocurses
