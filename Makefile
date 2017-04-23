@@ -22,22 +22,22 @@ ASSETS_BUILD := ${ASSETS_DIR}/build/test
 clone-engine:
 	! [ -d ${ENGINE_DIR} ] && git clone ${ENGINE_REPO} ${ENGINE_DIR}
 
-clone-game:
+clone-gamevm:
 	! [ -d ${GAMEVM_DIR} ] && git clone ${GAMEVM_REPO} ${GAMEVM_DIR}
 
-clone-data:
+clone-assets:
 	! [ -d ${ASSETS_DIR} ] && git clone ${ASSETS_REPO} ${ASSETS_DIR}
 	make -C ${ASSETS_DIR} clone
 
-clone-bin: clone-engine clone-game
+clone-bin: clone-engine clone-gamevm
 
-clone: clone-bin clone-data
+clone: clone-bin clone-assets
 
 build-engine:
 	cmake -H${ENGINE_DIR} -B${ENGINE_BUILD} -G"Unix Makefiles"
 	cmake --build ${ENGINE_BUILD} -- -j${NPROC}
 
-build-game:
+build-gamevm:
 	# workaround: some git stuff computing version number based on git refs
 	# makes cmake complaining when building game code out of source tree,
 	# so let's change directory before building
@@ -48,10 +48,12 @@ build-game:
 		-DDAEMON_DIR=${ENGINE_DIR}
 	cmake --build ${GAMEVM_BUILD} -- -j${NPROC}
 
-build-data:
+build-assets:
 	make -C ${ASSETS_DIR} build
 
-build-bin: build-engine build-game
+build-bin: build-engine build-gamevm
+
+build-data: build-assets
 
 build: build-bin build-data
 
