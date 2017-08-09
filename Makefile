@@ -19,51 +19,89 @@ ENGINE_BUILD := ${ENGINE_DIR}/build
 GAMEVM_BUILD := ${GAMEVM_DIR}/build
 ASSETS_BUILD := ${ASSETS_DIR}/build/test
 
-clone-engine:
-	! [ -d ${ENGINE_DIR} ] && git clone ${ENGINE_REPO} ${ENGINE_DIR}
+ifeq ($(VM_TYPE),)
+VM_TYPE := 3
+endif
 
-clone-gamevm:
-	! [ -d ${GAMEVM_DIR} ] && git clone ${GAMEVM_REPO} ${GAMEVM_DIR}
+BIN_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
+
+EXTRA_PAKPATHS := $(shell sh -c "[ -f .pakpaths ] && sed -e 's/^/-pakpath \"/;s/$$/\"/' .pakpaths | tr '\n' ' '")
+
+clone-engine:
+	! [ -d "${ENGINE_DIR}" ] && git clone "${ENGINE_REPO}" "${ENGINE_DIR}"
+
+clone-vm:
+	! [ -d "${GAMEVM_DIR}" ] && git clone "${GAMEVM_REPO}" "${GAMEVM_DIR}"
 
 clone-assets:
-	! [ -d ${ASSETS_DIR} ] && git clone ${ASSETS_REPO} ${ASSETS_DIR}
-	make -C ${ASSETS_DIR} clone
+	! [ -d "${ASSETS_DIR}" ] && git clone "${ASSETS_REPO}" "${ASSETS_DIR}"
+	make -C "${ASSETS_DIR}" clone
 
-clone-bin: clone-engine clone-gamevm
+clone-bin: clone-engine clone-vm
 
 clone: clone-bin clone-assets
 
-build-engine:
-	cmake ${ENGINE_DIR} -B${ENGINE_BUILD} -G"Unix Makefiles"
-	cmake --build ${ENGINE_BUILD} -- -j${NPROC}
+engine:
+	cmake "${ENGINE_DIR}" -B"${ENGINE_BUILD}" -G"Unix Makefiles"
+	cmake --build "${ENGINE_BUILD}" -- -j${NPROC}
 
-build-gamevm:
-	# workaround: some git stuff computing version number based on git refs
-	# makes cmake complaining when building game code out of source tree,
+vm:
+	# workaround: some git stuff is trying to compute version number using on git refs,
+	# it makes cmake complaining when building game code out of source tree,
 	# so let's change directory before building
 
-	cd ${GAMEVM_DIR} ; cmake ${GAMEVM_DIR} -B${GAMEVM_BUILD} -G"Unix Makefiles" \
+	cd "${GAMEVM_DIR}" ; cmake "${GAMEVM_DIR}" -B"${GAMEVM_BUILD}" -G"Unix Makefiles" \
 		-DBUILD_SERVER=0 -DBUILD_CLIENT=0 -DBUILD_TTY_CLIENT=0 \
 		-DBUILD_GAME_NACL=0 -DBUILD_GAME_NACL_NEXE=0 \
-		-DDAEMON_DIR=${ENGINE_DIR}
-	cmake --build ${GAMEVM_BUILD} -- -j${NPROC}
+		-DDAEMON_DIR="${ENGINE_DIR}"
+	cmake --build "${GAMEVM_BUILD}" -- -j${NPROC}
 
-build-assets:
-	make -C ${ASSETS_DIR} build
+assets:
+	make -C "${ASSETS_DIR}" build
 
-build-bin: build-engine build-gamevm
+bin: engine vm
 
-build-data: build-assets
+data: assets
 
-build: build-bin build-data
+build: bin data
 
-run:
-	${ENGINE_BUILD}/daemon \
-		-set vm.cgame.type 3 -set vm.sgame.type 3 \
-		-libpath ${GAMEVM_BUILD} \
-		-pakpath ${ASSETS_BUILD} \
+run-server:
+	"${ENGINE_BUILD}/daemonded" \
+		${BIN_ARGS} \
+		-libpath "${GAMEVM_BUILD}" \
+		-pakpath "${ASSETS_BUILD}" \
+		${EXTRA_PAKPATHS} \
+		${EXTRA_ARGS} \
 		+set language en \
 		+set developer 1 \
 		+set logs.logLevel.common.commands debug \
 		+set logs.logLevel.common.cm debug \
 		+set logs.logLevel.fs verbose \
+
+run-client:
+	"${ENGINE_BUILD}/daemon" \
+		${BIN_ARGS} \
+		-libpath "${GAMEVM_BUILD}" \
+		-pakpath "${ASSETS_BUILD}" \
+		${EXTRA_PAKPATHS} \
+		${EXTRA_ARGS} \
+		+set language en \
+		+set developer 1 \
+		+set logs.logLevel.common.commands debug \
+		+set logs.logLevel.common.cm debug \
+		+set logs.logLevel.fs verbose \
+
+run-tty:
+	"${ENGINE_BUILD}/daemon-tty" \
+		${BIN_ARGS} \
+		-libpath "${GAMEVM_BUILD}" \
+		-pakpath "${ASSETS_BUILD}" \
+		${EXTRA_PAKPATHS} \
+		${EXTRA_ARGS} \
+		+set language en \
+		+set developer 1 \
+		+set logs.logLevel.common.commands debug \
+		+set logs.logLevel.common.cm debug \
+		+set logs.logLevel.fs verbose \
+
+run: run-client
