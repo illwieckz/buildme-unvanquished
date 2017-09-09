@@ -28,18 +28,35 @@ BIN_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
 EXTRA_PAKPATHS := $(shell sh -c "[ -f .pakpaths ] && sed -e 's/^/-pakpath \"/;s/$$/\"/' .pakpaths | tr '\n' ' '")
 
 clone-engine:
-	! [ -d "${ENGINE_DIR}" ] && git clone "${ENGINE_REPO}" "${ENGINE_DIR}"
+	(! [ -d "${ENGINE_DIR}" ] && git clone "${ENGINE_REPO}" "${ENGINE_DIR}") || true
 
 clone-vm:
-	! [ -d "${GAMEVM_DIR}" ] && git clone "${GAMEVM_REPO}" "${GAMEVM_DIR}"
+	(! [ -d "${GAMEVM_DIR}" ] && git clone "${GAMEVM_REPO}" "${GAMEVM_DIR}") || true
 
 clone-assets:
-	! [ -d "${ASSETS_DIR}" ] && git clone "${ASSETS_REPO}" "${ASSETS_DIR}"
+	(! [ -d "${ASSETS_DIR}" ] && git clone "${ASSETS_REPO}" "${ASSETS_DIR}") || true
 	make -C "${ASSETS_DIR}" clone
 
 clone-bin: clone-engine clone-vm
 
 clone: clone-bin clone-assets
+
+pull-engine:
+	cd "${ENGINE_DIR}" && (git remote | grep '^upstream$$' || git remote add upstream "${ENGINE_REPO}") || true
+	cd "${ENGINE_DIR}" && git checkout master && git pull upstream master
+
+pull-vm:
+	cd "${GAMEVM_DIR}" && (git remote | grep '^upstream$$' || git remote add upstream "${GAMEVM_REPO}") || true
+	cd "${GAMEVM_DIR}" && git checkout master && git pull upstream master
+
+pull-assets:
+	cd "${ASSETS_DIR}" && (git remote | grep '^upstream$$' || git remote add upstream "${ASSETS_REPO}") || true
+	cd "${ASSETS_DIR}" && git checkout master && git pull upstream master
+	make -C "${ASSETS_DIR}" pull
+
+pull-bin: pull-engine pull-vm
+
+pull: pull-bin pull-assets
 
 engine:
 	cmake "${ENGINE_DIR}" -B"${ENGINE_BUILD}" -G"Unix Makefiles"
