@@ -93,7 +93,7 @@ run-server:
 		+set developer 1 \
 		+set logs.logLevel.common.commands debug \
 		+set logs.logLevel.common.cm debug \
-		+set logs.logLevel.fs verbose \
+		+set logs.logLevel.fs verbose
 
 run-client:
 	"${ENGINE_BUILD}/daemon" \
@@ -106,7 +106,7 @@ run-client:
 		+set developer 1 \
 		+set logs.logLevel.common.commands debug \
 		+set logs.logLevel.common.cm debug \
-		+set logs.logLevel.fs verbose \
+		+set logs.logLevel.fs verbose
 
 run-tty:
 	"${ENGINE_BUILD}/daemon-tty" \
@@ -119,6 +119,6 @@ run-tty:
 		+set developer 1 \
 		+set logs.logLevel.common.commands debug \
 		+set logs.logLevel.common.cm debug \
-		+set logs.logLevel.fs verbose \
+		+set logs.logLevel.fs verbose
 
 run: run-client
