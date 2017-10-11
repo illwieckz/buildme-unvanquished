@@ -23,6 +23,12 @@ ifeq ($(VM_TYPE),)
 VM_TYPE := 3
 endif
 
+ifneq ($(USE_GDB),)
+# Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
+# Use another name to prevent printing useless warnings saying it will not loaded since we force the loaded
+GDB_COMMAND := gdb -x .gdbinit.txt -args
+endif
+
 BIN_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
 
 EXTRA_PAKPATHS := $(shell sh -c "[ -f .pakpaths ] && sed -e 's/^/-pakpath \"/;s/$$/\"/' .pakpaths | tr '\n' ' '")
@@ -83,6 +89,7 @@ data: assets
 build: bin data
 
 run-server:
+	${GDB_COMMAND} \
 	"${ENGINE_BUILD}/daemonded" \
 		${BIN_ARGS} \
 		-libpath "${GAMEVM_BUILD}" \
@@ -96,6 +103,7 @@ run-server:
 		+set logs.logLevel.fs verbose
 
 run-client:
+	${GDB_COMMAND} \
 	"${ENGINE_BUILD}/daemon" \
 		${BIN_ARGS} \
 		-libpath "${GAMEVM_BUILD}" \
@@ -109,6 +117,7 @@ run-client:
 		+set logs.logLevel.fs verbose
 
 run-tty:
+	${GDB_COMMAND} \
 	"${ENGINE_BUILD}/daemon-tty" \
 		${BIN_ARGS} \
 		-libpath "${GAMEVM_BUILD}" \
