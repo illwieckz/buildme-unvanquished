@@ -1,0 +1,5 @@
+set logging on
+set backtrace limit 0
+run
+thread apply all backtrace
+quit
