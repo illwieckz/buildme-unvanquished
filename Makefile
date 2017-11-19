@@ -37,7 +37,7 @@ endif
 
 BIN_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
 
-EXTRA_PAKPATHS := $(shell sh -c '[ -f .pakpaths ] && sed -e 's/^/-pakpath \'/;s/$$/\'/' .pakpaths | tr '\n' ' '')
+EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && sed -e 's/^/-pakpath /' < .pakpaths | tr '\n' ' ')
 
 clone-engine:
 	(! [ -d '${ENGINE_DIR}' ] && git clone '${ENGINE_REPO}' '${ENGINE_DIR}') || true
@@ -101,12 +101,10 @@ run-server:
 		-libpath '${GAMEVM_BUILD}' \
 		-pakpath '${ASSETS_BUILD}' \
 		${EXTRA_PAKPATHS} \
-		${EXTRA_ARGS} \
-		+set language en \
-		+set developer 1 \
-		+set logs.logLevel.common.commands debug \
-		+set logs.logLevel.common.cm debug \
-		+set logs.logLevel.fs verbose
+		-set logs.logLevel.default debug \
+		-set language en \
+		-set developer 1 \
+		${EXTRA_ARGS}
 
 run-client:
 	${GDB_COMMAND} \
@@ -115,12 +113,10 @@ run-client:
 		-libpath '${GAMEVM_BUILD}' \
 		-pakpath '${ASSETS_BUILD}' \
 		${EXTRA_PAKPATHS} \
-		${EXTRA_ARGS} \
-		+set language en \
-		+set developer 1 \
-		+set logs.logLevel.common.commands debug \
-		+set logs.logLevel.common.cm debug \
-		+set logs.logLevel.fs verbose
+		-set logs.logLevel.default debug \
+		-set language en \
+		-set developer 1 \
+		${EXTRA_ARGS}
 
 run-tty:
 	${GDB_COMMAND} \
@@ -129,11 +125,9 @@ run-tty:
 		-libpath '${GAMEVM_BUILD}' \
 		-pakpath '${ASSETS_BUILD}' \
 		${EXTRA_PAKPATHS} \
-		${EXTRA_ARGS} \
-		+set language en \
-		+set developer 1 \
-		+set logs.logLevel.common.commands debug \
-		+set logs.logLevel.common.cm debug \
-		+set logs.logLevel.fs verbose
+		-set logs.logLevel.default debug \
+		-set language en \
+		-set developer 1 \
+		${EXTRA_ARGS}
 
 run: run-client
