@@ -88,6 +88,15 @@ vm:
 assets:
 	make -C '${ASSETS_DIR}' build
 
+maps:
+	make -C '${ASSETS_DIR}' build_maps
+
+resources:
+	make -C '${ASSETS_DIR}' build_resources
+
+textures:
+	make -C '${ASSETS_DIR}' build_textures
+
 bin: engine vm
 
 data: assets
