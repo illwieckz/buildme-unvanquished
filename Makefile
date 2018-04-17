@@ -37,7 +37,7 @@ endif
 
 BIN_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
 
-EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && sed -e 's/^/-pakpath /' < .pakpaths | tr '\n' ' ')
+EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && (sed -e 's/^/-pakpath /' .pakpaths | tr '\n' ' '))
 
 clone-engine:
 	(! [ -d '${ENGINE_DIR}' ] && git clone '${ENGINE_REPO}' '${ENGINE_DIR}') || true
@@ -140,3 +140,11 @@ run-tty:
 		${EXTRA_ARGS}
 
 run: run-client
+
+load_map:
+	$(MAKE) run EXTRA_ARGS="${EXTRA_ARGS} +devmap parpax"
+
+load_game:
+	$(MAKE) load_map EXTRA_ARGS="${EXTRA_ARGS} +delay 1000 bot fill 3"
+
+it: build load_game
