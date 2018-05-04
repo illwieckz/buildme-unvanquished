@@ -24,6 +24,11 @@ make bin -j$(nproc)
 
 # run the game
 make run
+
+# you can also build assets and binaries, run the game,
+# load a map and spawn some bots just like that:
+make it
+
 ```
 
 Author
