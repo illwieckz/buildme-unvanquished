@@ -26,11 +26,12 @@ GAMEVM_BUILD := ${GAMEVM_DIR}/build
 ASSETS_BUILD := ${ASSETS_DIR}/build/${PAKPREFIX}
 
 ifneq ($(USE_GDB),)
+	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=OFF' -D'CMAKE_BUILD_TYPE=Debug' -D'USE_DEBUG_OPTIMIZE=OFF'
+	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=OFF' -D'BUILD_GAME_NACL_NEXE=OFF' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=ON'
+
 	# Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
 	# Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
 	GDB_COMMAND := gdb -x .gdbinit.txt -args
-	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=OFF' -D'CMAKE_BUILD_TYPE=Debug' -D'USE_DEBUG_OPTIMIZE=OFF'
-	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=OFF' -D'BUILD_GAME_NACL_NEXE=OFF' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=ON'
 else
 	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=ON' -D'CMAKE_BUILD_TYPE=RelWithDebInfo'
 	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=ON' -D'BUILD_GAME_NACL_NEXE=ON' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=OFF'
@@ -41,6 +42,8 @@ ifeq ($(VM_TYPE),)
 endif
 
 ENGINE_VMTYPE_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
+
+ENGINE_DEBUG_ARGS := -set logs.logLevel.default debug -set language en -set developer 1
 
 EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && (sed -e 's/^/-pakpath /' .pakpaths | tr '\n' ' '))
 
@@ -113,43 +116,37 @@ build: bin data
 run-server:
 	${GDB_COMMAND} \
 	'${ENGINE_BUILD}/daemonded' \
+		${ENGINE_DEBUG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${GAMEVM_BUILD}' \
 		-pakpath '${ASSETS_BUILD}' \
 		${EXTRA_PAKPATHS} \
-		-set logs.logLevel.default debug \
-		-set language en \
-		-set developer 1 \
 		${EXTRA_ARGS}
 
 run-client:
 	${GDB_COMMAND} \
 	'${ENGINE_BUILD}/daemon' \
+		${ENGINE_DEBUG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${GAMEVM_BUILD}' \
 		-pakpath '${ASSETS_BUILD}' \
 		${EXTRA_PAKPATHS} \
-		-set logs.logLevel.default debug \
-		-set language en \
-		-set developer 1 \
 		${EXTRA_ARGS}
 
 run-tty:
 	${GDB_COMMAND} \
 	'${ENGINE_BUILD}/daemon-tty' \
+		${ENGINE_DEBUG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${GAMEVM_BUILD}' \
 		-pakpath '${ASSETS_BUILD}' \
 		${EXTRA_PAKPATHS} \
-		-set logs.logLevel.default debug \
-		-set language en \
-		-set developer 1 \
 		${EXTRA_ARGS}
 
 run: run-client
 
 load_map:
-	$(MAKE) run EXTRA_ARGS="${EXTRA_ARGS} +devmap parpax"
+	$(MAKE) run EXTRA_ARGS="${EXTRA_ARGS} +devmap antares"
 
 load_game:
 	$(MAKE) load_map EXTRA_ARGS="${EXTRA_ARGS} +delay 1000 bot fill 3"
