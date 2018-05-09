@@ -33,6 +33,11 @@ ifneq ($(USE_GDB),)
 # Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
 # Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
 GDB_COMMAND := gdb -x .gdbinit.txt -args
+CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=OFF' -D'CMAKE_BUILD_TYPE=Debug' -D'USE_DEBUG_OPTIMIZE=OFF'
+CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=OFF' -D'BUILD_GAME_NACL_NEXE=OFF' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=ON'
+else
+CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=ON' -D'CMAKE_BUILD_TYPE=RelWithDebInfo'
+CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=ON' -D'BUILD_GAME_NACL_NEXE=ON' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=OFF'
 endif
 
 BIN_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
@@ -72,15 +77,17 @@ pull: pull-bin pull-assets
 
 engine:
 	cmake '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
-		-D'USE_BREAKPAD=ON' -D'CMAKE_BUILD_TYPE=RelWithDebInfo' \
+		${CMAKE_DEBUG_ARGS} \
+		-D'BUILD_SERVER=ON' -D'BUILD_CLIENT=ON' -D'BUILD_TTY_CLIENT=ON' \
 		-G'Unix Makefiles'
 	cmake --build '${ENGINE_BUILD}' -- -j'${NPROC}'
 
 vm:
 	cmake '${GAMEVM_DIR}' -B'${GAMEVM_BUILD}' \
-		-D'USE_BREAKPAD=ON' -D'CMAKE_BUILD_TYPE=RelWithDebInfo' \
-		-D'BUILD_SERVER=0' -D'BUILD_CLIENT=0' -D'BUILD_TTY_CLIENT=0' \
-		-D'BUILD_GAME_NACL=0' -D'BUILD_GAME_NACL_NEXE=0' \
+		${CMAKE_DEBUG_ARGS} \
+		${CMAKE_GAMEVM_ARGS} \
+		-D'BUILD_SERVER=OFF' -D'BUILD_CLIENT=OFF' -D'BUILD_TTY_CLIENT=OFF' \
+		-D'BUILD_SGAME=ON' -D'BUILD_CGAME=ON' \
 		-D'DAEMON_DIR=${ENGINE_DIR}' \
 		-G'Unix Makefiles'
 	cmake --build '${GAMEVM_BUILD}' -- -j'${NPROC}'
