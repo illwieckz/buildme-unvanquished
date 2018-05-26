@@ -19,11 +19,14 @@ make clone
 # build assets
 make data
 
-# build binaries (engine, vm)
-make bin -j$(nproc)
+# build binaries
+make bin
 
-# run the game
+# build and run the game
 make run
+
+# build and run the game on gdb
+make run DEBUG=1
 
 # you can also build assets and binaries, run the game,
 # load a map and spawn some bots just like that:
@@ -39,4 +42,4 @@ Thomas “illwieckz” Debesse
 License
 -------
 
-This Makefile is covered by BSD 3-Clause license, see [`LICENSE.md`](LICENSE.md).
+This Makefile is covered by the BSD 3-Clause license, see [`LICENSE.md`](LICENSE.md).
