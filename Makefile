@@ -14,6 +14,7 @@ ASSETS_REPO := https://github.com/UnvanquishedAssets/UnvanquishedAssets.git
 ENGINE_DIR := ${ROOT_DIR}/Daemon
 GAMEVM_DIR := ${ROOT_DIR}/Unvanquished
 ASSETS_DIR := ${ROOT_DIR}/UnvanquishedAssets
+EXDEPS_DIR := ${ROOT_DIR}/Deps
 
 ifeq ($(USE_PAK),)
 	PAKPREFIX := test
@@ -81,6 +82,7 @@ pull: pull-bin pull-assets
 engine:
 	cmake '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
 		${CMAKE_DEBUG_ARGS} \
+		-D'EXTERNAL_DEPS_DIR=${EXDEPS_DIR}' \
 		-D'BUILD_SERVER=ON' -D'BUILD_CLIENT=ON' -D'BUILD_TTY_CLIENT=ON' \
 		-G'Unix Makefiles'
 	cmake --build '${ENGINE_BUILD}' -- -j'${NPROC}'
@@ -89,6 +91,7 @@ vms:
 	cmake '${GAMEVM_DIR}' -B'${GAMEVM_BUILD}' \
 		${CMAKE_DEBUG_ARGS} \
 		${CMAKE_GAMEVM_ARGS} \
+		-D'EXTERNAL_DEPS_DIR=${EXDEPS_DIR}' \
 		-D'BUILD_SERVER=OFF' -D'BUILD_CLIENT=OFF' -D'BUILD_TTY_CLIENT=OFF' \
 		-D'BUILD_SGAME=ON' -D'BUILD_CGAME=ON' \
 		-D'DAEMON_DIR=${ENGINE_DIR}' \

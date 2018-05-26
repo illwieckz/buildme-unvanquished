@@ -1,5 +1,6 @@
-Daemon
-Unvanquished
-UnvanquishedAssets
-.pakpaths
-gdb.txt
+/Daemon
+/Deps
+/Unvanquished
+/UnvanquishedAssets
+/.pakpaths
+/gdb.txt*
