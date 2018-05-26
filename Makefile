@@ -3,6 +3,7 @@
 # See LICENSE.md for details
 
 .DEFAULT_GOAL := build
+.PHONY: clone-engine clone-vms clone-assets clone-bin clone pull-engine pull-vms pull-assets pull-bin pull engine vms bin assets maps resources textures data build run-server run-client run-tty run load_map load_game it
 
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 NPROC := $(shell nproc)
@@ -14,19 +15,20 @@ ASSETS_REPO := https://github.com/UnvanquishedAssets/UnvanquishedAssets.git
 ENGINE_DIR := ${ROOT_DIR}/Daemon
 GAMEVM_DIR := ${ROOT_DIR}/Unvanquished
 ASSETS_DIR := ${ROOT_DIR}/UnvanquishedAssets
-EXDEPS_DIR := ${ROOT_DIR}/Deps
+
+BUILD_DIR := ${ROOT_DIR}/build
+EXDEPS_DIR := ${BUILD_DIR}/deps
 
 ifeq ($(USE_PAK),)
-	PAKPREFIX := test
+	PAK_PREFIX := test
 else
-	PAKPREFIX := pkg
+	PAK_PREFIX := pkg
 endif
 
-ENGINE_BUILD := ${ENGINE_DIR}/build
-GAMEVM_BUILD := ${GAMEVM_DIR}/build
-ASSETS_BUILD := ${ASSETS_DIR}/build/${PAKPREFIX}
+ifneq ($(DEBUG),)
+	BIN_PREFIX := debug
+	VM_TYPE := 3
 
-ifneq ($(USE_GDB),)
 	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=OFF' -D'CMAKE_BUILD_TYPE=Debug' -D'USE_DEBUG_OPTIMIZE=OFF'
 	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=OFF' -D'BUILD_GAME_NACL_NEXE=OFF' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=ON'
 
@@ -34,13 +36,20 @@ ifneq ($(USE_GDB),)
 	# Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
 	GDB_COMMAND := gdb -x .gdbinit.txt -args
 else
+	BIN_PREFFIX := test
+	VM_TYPE := 1
+
 	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=ON' -D'CMAKE_BUILD_TYPE=RelWithDebInfo'
 	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=ON' -D'BUILD_GAME_NACL_NEXE=ON' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=OFF'
+
+	GBD_COMMAND :=
 endif
 
-ifeq ($(VM_TYPE),)
-	VM_TYPE := 3
-endif
+ENGINE_BUILD := ${BUILD_DIR}/engine/${BIN_PREFIX}
+GAMEVM_BUILD := ${BUILD_DIR}/vms/${BIN_PREFIX}
+
+ASSETS_BUILD_PREFIX := ${BUILD_DIR}/assets
+ASSETS_BUILD := ${ASSETS_BUILD_PREFIX}/${PAK_PREFIX}
 
 ENGINE_VMTYPE_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
 
@@ -101,22 +110,22 @@ vms:
 bin: engine vms
 
 assets:
-	make -C '${ASSETS_DIR}' build
+	make -C '${ASSETS_DIR}' BUILD_PREFIX='${ASSETS_BUILD_PREFIX}' build
 
 maps:
-	make -C '${ASSETS_DIR}' build_maps
+	make -C '${ASSETS_DIR}' BUILD_PREFIX='${ASSETS_BUILD_PREFIX}' build_maps
 
 resources:
-	make -C '${ASSETS_DIR}' build_resources
+	make -C '${ASSETS_DIR}' BUILD_PREFIX='${ASSETS_BUILD_PREFIX}' build_resources
 
 textures:
-	make -C '${ASSETS_DIR}' build_textures
+	make -C '${ASSETS_DIR}' BUILD_PREFIX='${ASSETS_BUILD_PREFIX}' build_textures
 
 data: assets
 
 build: bin data
 
-run-server:
+run-server: bin
 	${GDB_COMMAND} \
 	'${ENGINE_BUILD}/daemonded' \
 		${ENGINE_DEBUG_ARGS} \
@@ -126,7 +135,7 @@ run-server:
 		${EXTRA_PAKPATHS} \
 		${EXTRA_ARGS}
 
-run-client:
+run-client: bin
 	${GDB_COMMAND} \
 	'${ENGINE_BUILD}/daemon' \
 		${ENGINE_DEBUG_ARGS} \
@@ -136,7 +145,7 @@ run-client:
 		${EXTRA_PAKPATHS} \
 		${EXTRA_ARGS}
 
-run-tty:
+run-tty: bin
 	${GDB_COMMAND} \
 	'${ENGINE_BUILD}/daemon-tty' \
 		${ENGINE_DEBUG_ARGS} \
