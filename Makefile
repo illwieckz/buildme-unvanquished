@@ -34,9 +34,9 @@ ifneq ($(DEBUG),)
 
 	# Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
 	# Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
-	GDB_COMMAND := gdb -x .gdbinit.txt -args
+	GDB := gdb -x .gdbinit.txt -args
 else
-	BIN_PREFFIX := test
+	BIN_PREFIX := test
 	VM_TYPE := 1
 
 	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=ON' -D'CMAKE_BUILD_TYPE=RelWithDebInfo'
@@ -53,7 +53,9 @@ ASSETS_BUILD := ${ASSETS_BUILD_PREFIX}/${PAK_PREFIX}
 
 ENGINE_VMTYPE_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
 
-ENGINE_DEBUG_ARGS := -set logs.logLevel.default debug -set language en -set developer 1
+ENGINE_DEBUG_ARGS := -set logs.logLevel.default debug -set logs.logLevel.audio debug -set language en -set developer 1
+
+ENGINE_OTHER_ARGS := ${HOME_PATH}
 
 EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && (sed -e 's/^/-pakpath /' .pakpaths | tr '\n' ' '))
 
@@ -125,42 +127,52 @@ data: assets
 
 build: bin data
 
+clean-engine:
+	cmake --build '${ENGINE_BUILD}' -- clean
+
+clean-vms:
+	cmake --build '${GAMEVM_BUILD}' -- clean
+
+clean-bin: clean-engine clean-vms
+
 run-server: bin
-	${GDB_COMMAND} \
+	${GDB} \
 	'${ENGINE_BUILD}/daemonded' \
 		${ENGINE_DEBUG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
+		${ENGINE_OTHER_ARGS} \
 		-libpath '${GAMEVM_BUILD}' \
 		-pakpath '${ASSETS_BUILD}' \
 		${EXTRA_PAKPATHS} \
-		${EXTRA_ARGS}
+		${ARGS}
 
 run-client: bin
-	${GDB_COMMAND} \
+	${GDB} \
 	'${ENGINE_BUILD}/daemon' \
 		${ENGINE_DEBUG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
+		${ENGINE_OTHER_ARGS} \
 		-libpath '${GAMEVM_BUILD}' \
 		-pakpath '${ASSETS_BUILD}' \
 		${EXTRA_PAKPATHS} \
-		${EXTRA_ARGS}
+		${ARGS}
 
 run-tty: bin
-	${GDB_COMMAND} \
+	${GDB} \
 	'${ENGINE_BUILD}/daemon-tty' \
 		${ENGINE_DEBUG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${GAMEVM_BUILD}' \
 		-pakpath '${ASSETS_BUILD}' \
 		${EXTRA_PAKPATHS} \
-		${EXTRA_ARGS}
+		${ARGS}
 
 run: run-client
 
 load_map:
-	$(MAKE) run EXTRA_ARGS="${EXTRA_ARGS} +devmap antares"
+	$(MAKE) run ARGS="${ARGS} +devmap antares"
 
 load_game:
-	$(MAKE) load_map EXTRA_ARGS="${EXTRA_ARGS} +delay 1000 bot fill 3"
+	$(MAKE) load_map ARGS="${ARGS} +delay 3f bot fill 3"
 
 it: build load_game
