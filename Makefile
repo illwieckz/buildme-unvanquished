@@ -53,7 +53,7 @@ ASSETS_BUILD := ${ASSETS_BUILD_PREFIX}/${PAK_PREFIX}
 
 ENGINE_VMTYPE_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
 
-ENGINE_DEBUG_ARGS := -set logs.logLevel.default debug -set logs.logLevel.audio debug -set language en -set developer 1
+ENGINE_DEBUG_ARGS := -set logs.suppression.enabled 0 -set logs.logLevel.default debug -set logs.logLevel.audio debug -set language en -set developer 1
 
 ENGINE_OTHER_ARGS := ${HOME_PATH}
 
