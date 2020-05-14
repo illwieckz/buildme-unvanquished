@@ -1,3 +1,4 @@
+set pagination off
 set logging on
 set backtrace limit 0
 run
