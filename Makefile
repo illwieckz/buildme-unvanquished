@@ -25,21 +25,36 @@ else
 	PAK_PREFIX := pkg
 endif
 
-ifneq ($(DEBUG),)
-	BIN_PREFIX := debug
+ifeq ($(BUILD),fast)
+	BIN_PREFIX := $(BUILD)
+else ifeq ($(BUILD),debug)
+	BIN_PREFIX := $(BUILD)
+else ifeq ($(BUILD),test)
+	BIN_PREFIX := $(BUILD)
+else ifeq ($(BUILD),)
+	BIN_PREFIX := test
+endif
+
+ifeq ($(BIN_PREFIX),fast)
 	VM_TYPE := 3
 
-	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=OFF' -D'CMAKE_BUILD_TYPE=Debug' -D'USE_DEBUG_OPTIMIZE=OFF'
+	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=OFF' -D'CMAKE_BUILD_TYPE=Release' -D'USE_DEBUG_OPTIMIZE=OFF'  -D'USE_LTO'='OFF'
+	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=OFF' -D'BUILD_GAME_NACL_NEXE=OFF' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=ON'
+
+	GBD :=
+else ifeq ($(BIN_PREFIX),debug)
+	VM_TYPE := 3
+
+	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=OFF' -D'CMAKE_BUILD_TYPE=Debug' -D'USE_DEBUG_OPTIMIZE=OFF' -D'CMAKE_EXE_LINKER_FLAGS'='-lprofiler -ltcmalloc'
 	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=OFF' -D'BUILD_GAME_NACL_NEXE=OFF' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=ON'
 
 	# Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
 	# Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
 	GDB := gdb -x .gdbinit.txt -args
-else
-	BIN_PREFIX := test
+else ifeq ($(BIN_PREFIX),test)
 	VM_TYPE := 1
 
-	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=ON' -D'CMAKE_BUILD_TYPE=RelWithDebInfo'
+	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=ON' -D'CMAKE_BUILD_TYPE=RelWithDebInfo' -D'USE_LTO'='ON'
 	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=ON' -D'BUILD_GAME_NACL_NEXE=ON' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=OFF'
 
 	GBD :=
