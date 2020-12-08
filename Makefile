@@ -112,14 +112,22 @@ pull-bin: pull-engine pull-vms
 
 pull: pull-bin pull-assets
 
-engine:
+configure-engine:
 	cmake '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
 		${CMAKE_DEBUG_ARGS} \
 		${CMAKE_ARGS} \
 		-D'EXTERNAL_DEPS_DIR=${EXDEPS_DIR}' \
 		-D'BUILD_SERVER=ON' -D'BUILD_CLIENT=ON' -D'BUILD_TTY_CLIENT=ON' \
 		-G'Unix Makefiles'
-	cmake --build '${ENGINE_BUILD}' -- -j'${NPROC}'
+
+engine-server: configure-engine
+	cmake --build '${ENGINE_BUILD}' -- -j'${NPROC}' server
+
+engine-client: configure-engine
+	cmake --build '${ENGINE_BUILD}' -- -j'${NPROC}' client
+
+engine-tty: configure-engine
+	cmake --build '${ENGINE_BUILD}' -- -j'${NPROC}' ttyclient
 
 vms:
 	cmake '${GAMEVM_DIR}' -B'${GAMEVM_BUILD}' \
@@ -132,6 +140,8 @@ vms:
 		-D'DAEMON_DIR=${ENGINE_DIR}' \
 		-G'Unix Makefiles'
 	cmake --build '${GAMEVM_BUILD}' -- -j'${NPROC}'
+
+engine: engine-server engine-client engine-tty
 
 bin: engine vms
 
@@ -159,7 +169,7 @@ clean-vms:
 
 clean-bin: clean-engine clean-vms
 
-run-server: bin
+run-server: engine-server vms
 	${GDB} \
 	'${ENGINE_BUILD}/daemonded' \
 		${ENGINE_DEBUG_ARGS} \
@@ -170,7 +180,7 @@ run-server: bin
 		${EXTRA_PAKPATHS} \
 		${ARGS}
 
-run-client: bin
+run-client: engine-client vms
 	${GDB} \
 	'${ENGINE_BUILD}/daemon' \
 		${ENGINE_DEBUG_ARGS} \
@@ -181,7 +191,7 @@ run-client: bin
 		${EXTRA_PAKPATHS} \
 		${ARGS}
 
-run-tty: bin
+run-tty: engine-tty vms
 	${GDB} \
 	'${ENGINE_BUILD}/daemon-tty' \
 		${ENGINE_DEBUG_ARGS} \
