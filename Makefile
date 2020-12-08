@@ -204,9 +204,9 @@ run-tty: engine-tty vms
 run: run-client
 
 load_map:
-	$(MAKE) run ARGS="${ARGS} +devmap antares"
+	$(MAKE) run ARGS="${ARGS} +devmap plat23"
 
 load_game:
-	$(MAKE) load_map ARGS="${ARGS} +delay 3f bot fill 3"
+	$(MAKE) load_map ARGS="${ARGS} +delay 3f bot fill 5"
 
 it: build load_game
