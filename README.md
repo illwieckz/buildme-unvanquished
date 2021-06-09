@@ -26,7 +26,7 @@ make bin
 make run
 
 # build and run the game on gdb
-make run DEBUG=1
+make run BUILD=debug
 
 # you can also build assets and binaries, run the game,
 # load a map and spawn some bots just like that:
