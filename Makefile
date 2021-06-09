@@ -79,7 +79,7 @@ ENGINE_DEBUG_ARGS := -set logs.suppression.enabled 0 -set logs.logLevel.default 
 
 ENGINE_OTHER_ARGS := ${HOME_PATH}
 
-EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && (sed -e 's/^/-pakpath /' .pakpaths | tr '\n' ' '))
+EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
 
 clone-engine:
 	(! [ -d '${ENGINE_DIR}' ] && git clone '${ENGINE_REPO}' '${ENGINE_DIR}') || true
