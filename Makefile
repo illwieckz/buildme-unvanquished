@@ -19,56 +19,99 @@ ASSETS_DIR := ${ROOT_DIR}/UnvanquishedAssets
 BUILD_DIR := ${ROOT_DIR}/build
 EXDEPS_DIR := ${BUILD_DIR}/deps
 
-ifeq ($(USE_PAK),)
-	PAK_PREFIX := test
-else
+ifeq ($(PKG),ON)
 	PAK_PREFIX := pkg
+else ifeq ($(PKG),OFF)
+else ifeq ($(PKG),)
+	PAK_PREFIX := test
 endif
 
-ifeq ($(BUILD),fast)
-	BIN_PREFIX := $(BUILD)
-else ifeq ($(BUILD),debug)
-	BIN_PREFIX := $(BUILD)
-else ifeq ($(BUILD),test)
-	BIN_PREFIX := $(BUILD)
+ifeq ($(BUILD),debug)
+else ifeq ($(BUILD),reldeb)
+else ifeq ($(BUILD),release)
 else ifeq ($(BUILD),)
-	BIN_PREFIX := test
+	BUILD := release
 endif
 
-ifeq ($(LTO),)
-	LTO_OPTION := OFF
+ifeq ($(VM),nexe)
+else ifeq ($(VM),exe)
+else ifeq ($(VM),dll)
+else ifeq ($(VM),)
+	VM := dll
+endif
+
+ifeq ($(PREFIX),)
+	PREFIX := default
+endif
+
+ifeq ($(COMPILER),)
+	COMPILER := gcc
+endif
+
+ifeq ($(COMPILER),gcc)
+	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='/usr/bin/gcc' -D'CMAKE_CXX_COMPILER'='/usr/bin/g++'
+	# -DCMAKE_C_LINK_EXECUTABLE='/usr/bin/ld' -DCMAKE_CXX_LINK_EXECUTABLE='/usr/bin/ld'
+else ifeq ($(COMPILER),clang)
+	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='/usr/bin/clang' -D'CMAKE_CXX_COMPILER'='/usr/bin/clang++' # -D'CMAKE_EXE_LINKER_FLAGS_INIT'='-fuse-ld=lld' -D'CMAKE_MODULE_LINKER_FLAGS_INIT'='-fuse-ld=lld' -D'CMAKE_SHARED_LINKER_FLAGS_INIT'='-fuse-ld=lld'
+	# -D'CMAKE_C_LINK_EXECUTABLE=/usr/bin/ld.lld' -D'CMAKE_CXX_LINK_EXECUTABLE=/usr/bin/ld.lld'
+else ifeq ($(COMPILER),icc)
+	CMAKE_COMPILER_ARGS := -D'CMAKE_TOOLCHAIN_FILE'='/opt/intel/oneapi/compiler/latest/linux/cmake/SYCL/FindIntelDPCPP.cmake' -'DCMAKE_C_COMPILER'='/opt/intel/oneapi/compiler/latest/linux/bin/clang' -D'CMAKE_CXX_COMPILER'='/opt/intel/oneapi/compiler/latest/linux/bin/clang++' -D'CMAKE_EXE_LINKER_FLAGS_INIT'='-fuse-ld=lld' -D'CMAKE_MODULE_LINKER_FLAGS_INIT'='-fuse-ld=lld' -D'CMAKE_SHARED_LINKER_FLAGS_INIT'='-fuse-ld=lld'
 else
-	LTO_OPTION := ON
+	CMAKE_COMPILER_ARGS :=
 endif
 
-ifeq ($(BIN_PREFIX),fast)
-	VM_TYPE := 3
+ifeq ($(LTO),ON)
+else ifeq ($(LTO),OFF)
+else ifeq ($(LTO),)
+	LTO := OFF
+endif
 
-	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=OFF' -D'CMAKE_BUILD_TYPE=Release' -D'USE_DEBUG_OPTIMIZE=OFF' -D'USE_LTO'='$(LTO_OPTION)'
-	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=OFF' -D'BUILD_GAME_NACL_NEXE=OFF' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=ON'
+GDB :=
 
-	GBD :=
-else ifeq ($(BIN_PREFIX),debug)
-	VM_TYPE := 3
-
-	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=OFF' -D'CMAKE_BUILD_TYPE=Debug' -D'USE_DEBUG_OPTIMIZE=OFF' -D'CMAKE_EXE_LINKER_FLAGS'='-lprofiler -ltcmalloc' -D'USE_LTO'='$(LTO_OPTION)'
-	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=OFF' -D'BUILD_GAME_NACL_NEXE=OFF' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=ON'
+ifeq ($(BUILD),release)
+	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Release' -D'USE_DEBUG_OPTIMIZE'='OFF'
+else ifeq ($(BUILD),debug)
+	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='OFF' -D'CMAKE_EXE_LINKER_FLAGS'='-lprofiler -ltcmalloc'
 
 	# Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
 	# Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
 	GDB := gdb -x .gdbinit.txt -args
-else ifeq ($(BIN_PREFIX),test)
-	VM_TYPE := 1
-
-	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD=ON' -D'CMAKE_BUILD_TYPE=RelWithDebInfo' -D'USE_LTO'='$(LTO_OPTION)'
-
-	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL=ON' -D'BUILD_GAME_NACL_NEXE=ON' -D'BUILD_GAME_NATIVE_EXE=OFF' -D'BUILD_GAME_NATIVE_DLL=OFF'
-
-	GBD :=
+else ifeq ($(BUILD),reldeb)
+	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='RelWithDebInfo' -D'USE_DEBUG_OPTIMIZE'='ON'
 endif
 
-ENGINE_BUILD := ${BUILD_DIR}/engine/${BIN_PREFIX}
-GAMEVM_BUILD := ${BUILD_DIR}/vms/${BIN_PREFIX}
+GAMEVM_SYMLINK :=
+
+ifeq ($(VM),dll)
+	VM_TYPE := 3
+	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='ON'
+else ifeq ($(VM),exe)
+	VM_TYPE := 2
+	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='ON' -D'BUILD_GAME_NATIVE_DLL'='OFF'
+else
+	VM_TYPE := 1
+	CMAKE_GAMEVM_ARGS := -D'BUILD_GAME_NACL'='ON' -D'BUILD_GAME_NACL_NEXE'='ON' -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='OFF'
+	GAMEVM_LINK := vms-symlink
+endif
+
+ifeq ($(LTO),ON)
+	LINK := lto
+else
+	LINK := default
+endif
+
+ifeq ($(VM),nexe)
+	VM_LINK := default
+	VM_LTO := OFF
+	VM_COMPILER := nacl
+else
+	VM_LINK := ${LINK}
+	VM_LTO := $(LTO)
+	VM_COMPILER := ${COMPILER}
+endif
+
+ENGINE_BUILD := ${BUILD_DIR}/engine/${PREFIX}-${COMPILER}-${LINK}-${BUILD}-exe
+GAMEVM_BUILD := ${BUILD_DIR}/vms/${PREFIX}-${VM_COMPILER}-${VM_LINK}-${BUILD}-${VM}
 
 ASSETS_BUILD_PREFIX := ${BUILD_DIR}/assets
 ASSETS_BUILD := ${ASSETS_BUILD_PREFIX}/${PAK_PREFIX}
@@ -114,10 +157,12 @@ pull: pull-bin pull-assets
 
 configure-engine:
 	cmake '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
+		${CMAKE_COMPILER_ARGS} \
 		${CMAKE_DEBUG_ARGS} \
-		${CMAKE_ARGS} \
-		-D'EXTERNAL_DEPS_DIR=${EXDEPS_DIR}' \
-		-D'BUILD_SERVER=ON' -D'BUILD_CLIENT=ON' -D'BUILD_TTY_CLIENT=ON' \
+		${CMAKE} \
+		-D'USE_LTO'='${LTO}' \
+		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
+		-D'BUILD_SERVER'='ON' -D'BUILD_CLIENT'='ON' -D'BUILD_TTY_CLIENT'='ON' \
 		-G'Unix Makefiles'
 
 engine-server: configure-engine
@@ -129,16 +174,25 @@ engine-client: configure-engine
 engine-tty: configure-engine
 	cmake --build '${ENGINE_BUILD}' -- -j'${NPROC}' ttyclient
 
-vms:
+configure-vms:
 	cmake '${GAMEVM_DIR}' -B'${GAMEVM_BUILD}' \
+		${CMAKE_COMPILER_ARGS} \
 		${CMAKE_DEBUG_ARGS} \
 		${CMAKE_GAMEVM_ARGS} \
-		${CMAKE_ARGS} \
-		-D'EXTERNAL_DEPS_DIR=${EXDEPS_DIR}' \
-		-D'BUILD_SERVER=OFF' -D'BUILD_CLIENT=OFF' -D'BUILD_TTY_CLIENT=OFF' \
-		-D'BUILD_SGAME=ON' -D'BUILD_CGAME=ON' \
-		-D'DAEMON_DIR=${ENGINE_DIR}' \
+		${CMAKE} \
+		-D'USE_LTO'='${VM_LTO}' \
+		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
+		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
+		-D'BUILD_SGAME'='ON' -D'BUILD_CGAME'='ON' \
+		-D'DAEMON_DIR'='${ENGINE_DIR}' \
 		-G'Unix Makefiles'
+
+vms-symlink:
+	ln -sfv ${ENGINE_BUILD}/irt_core-x86_64.nexe ${GAMEVM_BUILD}/irt_core-x86_64.nexe
+	ln -sfv ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAMEVM_BUILD}/nacl_helper_bootstrap
+	ln -sfv ${ENGINE_BUILD}/nacl_loader ${GAMEVM_BUILD}/nacl_loader
+
+vms: configure-vms ${GAMEVM_SYMLINK}
 	cmake --build '${GAMEVM_BUILD}' -- -j'${NPROC}'
 
 engine: engine-server engine-client engine-tty
