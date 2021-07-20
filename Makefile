@@ -149,7 +149,8 @@ pull-vms:
 pull-assets:
 	cd '${ASSETS_DIR}' && (git remote | grep '^upstream$$' || git remote add upstream '${ASSETS_REPO}') || true
 	cd '${ASSETS_DIR}' && git checkout master && git pull upstream master
-	make -C '${ASSETS_DIR}' pull
+	cd '${ASSETS_DIR}' && git submodule update --init --recursive
+
 
 pull-bin: pull-engine pull-vms
 
