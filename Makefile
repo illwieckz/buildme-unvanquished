@@ -23,10 +23,10 @@ ifeq ($(PREFIX),)
 	PREFIX := default
 endif
 
-ifeq ($(PKG),ON)
+ifeq ($(DPK),ON)
 	PAK_PREFIX := pkg
-else ifeq ($(PKG),OFF)
-else ifeq ($(PKG),)
+else ifeq ($(DPK),OFF)
+else ifeq ($(DPK),)
 	PAK_PREFIX := test
 endif
 
@@ -34,7 +34,7 @@ ifeq ($(VM),nexe)
 else ifeq ($(VM),exe)
 else ifeq ($(VM),dll)
 else ifeq ($(VM),)
-	VM := dll
+	VM := nexe
 else
 	$(error Bad VM value: $(VM))
 endif
@@ -82,7 +82,7 @@ else
 	$(error Bad LTO value: $(VM))
 endif
 
-GDB :=
+DEBUG :=
 
 ifeq ($(BUILD),release)
 	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Release' -D'USE_DEBUG_OPTIMIZE'='OFF'
@@ -91,7 +91,7 @@ else ifeq ($(BUILD),debug)
 
 	# Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
 	# Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
-	GDB := gdb -x .gdbinit.txt -args
+	DEBUG := gdb -x .gdbinit.txt -args
 else ifeq ($(BUILD),reldeb)
 	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='RelWithDebInfo' -D'USE_DEBUG_OPTIMIZE'='ON'
 endif
@@ -110,11 +110,11 @@ endif
 ifeq ($(LTO),ON)
 	LINK := lto
 else
-	LINK := default
+	LINK := nolto
 endif
 
 ifeq ($(VM),nexe)
-	VM_LINK := default
+	VM_LINK := nolto
 	VM_LTO := OFF
 	VM_COMPILER := nacl
 	CMAKE_VM_FUSELD_ARGS :=
@@ -256,7 +256,7 @@ clean-vms:
 clean-bin: clean-engine clean-vms
 
 run-server: bin-server
-	${GDB} \
+	${DEBUG} \
 	'${ENGINE_BUILD}/daemonded' \
 		${ENGINE_DEBUG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
@@ -267,7 +267,7 @@ run-server: bin-server
 		${ARGS}
 
 run-client: bin-client
-	${GDB} \
+	${DEBUG} \
 	'${ENGINE_BUILD}/daemon' \
 		${ENGINE_DEBUG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
@@ -278,7 +278,7 @@ run-client: bin-client
 		${ARGS}
 
 run-tty: bin-tty
-	${GDB} \
+	${DEBUG} \
 	'${ENGINE_BUILD}/daemon-tty' \
 		${ENGINE_DEBUG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
