@@ -74,10 +74,12 @@ ifneq ($(FLAGS),)
 	CMAKE_COMPILER_FLAGS := -D'CMAKE_C_FLAGS'='${FLAGS}' -D'CMAKE_CXX_FLAGS'='${FLAGS}'
 endif
 
-ifeq ($(LTO),ON)
-else ifeq ($(LTO),OFF)
+ifeq ($(LTO),OFF)
+else ifeq ($(LTO),ON)
 else ifeq ($(LTO),)
-	LTO := OFF
+	LTO := ON
+else
+	$(error Bad LTO value: $(VM))
 endif
 
 GDB :=
