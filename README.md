@@ -32,7 +32,6 @@ make run BUILD=debug
 # you can also build assets and binaries, run the game,
 # load a map and spawn some bots just like that:
 make it
-
 ```
 
 
@@ -40,7 +39,7 @@ Advanced usage
 --------------
 
 ```sh
-# Build default build with GCC (assumes /usr/bin/gcc)
+# Build default build with GCC (assumes gcc and g++)
 # with DebWithRelInfo CMake profile,
 # Native Client virtual machines, LTO enabled,
 # then run the game from folders:
@@ -48,7 +47,7 @@ Advanced usage
 # build/vms/default-nacl-nolto-debrel-nexe/
 make run
 
-# Build with Clang compiler (assumes /usr/bin/clang),
+# Build with Clang compiler (assumes clang and clang++),
 # then run the game,
 make run COMPILER=clang
 
@@ -100,6 +99,10 @@ Some options
 - `FLAGS`, optional `CFLAGS` and `CXXFLAGS`: unset by default;
 - `DEBUG`, optional debug tool: unset by default, `gcc` or custom commands;
 - `PKG`, load assets from dpk archives: `ON`, `OFF` (default).
+
+The `COMPILER` string can be used to switch between default `gcc` or `clang`, or just feed the related field in build directory name when using other compilers with `CC` and `CXX`.
+
+Note: some system may call their clang binary `gcc`, then the default `gcc` build would be a clang build. On those system, use `CC` and `CXX` variable and set absolute paths to `gcc` and `g++`.
 
 
 Author

@@ -59,9 +59,9 @@ ifneq ($(FUSELD),)
 endif
 
 ifeq ($(COMPILER),gcc)
-	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='/usr/bin/gcc' -D'CMAKE_CXX_COMPILER'='/usr/bin/g++'
+	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='gcc' -D'CMAKE_CXX_COMPILER'='g++'
 else ifeq ($(COMPILER),clang)
-	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='/usr/bin/clang' -D'CMAKE_CXX_COMPILER'='/usr/bin/clang++'
+	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='clang' -D'CMAKE_CXX_COMPILER'='clang++'
 else ifeq ($(COMPILER),icc)
 	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='/opt/intel/oneapi/compiler/latest/linux/bin/clang' -D'CMAKE_CXX_COMPILER'='/opt/intel/oneapi/compiler/latest/linux/bin/clang++'
 else
