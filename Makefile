@@ -131,11 +131,13 @@ ifeq ($(VM),nexe)
 	VM_LINK := nolto
 	VM_LTO := OFF
 	VM_COMPILER := nacl
+	CMAKE_VM_COMPILER_ARGS :=
 	CMAKE_VM_FUSELD_ARGS :=
 else
 	VM_LINK := ${LINK}
 	VM_LTO := $(LTO)
 	VM_COMPILER := ${COMPILER}
+	CMAKE_VM_COMPILER_ARGS := $(CMAKE_COMPILER_ARGS)
 	CMAKE_VM_FUSELD_ARGS := $(CMAKE_FUSELD_ARGS)
 endif
 
@@ -210,7 +212,7 @@ engine-tty: configure-engine set-current-engine
 
 configure-vms:
 	cmake '${VM_DIR}' -B'${VM_BUILD}' \
-		${CMAKE_COMPILER_ARGS} \
+		${CMAKE_VM_COMPILER_ARGS} \
 		${CMAKE_VM_FUSELD_ARGS} \
 		${CMAKE_DEBUG_ARGS} \
 		${CMAKE_VM_ARGS} \
