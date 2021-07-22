@@ -56,8 +56,7 @@ make run COMPILER=clang
 # and run the game from folders:
 # build/engine/default-clang12-lto-debrel-exe/
 # build/vms/default-nacl-nolto-debrel-nexe/
-make run COMPILER=clang12 \
-	CMAKE="-D'CMAKE_C_COMPILER'='/usr/bin/clang-12' -D'CMAKE_CXX_COMPILER'='/usr/bin/clang++-12'" FUSELD="lld-12"
+make run COMPILER=clang12 CC=clang-12 CXX=clang++-12 FUSELD=lld-12
 
 # Build default-like build but with -O3 optimization level,
 # then run the game from folders:
@@ -67,7 +66,7 @@ make run FLAGS='-O3' PREFIX=o3
 
 # Does the same but load the plat23 map,
 # and move the view position to the alien base entry
-make run FLAGS='-O3' PREFIX=o3 \
+make run FLAGS="-O3" PREFIX=o3 \
 	ARGS="+devmap plat23 +delay 100f setviewpos 1893 1920 0 0 0"
 
 # Build with Release CMake profile,
@@ -90,15 +89,18 @@ make run BUILD=debug LTO=OFF VM=dll DEBUG=nemiver
 
 Some options
 
-- `PREFIX`, a custom string used in build folder names: defaults to `default`
-- `BUILD`, build profiles: `reldeb` (default), `release`, `debug`
-- `VM`, virtual machine kind: `nexe` (default), `exe`, `dll`
-- `LTO`, link time optimization: `ON` (default), `OFF`
-- `LDFUSE`, alternate linker to use with ld-fuse mechanism, unset by default
-- `CMAKE`, optional extra CMake options: unset by default
-- `FLAGS`, optional `CFLAGS` and `CXXFLAGS`: unset by default
-- `DEBUG`, optional debug tool: unset by default, `gcc` or custom commands
-- `PKG`, load assets from dpk archives: `ON`, `OFF` (default)
+- `PREFIX`, a custom string used in build folder names: defaults to `default`;
+- `BUILD`, build profiles: `reldeb` (default), `release`, `debug`;
+- `VM`, virtual machine kind: `nexe` (default), `exe`, `dll`;
+- `LTO`, link time optimization: `ON` (default), `OFF`;
+- `CC`, alternate C compiler, unset by default;
+- `CXX`, alternate C++ compiler, unset by default;
+- `LDFUSE`, alternate linker to use with ld-fuse mechanism, unset by default;
+- `CMAKE`, optional extra CMake options: unset by default;
+- `FLAGS`, optional `CFLAGS` and `CXXFLAGS`: unset by default;
+- `DEBUG`, optional debug tool: unset by default, `gcc` or custom commands;
+- `PKG`, load assets from dpk archives: `ON`, `OFF` (default).
+
 
 Author
 ------
