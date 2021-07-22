@@ -63,10 +63,24 @@ ifeq ($(COMPILER),gcc)
 else ifeq ($(COMPILER),clang)
 	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='/usr/bin/clang' -D'CMAKE_CXX_COMPILER'='/usr/bin/clang++'
 else ifeq ($(COMPILER),icc)
-	CMAKE_COMPILER_ARGS := -'DCMAKE_C_COMPILER'='/opt/intel/oneapi/compiler/latest/linux/bin/clang' -D'CMAKE_CXX_COMPILER'='/opt/intel/oneapi/compiler/latest/linux/bin/clang++'
+	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='/opt/intel/oneapi/compiler/latest/linux/bin/clang' -D'CMAKE_CXX_COMPILER'='/opt/intel/oneapi/compiler/latest/linux/bin/clang++'
 else
 	CMAKE_COMPILER_ARGS :=
 endif
+
+CMAKE_CC :=
+
+ifneq ($(CC),)
+	CMAKE_CC := -D'CMAKE_C_COMPILER'='$(CC)'
+endif
+
+CMAKE_CXX :=
+
+ifneq ($(CXX),)
+	CMAKE_CXX := -D'CMAKE_CXX_COMPILER'='$(CXX)'
+endif
+
+CMAKE_COMPILER_ARGS := ${CMAKE_COMPILER_ARGS} ${CMAKE_CC} ${CMAKE_CXX}
 
 CMAKE_COMPILER_FLAGS :=
 
