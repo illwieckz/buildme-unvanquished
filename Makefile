@@ -150,24 +150,21 @@ clone-vms:
 
 clone-assets:
 	(! [ -d '${ASSETS_DIR}' ] && git clone '${ASSETS_REPO}' '${ASSETS_DIR}') || true
-	make -C '${ASSETS_DIR}' clone
+	cd '${ASSETS_DIR}' && git submodule update --init --recursive
 
 clone-bin: clone-engine clone-vms
 
 clone: clone-bin clone-assets
 
 pull-engine:
-	cd '${ENGINE_DIR}' && (git remote | grep '^upstream$$' || git remote add upstream '${ENGINE_REPO}') || true
-	cd '${ENGINE_DIR}' && git checkout master && git pull upstream master
+	cd '${ENGINE_DIR}' && git checkout master && git pull origin master
 
 pull-vms:
-	cd '${VM_DIR}' && (git remote | grep '^upstream$$' || git remote add upstream '${VM_REPO}') || true
-	cd '${VM_DIR}' && git checkout master && git pull upstream master
+	cd '${VM_DIR}' && git checkout master && git pull origin master
 
 pull-assets:
-	cd '${ASSETS_DIR}' && (git remote | grep '^upstream$$' || git remote add upstream '${ASSETS_REPO}') || true
-	cd '${ASSETS_DIR}' && git checkout master && git pull upstream master
-	cd '${ASSETS_DIR}' && git submodule update --init --recursive
+	cd '${ASSETS_DIR}' && git checkout master && git pull origin master
+	cd '${ASSETS_DIR}' && git submodule foreach pull origin master
 
 pull-bin: pull-engine pull-vms
 
@@ -231,17 +228,49 @@ engine: engine-server engine-client engine-tty
 
 bin: engine vms
 
-assets:
-	make -C '${ASSETS_DIR}' BUILD_PREFIX='${ASSETS_BUILD_PREFIX}' build
+prepare-maps:
+	cd '${ASSETS_DIR}' && urcheon prepare --build-prefix='${ASSETS_BUILD_PREFIX}' src/map-*.dpkdir
 
-maps:
-	make -C '${ASSETS_DIR}' BUILD_PREFIX='${ASSETS_BUILD_PREFIX}' build_maps
+build-maps: prepare-maps
+	cd '${ASSETS_DIR}' && urcheon build --build-prefix='${ASSETS_BUILD_PREFIX}' src/map-*.dpkdir
 
-resources:
-	make -C '${ASSETS_DIR}' BUILD_PREFIX='${ASSETS_BUILD_PREFIX}' build_resources
+package-maps: build-maps
+	cd '${ASSETS_DIR}' && urcheon package --package-prefix='${ASSETS_BUILD_PREFIX}' src/map-*.dpkdir
 
-textures:
-	make -C '${ASSETS_DIR}' BUILD_PREFIX='${ASSETS_BUILD_PREFIX}' build_textures
+maps: package-maps
+
+prepare-resources:
+	cd '${ASSETS_DIR}' && urcheon prepare --build-prefix='${ASSETS_BUILD_PREFIX}' src/res-*.dpkdir
+
+build-resources: prepare-resources
+	cd '${ASSETS_DIR}' && urcheon build --build-prefix='${ASSETS_BUILD_PREFIX}' src/res-*.dpkdir
+
+package-resources: build-resources
+	cd '${ASSETS_DIR}' && urcheon package --package-prefix='${ASSETS_BUILD_PREFIX}' src/res-*.dpkdir
+
+resources: package-resources
+
+prepare-textures:
+	cd '${ASSETS_DIR}' && urcheon prepare --build-prefix='${ASSETS_BUILD_PREFIX}' src/tex-*.dpkdir
+
+build-textures: prepare-textures
+	cd '${ASSETS_DIR}' && urcheon build --build-prefix='${ASSETS_BUILD_PREFIX}' src/tex-*.dpkdir
+
+package-textures: build-textures
+	cd '${ASSETS_DIR}' && urcheon package --package-prefix='${ASSETS_BUILD_PREFIX}' src/tex-*.dpkdir
+
+textures: package-textures
+
+prepare-assets:
+	cd '${ASSETS_DIR}' && urcheon prepare --build-prefix='${ASSETS_BUILD_PREFIX}' src/*.dpkdir
+
+build-assets: prepare-assets
+	cd '${ASSETS_DIR}' && urcheon build --build-prefix='${ASSETS_BUILD_PREFIX}' src/*.dpkdir
+
+package-assets: build-assets
+	cd '${ASSETS_DIR}' && urcheon package --build-prefix='${ASSETS_BUILD_PREFIX}' src/*.dpkdir
+
+assets: package-assets
 
 data: assets
 
