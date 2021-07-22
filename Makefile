@@ -43,7 +43,7 @@ ifeq ($(BUILD),debug)
 else ifeq ($(BUILD),reldeb)
 else ifeq ($(BUILD),release)
 else ifeq ($(BUILD),)
-	BUILD := release
+	BUILD := reldeb
 else
 	$(error Bad BUILD value: $(VM))
 endif
