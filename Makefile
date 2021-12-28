@@ -3,7 +3,7 @@
 # See LICENSE.md for details
 
 .DEFAULT_GOAL := build
-.PHONY: clone-engine clone-vms clone-assets clone-bin clone pull-engine pull-vms pull-assets pull-bin pull engine vms bin assets maps resources textures data build run-server run-client run-tty run load_map load_game it
+.PHONY: assets bin bin-client bin-server bin-tty build build-assets build-maps build-resources build-textures clean-bin clean-engine clean-vms clone clone-assets clone-bin clone-engine clone-vms configure-engine configure-vms data engine engine-client engine-server engine-tty it maps package-assets package-maps package-resources package-textures prepare-assets prepare-maps prepare-resources prepare-textures pull pull-assets pull-bin pull-engine pull-vms resources run run-client run-server run-tty set-current-engine set-current-vms textures vms
 
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 NPROC := $(shell nproc)
@@ -96,6 +96,10 @@ else
 	$(error Bad LTO value: $(VM))
 endif
 
+ifeq ($(CMAKE_BIN),)
+	CMAKE_BIN := cmake
+endif
+
 DEBUG :=
 
 ifeq ($(BUILD),release)
@@ -152,7 +156,11 @@ ASSETS_BUILD := ${ASSETS_BUILD_PREFIX}/${PAK_PREFIX}
 
 ENGINE_VMTYPE_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
 
-ENGINE_DEBUG_ARGS := -set logs.suppression.enabled 0 -set logs.logLevel.default debug -set logs.logLevel.audio debug -set language en -set developer 1
+ifeq ($(LOG),Debug)
+	ENGINE_LOG_ARGS := -set logs.suppression.enabled 0 -set logs.logLevel.default debug -set logs.logLevel.audio debug -set developer 1
+else
+	ENGINE_LOG_ARGS := -set logs.suppression.enabled 1 -set logs.logLevel.default notice -set logs.logLevel.audio notice -set developer 0
+endif
 
 ENGINE_OTHER_ARGS := ${HOME_PATH}
 
@@ -187,7 +195,7 @@ pull-bin: pull-engine pull-vms
 pull: pull-bin pull-assets
 
 configure-engine:
-	cmake '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
+	${CMAKE_BIN} '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
 		${CMAKE_COMPILER_ARGS} \
 		${CMAKE_FUSELD_ARGS} \
 		${CMAKE_DEBUG_ARGS} \
@@ -202,16 +210,16 @@ set-current-engine:
 	ln --verbose --symbolic --force --no-target-directory ${ENGINE_PREFIX} build/engine/current
 
 engine-server: configure-engine set-current-engine
-	cmake --build '${ENGINE_BUILD}' -- -j'${NPROC}' server
+	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' server
 
 engine-client: configure-engine set-current-engine
-	cmake --build '${ENGINE_BUILD}' -- -j'${NPROC}' client
+	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' client
 
 engine-tty: configure-engine set-current-engine
-	cmake --build '${ENGINE_BUILD}' -- -j'${NPROC}' ttyclient
+	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' ttyclient
 
 configure-vms:
-	cmake '${VM_DIR}' -B'${VM_BUILD}' \
+	${CMAKE_BIN} '${VM_DIR}' -B'${VM_BUILD}' \
 		${CMAKE_VM_COMPILER_ARGS} \
 		${CMAKE_VM_FUSELD_ARGS} \
 		${CMAKE_DEBUG_ARGS} \
@@ -229,7 +237,7 @@ set-current-vms:
 	ln --verbose --symbolic --force --no-target-directory ${VM_PREFIX} build/vms/current
 
 vms: configure-vms set-current-vms
-	cmake --build '${VM_BUILD}' -- -j'${NPROC}'
+	${CMAKE_BIN} --build '${VM_BUILD}' -- -j'${NPROC}'
 	ln -sfv ${ENGINE_BUILD}/irt_core-x86_64.nexe ${VM_BUILD}/irt_core-x86_64.nexe
 	ln -sfv ${ENGINE_BUILD}/nacl_helper_bootstrap ${VM_BUILD}/nacl_helper_bootstrap
 	ln -sfv ${ENGINE_BUILD}/nacl_loader ${VM_BUILD}/nacl_loader
@@ -293,17 +301,17 @@ data: assets
 build: bin data
 
 clean-engine:
-	cmake --build '${ENGINE_BUILD}' -- clean
+	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- clean
 
 clean-vms:
-	cmake --build '${VM_BUILD}' -- clean
+	${CMAKE_BIN} --build '${VM_BUILD}' -- clean
 
 clean-bin: clean-engine clean-vms
 
 run-server: bin-server
 	${DEBUG} \
 	'${ENGINE_BUILD}/daemonded' \
-		${ENGINE_DEBUG_ARGS} \
+		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		${ENGINE_OTHER_ARGS} \
 		-libpath '${VM_BUILD}' \
@@ -314,7 +322,7 @@ run-server: bin-server
 run-client: bin-client
 	${DEBUG} \
 	'${ENGINE_BUILD}/daemon' \
-		${ENGINE_DEBUG_ARGS} \
+		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		${ENGINE_OTHER_ARGS} \
 		-libpath '${VM_BUILD}' \
@@ -325,7 +333,7 @@ run-client: bin-client
 run-tty: bin-tty
 	${DEBUG} \
 	'${ENGINE_BUILD}/daemon-tty' \
-		${ENGINE_DEBUG_ARGS} \
+		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${VM_BUILD}' \
 		-pakpath '${ASSETS_BUILD}' \
