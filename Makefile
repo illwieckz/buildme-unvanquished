@@ -19,6 +19,15 @@ ASSETS_DIR := ${ROOT_DIR}/UnvanquishedAssets
 BUILD_DIR := ${ROOT_DIR}/build
 EXDEPS_DIR := ${BUILD_DIR}/deps
 
+CLIENT_ARGS := -set client.allowRemotePakdir on
+
+SYSTEM := $(shell uname -s)
+
+LN_BIN := ln
+ifeq ($(SYSTEM),Darwin)
+	LN_BIN := gln
+endif
+
 ifeq ($(PREFIX),)
 	PREFIX := default
 endif
@@ -207,7 +216,7 @@ configure-engine:
 		-G'Unix Makefiles'
 
 set-current-engine:
-	ln --verbose --symbolic --force --no-target-directory ${ENGINE_PREFIX} build/engine/current
+	${LN_BIN} --verbose --symbolic --force --no-target-directory ${ENGINE_PREFIX} build/engine/current
 
 engine-server: configure-engine set-current-engine
 	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' server
@@ -234,13 +243,13 @@ configure-vms:
 		-G'Unix Makefiles'
 
 set-current-vms:
-	ln --verbose --symbolic --force --no-target-directory ${VM_PREFIX} build/vms/current
+	${LN_BIN} --verbose --symbolic --force --no-target-directory ${VM_PREFIX} build/vms/current
 
 vms: configure-vms set-current-vms
 	${CMAKE_BIN} --build '${VM_BUILD}' -- -j'${NPROC}'
-	ln -sfv ${ENGINE_BUILD}/irt_core-x86_64.nexe ${VM_BUILD}/irt_core-x86_64.nexe
-	ln -sfv ${ENGINE_BUILD}/nacl_helper_bootstrap ${VM_BUILD}/nacl_helper_bootstrap
-	ln -sfv ${ENGINE_BUILD}/nacl_loader ${VM_BUILD}/nacl_loader
+	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-x86_64.nexe ${VM_BUILD}/irt_core-x86_64.nexe
+	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${VM_BUILD}/nacl_helper_bootstrap
+	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader ${VM_BUILD}/nacl_loader
 
 bin-client: engine-client vms
 
@@ -328,6 +337,7 @@ run-client: bin-client
 		-libpath '${VM_BUILD}' \
 		-pakpath '${ASSETS_BUILD}' \
 		${EXTRA_PAKPATHS} \
+		${CLIENT_ARGS} \
 		${ARGS}
 
 run-tty: bin-tty
@@ -338,6 +348,7 @@ run-tty: bin-tty
 		-libpath '${VM_BUILD}' \
 		-pakpath '${ASSETS_BUILD}' \
 		${EXTRA_PAKPATHS} \
+		${CLIENT_ARGS} \
 		${ARGS}
 
 run: run-client
