@@ -48,11 +48,11 @@ else
 	$(error Bad VM value: $(VM))
 endif
 
-ifeq ($(BUILD),debug)
-else ifeq ($(BUILD),reldeb)
-else ifeq ($(BUILD),release)
+ifeq ($(BUILD),Debug)
+else ifeq ($(BUILD),RelWithDebInfo)
+else ifeq ($(BUILD),Release)
 else ifeq ($(BUILD),)
-	BUILD := reldeb
+	BUILD := RelWithDebInfo
 else
 	$(error Bad BUILD value: $(VM))
 endif
@@ -111,15 +111,18 @@ endif
 
 DEBUG :=
 
-ifeq ($(BUILD),release)
+ifeq ($(BUILD),Release)
+	BUILD_SLUG := release
 	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Release' -D'USE_DEBUG_OPTIMIZE'='OFF'
-else ifeq ($(BUILD),debug)
+else ifeq ($(BUILD),Debug)
+	BUILD_SLUG := debug
 	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='OFF' -D'CMAKE_EXE_LINKER_FLAGS'='-lprofiler -ltcmalloc'
 
 	# Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
 	# Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
 	DEBUG := gdb -x .gdbinit.txt -args
-else ifeq ($(BUILD),reldeb)
+else ifeq ($(BUILD),RelWithDebInfo)
+	BUILD_SLUG := reldeb
 	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='RelWithDebInfo' -D'USE_DEBUG_OPTIMIZE'='ON'
 endif
 
@@ -154,8 +157,8 @@ else
 	CMAKE_VM_FUSELD_ARGS := $(CMAKE_FUSELD_ARGS)
 endif
 
-ENGINE_PREFIX := ${PREFIX}-${COMPILER}-${LINK}-${BUILD}-exe
-VM_PREFIX := ${PREFIX}-${VM_COMPILER}-${VM_LINK}-${BUILD}-${VM}
+ENGINE_PREFIX := ${PREFIX}-${COMPILER}-${LINK}-${BUILD_SLUG}-exe
+VM_PREFIX := ${PREFIX}-${VM_COMPILER}-${VM_LINK}-${BUILD_SLUG}-${VM}
 
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
 VM_BUILD := ${BUILD_DIR}/vms/${VM_PREFIX}
