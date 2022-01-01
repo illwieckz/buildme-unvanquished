@@ -166,9 +166,9 @@ ASSETS_BUILD := ${ASSETS_BUILD_PREFIX}/${PAK_PREFIX}
 ENGINE_VMTYPE_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
 
 ifeq ($(LOG),Debug)
-	ENGINE_LOG_ARGS := -set logs.suppression.enabled 0 -set logs.logLevel.default debug -set logs.logLevel.audio debug -set developer 1
+	ENGINE_LOG_ARGS := -set logs.suppression.enabled 0 -set logs.logLevel.default debug -set logs.logLevel.audio debug -set logs.logLevel.glconfig debug -set developer 1
 else
-	ENGINE_LOG_ARGS := -set logs.suppression.enabled 1 -set logs.logLevel.default notice -set logs.logLevel.audio notice -set developer 0
+	ENGINE_LOG_ARGS := -set logs.suppression.enabled 1 -set logs.logLevel.default notice -set logs.logLevel.audio notice  -set logs.logLevel.glconfig notice -set developer 0
 endif
 
 ENGINE_OTHER_ARGS := ${HOME_PATH}
