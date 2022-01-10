@@ -59,6 +59,7 @@ endif
 
 ifeq ($(COMPILER),)
 	COMPILER := gcc
+	COMPILER_SLUG := $(shell gcc --version 2>/dev/null | if grep -q clang; then echo clang; else echo gcc; fi)
 endif
 
 CMAKE_FUSELD_ARGS :=
@@ -146,19 +147,19 @@ endif
 ifeq ($(VM),nexe)
 	VM_LINK := nolto
 	VM_LTO := OFF
-	VM_COMPILER := nacl
+	VM_COMPILER_SLUG := nacl
 	CMAKE_VM_COMPILER_ARGS :=
 	CMAKE_VM_FUSELD_ARGS :=
 else
 	VM_LINK := ${LINK}
 	VM_LTO := $(LTO)
-	VM_COMPILER := ${COMPILER}
+	VM_COMPILER_SLUG := ${COMPILER_SLUG}
 	CMAKE_VM_COMPILER_ARGS := $(CMAKE_COMPILER_ARGS)
 	CMAKE_VM_FUSELD_ARGS := $(CMAKE_FUSELD_ARGS)
 endif
 
-ENGINE_PREFIX := ${PREFIX}-${COMPILER}-${LINK}-${BUILD_SLUG}-exe
-VM_PREFIX := ${PREFIX}-${VM_COMPILER}-${VM_LINK}-${BUILD_SLUG}-${VM}
+ENGINE_PREFIX := ${PREFIX}-${COMPILER_SLUG}-${LINK}-${BUILD_SLUG}-exe
+VM_PREFIX := ${PREFIX}-${VM_COMPILER_SLUG}-${VM_LINK}-${BUILD_SLUG}-${VM}
 
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
 VM_BUILD := ${BUILD_DIR}/vms/${VM_PREFIX}
