@@ -245,6 +245,7 @@ configure-vms:
 		-D'BUILD_SGAME'='ON' -D'BUILD_CGAME'='ON' \
 		-D'DAEMON_DIR'='${ENGINE_DIR}' \
 		-G'Unix Makefiles'
+	echo "${VM_TYPE}" > "${VM_BUILD}/vm_type.txt"
 
 set-current-vms:
 	${LN_BIN} --verbose --symbolic --force --no-target-directory ${VM_PREFIX} build/vms/current
