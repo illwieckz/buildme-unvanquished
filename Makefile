@@ -175,9 +175,20 @@ else
 	ENGINE_LOG_ARGS := -set logs.suppression.enabled 1 -set logs.level.default notice -set logs.level.audio notice  -set logs.level.glconfig notice -set developer 0
 endif
 
-ENGINE_OTHER_ARGS := ${HOME_PATH}
+DPKDIR_PAKPATH_ARGS :=
+
+ifneq ($(DPKDIR),OFF)
+		DPKDIR_PAKPATH_ARGS := -pakpath '${ASSETS_BUILD}'
+endif
 
 EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
+
+EXTRA_PAKPATH_ARGS :=
+ifneq ($(EXTRA_PAKPATHS),)
+	EXTRA_PAKPATH_ARGS := -pakpath ${EXTRA_PAKPATHS}
+endif
+
+ENGINE_OTHER_ARGS := ${HOME_PATH}
 
 clone-engine:
 	(! [ -d '${ENGINE_DIR}' ] && git clone '${ENGINE_REPO}' '${ENGINE_DIR}') || true
@@ -329,8 +340,8 @@ run-server: bin-server
 		${ENGINE_VMTYPE_ARGS} \
 		${ENGINE_OTHER_ARGS} \
 		-libpath '${VM_BUILD}' \
-		-pakpath '${ASSETS_BUILD}' \
-		${EXTRA_PAKPATHS} \
+		${DPKDIR_PAKPATH_ARGS} \
+		${EXTRA_PAKPATH_ARGS} \
 		${ARGS}
 
 run-client: bin-client
@@ -340,8 +351,8 @@ run-client: bin-client
 		${ENGINE_VMTYPE_ARGS} \
 		${ENGINE_OTHER_ARGS} \
 		-libpath '${VM_BUILD}' \
-		-pakpath '${ASSETS_BUILD}' \
-		${EXTRA_PAKPATHS} \
+		${DPKDIR_PAKPATH_ARGS} \
+		${EXTRA_PAKPATH_ARGS} \
 		${CLIENT_ARGS} \
 		${ARGS}
 
@@ -351,8 +362,8 @@ run-tty: bin-tty
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${VM_BUILD}' \
-		-pakpath '${ASSETS_BUILD}' \
-		${EXTRA_PAKPATHS} \
+		${DPKDIR_PAKPATH_ARGS} \
+		${EXTRA_PAKPATH_ARGS} \
 		${CLIENT_ARGS} \
 		${ARGS}
 
