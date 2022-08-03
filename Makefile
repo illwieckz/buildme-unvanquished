@@ -188,8 +188,6 @@ ifneq ($(EXTRA_PAKPATHS),)
 	EXTRA_PAKPATH_ARGS := -pakpath ${EXTRA_PAKPATHS}
 endif
 
-ENGINE_OTHER_ARGS := ${HOME_PATH}
-
 clone-engine:
 	(! [ -d '${ENGINE_DIR}' ] && git clone '${ENGINE_REPO}' '${ENGINE_DIR}') || true
 
@@ -338,7 +336,6 @@ run-server: bin-server
 	'${ENGINE_BUILD}/daemonded' \
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
-		${ENGINE_OTHER_ARGS} \
 		-libpath '${VM_BUILD}' \
 		${DPKDIR_PAKPATH_ARGS} \
 		${EXTRA_PAKPATH_ARGS} \
@@ -349,7 +346,6 @@ run-client: bin-client
 	'${ENGINE_BUILD}/daemon' \
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
-		${ENGINE_OTHER_ARGS} \
 		-libpath '${VM_BUILD}' \
 		${DPKDIR_PAKPATH_ARGS} \
 		${EXTRA_PAKPATH_ARGS} \
