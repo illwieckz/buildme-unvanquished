@@ -20,6 +20,7 @@ BUILD_DIR := ${ROOT_DIR}/build
 EXDEPS_DIR := ${BUILD_DIR}/deps
 
 CLIENT_ARGS := -set client.allowRemotePakdir on
+SERVER_ARGS := -set sv_pure 0
 
 SYSTEM := $(shell uname -s)
 
@@ -339,6 +340,7 @@ run-server: bin-server
 		-libpath '${VM_BUILD}' \
 		${DPKDIR_PAKPATH_ARGS} \
 		${EXTRA_PAKPATH_ARGS} \
+		${SERVER_ARGS} \
 		${ARGS}
 
 run-client: bin-client
@@ -349,6 +351,7 @@ run-client: bin-client
 		-libpath '${VM_BUILD}' \
 		${DPKDIR_PAKPATH_ARGS} \
 		${EXTRA_PAKPATH_ARGS} \
+		${SERVER_ARGS} \
 		${CLIENT_ARGS} \
 		${ARGS}
 
@@ -360,6 +363,7 @@ run-tty: bin-tty
 		-libpath '${VM_BUILD}' \
 		${DPKDIR_PAKPATH_ARGS} \
 		${EXTRA_PAKPATH_ARGS} \
+		${SERVER_ARGS} \
 		${CLIENT_ARGS} \
 		${ARGS}
 
