@@ -186,7 +186,7 @@ EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 
 
 EXTRA_PAKPATH_ARGS :=
 ifneq ($(EXTRA_PAKPATHS),)
-	EXTRA_PAKPATH_ARGS := -pakpath ${EXTRA_PAKPATHS}
+	EXTRA_PAKPATH_ARGS := ${EXTRA_PAKPATHS}
 endif
 
 clone-engine:
