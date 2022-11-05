@@ -232,13 +232,13 @@ configure-engine:
 set-current-engine:
 	${LN_BIN} --verbose --symbolic --force --no-target-directory ${ENGINE_PREFIX} build/engine/current
 
-engine-server: configure-engine set-current-engine
+engine-server: set-current-engine configure-engine
 	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' server
 
-engine-client: configure-engine set-current-engine
+engine-client: set-current-engine configure-engine
 	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' client
 
-engine-tty: configure-engine set-current-engine
+engine-tty: set-current-engine configure-engine
 	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' ttyclient
 
 configure-vms:
@@ -260,7 +260,7 @@ configure-vms:
 set-current-vms:
 	${LN_BIN} --verbose --symbolic --force --no-target-directory ${VM_PREFIX} build/vms/current
 
-vms: configure-vms set-current-vms
+vms: set-current-vms configure-vms
 	${CMAKE_BIN} --build '${VM_BUILD}' -- -j'${NPROC}'
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-x86_64.nexe ${VM_BUILD}/irt_core-x86_64.nexe
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${VM_BUILD}/nacl_helper_bootstrap
