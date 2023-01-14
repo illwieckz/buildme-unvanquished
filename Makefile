@@ -126,6 +126,10 @@ else ifeq ($(BUILD),Debug)
 else ifeq ($(BUILD),RelWithDebInfo)
 	BUILD_SLUG := reldeb
 	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='RelWithDebInfo' -D'USE_DEBUG_OPTIMIZE'='ON'
+
+	# See above.
+	DEBUG := gdb -x .gdbinit.txt -args
+else ifeq ($(BUILD),RelWithDebInfo)
 endif
 
 ifeq ($(VM),dll)
