@@ -49,6 +49,12 @@ else
 	$(error Bad VM value: $(VM))
 endif
 
+ifeq ($(VM),nexe)
+	ifeq ($(NEXE),)
+		NEXE := native
+	endif
+endif
+
 ifeq ($(BUILD),Debug)
 else ifeq ($(BUILD),RelWithDebInfo)
 else ifeq ($(BUILD),Release)
@@ -140,7 +146,7 @@ else ifeq ($(VM),exe)
 	CMAKE_VM_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='ON' -D'BUILD_GAME_NATIVE_DLL'='OFF'
 else ifeq ($(VM),nexe)
 	VM_TYPE := 1
-	CMAKE_VM_ARGS := -D'BUILD_GAME_NACL'='ON' -D'BUILD_GAME_NACL_NEXE'='ON' -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='OFF'
+	CMAKE_VM_ARGS := -D'BUILD_GAME_NACL'='ON' -D'BUILD_GAME_NACL_NEXE'='ON' -D'BUILD_GAME_NACL_TARGETS'="$(NEXE)" -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='OFF'
 endif
 
 ifeq ($(LTO),ON)
