@@ -19,7 +19,7 @@ ASSETS_DIR := ${ROOT_DIR}/UnvanquishedAssets
 BUILD_DIR := ${ROOT_DIR}/build
 EXDEPS_DIR := ${BUILD_DIR}/deps
 
-CLIENT_ARGS := -set client.allowRemotePakdir on
+CLIENT_ARGS := -set client.allowRemotePakDir on
 SERVER_ARGS := -set sv_pure 0
 
 SYSTEM := $(shell uname -s)
