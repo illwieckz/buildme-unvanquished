@@ -1,4 +1,4 @@
-# Copyright © 2017, Thomas Debesse
+# Copyright © 2023, Thomas Debesse
 # Covered by BSD 3-Clause license
 # See LICENSE.md for details
 
