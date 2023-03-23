@@ -51,7 +51,7 @@ else ifeq ($(VM),dll)
 else ifeq ($(VM),)
 	VM := nexe
 else
-	$(error Bad VM value: $(VM))
+$(error Bad VM value: $(VM))
 endif
 
 ifeq ($(VM),nexe)
@@ -66,7 +66,7 @@ else ifeq ($(BUILD),Release)
 else ifeq ($(BUILD),)
 	BUILD := RelWithDebInfo
 else
-	$(error Bad BUILD value: $(VM))
+$(error Bad BUILD value: $(VM))
 endif
 
 ifneq ($(FUSELD),)
@@ -107,7 +107,7 @@ else ifeq ($(LTO),ON)
 else ifeq ($(LTO),)
 	LTO := ON
 else
-	$(error Bad LTO value: $(VM))
+$(error Bad LTO value: $(VM))
 endif
 
 ifeq ($(CMAKE_BIN),)
