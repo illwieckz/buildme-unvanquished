@@ -280,7 +280,7 @@ set-current-game:
 
 game: set-current-game configure-game
 	${CMAKE_BIN} --build '${GAME_BUILD}' -- -j'${NPROC}'
-	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-x86_64.nexe ${GAME_BUILD}/irt_core-x86_64.nexe
+	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-amd64.nexe ${GAME_BUILD}/irt_core-amd64.nexe
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader ${GAME_BUILD}/nacl_loader
 
