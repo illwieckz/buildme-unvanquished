@@ -179,17 +179,18 @@ else
 	ENGINE_LOG_ARGS := -set logs.suppression.enabled 1 -set logs.level.default notice -set logs.level.audio notice  -set logs.level.glconfig notice -set developer 0
 endif
 
-DPKDIR_PAKPATH_ARGS :=
-
 ifneq ($(DATA),OFF)
-		DPKDIR_PAKPATH_ARGS := -pakpath '${ASSETS_BUILD}'
+	DPKDIR_PAKPATH_ARGS := -pakpath '${ASSETS_BUILD}'
+else
+	DPKDIR_PAKPATH_ARGS :=
 endif
 
 EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
 
-EXTRA_PAKPATH_ARGS :=
 ifneq ($(EXTRA_PAKPATHS),)
 	EXTRA_PAKPATH_ARGS := ${EXTRA_PAKPATHS}
+else
+	EXTRA_PAKPATH_ARGS :=
 endif
 
 clone-engine:
