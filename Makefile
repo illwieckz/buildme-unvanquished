@@ -9,11 +9,11 @@ ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 NPROC := $(shell nproc)
 
 ENGINE_REPO := https://github.com/DaemonEngine/Daemon.git
-VM_REPO := https://github.com/Unvanquished/Unvanquished.git
+GAME_REPO := https://github.com/Unvanquished/Unvanquished.git
 DATA_REPO := https://github.com/UnvanquishedAssets/UnvanquishedAssets.git
 
 ENGINE_DIR := ${ROOT_DIR}/Daemon
-VM_DIR := ${ROOT_DIR}/Unvanquished
+GAME_DIR := ${ROOT_DIR}/Unvanquished
 DATA_DIR := ${ROOT_DIR}/UnvanquishedAssets
 
 BUILD_DIR := ${ROOT_DIR}/build
@@ -146,13 +146,13 @@ endif
 
 ifeq ($(VM),dll)
 	VM_TYPE := 3
-	CMAKE_VM_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='ON'
+	CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='ON'
 else ifeq ($(VM),exe)
 	VM_TYPE := 2
-	CMAKE_VM_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='ON' -D'BUILD_GAME_NATIVE_DLL'='OFF'
+	CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='ON' -D'BUILD_GAME_NATIVE_DLL'='OFF'
 else ifeq ($(VM),nexe)
 	VM_TYPE := 1
-	CMAKE_VM_ARGS := -D'BUILD_GAME_NACL'='ON' -D'BUILD_GAME_NACL_NEXE'='ON' -D'BUILD_GAME_NACL_TARGETS'="$(NEXE)" -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='OFF'
+	CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='ON' -D'BUILD_GAME_NACL_NEXE'='ON' -D'BUILD_GAME_NACL_TARGETS'="$(NEXE)" -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='OFF'
 endif
 
 ifeq ($(LTO),ON)
@@ -162,24 +162,24 @@ else
 endif
 
 ifeq ($(VM),nexe)
-	VM_LINK := nolto
-	VM_LTO := OFF
-	VM_COMPILER_SLUG := nacl
-	CMAKE_VM_COMPILER_ARGS :=
-	CMAKE_VM_FUSELD_ARGS :=
+	GAME_LINK := nolto
+	GAME_LTO := OFF
+	GAME_COMPILER_SLUG := nacl
+	CMAKE_GAME_COMPILER_ARGS :=
+	CMAKE_GAME_FUSELD_ARGS :=
 else
-	VM_LINK := ${LINK}
-	VM_LTO := $(LTO)
-	VM_COMPILER_SLUG := ${COMPILER_SLUG}
-	CMAKE_VM_COMPILER_ARGS := $(CMAKE_COMPILER_ARGS)
-	CMAKE_VM_FUSELD_ARGS := $(CMAKE_FUSELD_ARGS)
+	GAME_LINK := ${LINK}
+	GAME_LTO := $(LTO)
+	GAME_COMPILER_SLUG := ${COMPILER_SLUG}
+	CMAKE_GAME_COMPILER_ARGS := $(CMAKE_COMPILER_ARGS)
+	CMAKE_GAME_FUSELD_ARGS := $(CMAKE_FUSELD_ARGS)
 endif
 
 ENGINE_PREFIX := ${PREFIX}-${COMPILER_SLUG}-${LINK}-${BUILD_SLUG}-exe
-VM_PREFIX := ${PREFIX}-${VM_COMPILER_SLUG}-${VM_LINK}-${BUILD_SLUG}-${VM}
+GAME_PREFIX := ${PREFIX}-${GAME_COMPILER_SLUG}-${GAME_LINK}-${BUILD_SLUG}-${VM}
 
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
-VM_BUILD := ${BUILD_DIR}/game/${VM_PREFIX}
+GAME_BUILD := ${BUILD_DIR}/game/${GAME_PREFIX}
 
 DATA_BUILD_PREFIX := ${BUILD_DIR}/assets
 DATA_BUILD := ${DATA_BUILD_PREFIX}/${PAK_PREFIX}
@@ -210,7 +210,7 @@ clone-engine:
 	(! [ -d '${ENGINE_DIR}' ] && git clone '${ENGINE_REPO}' '${ENGINE_DIR}') || true
 
 clone-game:
-	(! [ -d '${VM_DIR}' ] && git clone '${VM_REPO}' '${VM_DIR}') || true
+	(! [ -d '${GAME_DIR}' ] && git clone '${GAME_REPO}' '${GAME_DIR}') || true
 
 clone-assets:
 	(! [ -d '${DATA_DIR}' ] && git clone '${DATA_REPO}' '${DATA_DIR}') || true
@@ -224,7 +224,7 @@ pull-engine:
 	cd '${ENGINE_DIR}' && git checkout master && git pull origin master
 
 pull-game:
-	cd '${VM_DIR}' && git checkout master && git pull origin master
+	cd '${GAME_DIR}' && git checkout master && git pull origin master
 
 pull-assets:
 	cd '${DATA_DIR}' && git checkout master && git pull origin master
@@ -259,30 +259,30 @@ engine-tty: set-current-engine configure-engine
 	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' ttyclient
 
 configure-game:
-	${CMAKE_BIN} '${VM_DIR}' -B'${VM_BUILD}' \
-		${CMAKE_VM_COMPILER_ARGS} \
-		${CMAKE_VM_FUSELD_ARGS} \
+	${CMAKE_BIN} '${GAME_DIR}' -B'${GAME_BUILD}' \
+		${CMAKE_GAME_COMPILER_ARGS} \
+		${CMAKE_GAME_FUSELD_ARGS} \
 		${CMAKE_DEBUG_ARGS} \
-		${CMAKE_VM_ARGS} \
+		${CMAKE_GAME_ARGS} \
 		${CMAKE_COMPILER_FLAGS} \
 		${CMAKE} \
-		-D'USE_LTO'='${VM_LTO}' \
+		-D'USE_LTO'='${GAME_LTO}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
 		-D'BUILD_SGAME'='ON' -D'BUILD_CGAME'='ON' \
 		-D'DAEMON_DIR'='${ENGINE_DIR}' \
 		-G'Unix Makefiles'
-	echo "${VM_TYPE}" > "${VM_BUILD}/vm_type.txt"
+	echo "${VM_TYPE}" > "${GAME_BUILD}/vm_type.txt"
 
 set-current-game:
 	mkdir -p build/game
-	${LN_BIN} --verbose --symbolic --force --no-target-directory ${VM_PREFIX} build/game/current
+	${LN_BIN} --verbose --symbolic --force --no-target-directory ${GAME_PREFIX} build/game/current
 
 game: set-current-game configure-game
-	${CMAKE_BIN} --build '${VM_BUILD}' -- -j'${NPROC}'
-	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-x86_64.nexe ${VM_BUILD}/irt_core-x86_64.nexe
-	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${VM_BUILD}/nacl_helper_bootstrap
-	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader ${VM_BUILD}/nacl_loader
+	${CMAKE_BIN} --build '${GAME_BUILD}' -- -j'${NPROC}'
+	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-x86_64.nexe ${GAME_BUILD}/irt_core-x86_64.nexe
+	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
+	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader ${GAME_BUILD}/nacl_loader
 
 bin-client: engine-client game
 
@@ -330,7 +330,7 @@ clean-engine:
 	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- clean
 
 clean-game:
-	${CMAKE_BIN} --build '${VM_BUILD}' -- clean
+	${CMAKE_BIN} --build '${GAME_BUILD}' -- clean
 
 clean-bin: clean-engine clean-game
 
@@ -339,7 +339,7 @@ run-server: bin-server
 	'${ENGINE_BUILD}/daemonded' \
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
-		-libpath '${VM_BUILD}' \
+		-libpath '${GAME_BUILD}' \
 		${DPKDIR_PAKPATH_ARGS} \
 		${EXTRA_PAKPATH_ARGS} \
 		${SERVER_ARGS} \
@@ -350,7 +350,7 @@ run-client: bin-client
 	'${ENGINE_BUILD}/daemon' \
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
-		-libpath '${VM_BUILD}' \
+		-libpath '${GAME_BUILD}' \
 		${DPKDIR_PAKPATH_ARGS} \
 		${EXTRA_PAKPATH_ARGS} \
 		${SERVER_ARGS} \
@@ -362,7 +362,7 @@ run-tty: bin-tty
 	'${ENGINE_BUILD}/daemon-tty' \
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
-		-libpath '${VM_BUILD}' \
+		-libpath '${GAME_BUILD}' \
 		${DPKDIR_PAKPATH_ARGS} \
 		${EXTRA_PAKPATH_ARGS} \
 		${SERVER_ARGS} \
