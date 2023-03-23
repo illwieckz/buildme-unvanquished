@@ -29,6 +29,10 @@ ifeq ($(SYSTEM),Darwin)
 	LN_BIN := gln
 endif
 
+ifeq ($(CMAKE_BIN),)
+	CMAKE_BIN := cmake
+endif
+
 ifeq ($(PREFIX),)
 	PREFIX := default
 endif
@@ -45,11 +49,13 @@ else ifeq ($(DPK),OFF)
 	DATA_ACTION := build
 endif
 
+ifeq ($(VM),)
+	VM := nexe
+endif
+
 ifeq ($(VM),nexe)
 else ifeq ($(VM),exe)
 else ifeq ($(VM),dll)
-else ifeq ($(VM),)
-	VM := nexe
 else
 $(error Bad VM value: $(VM))
 endif
@@ -60,13 +66,23 @@ ifeq ($(VM),nexe)
 	endif
 endif
 
+ifeq ($(BUILD),)
+	BUILD := RelWithDebInfo
+endif
+
 ifeq ($(BUILD),Debug)
 else ifeq ($(BUILD),RelWithDebInfo)
 else ifeq ($(BUILD),Release)
-else ifeq ($(BUILD),)
-	BUILD := RelWithDebInfo
 else
 $(error Bad BUILD value: $(VM))
+endif
+
+ifeq ($(LTO),OFF)
+else ifeq ($(LTO),ON)
+else ifeq ($(LTO),)
+	LTO := ON
+else
+$(error Bad LTO value: $(VM))
 endif
 
 ifneq ($(FUSELD),)
@@ -100,18 +116,6 @@ ifneq ($(FLAGS),)
 	CMAKE_COMPILER_FLAGS := -D'CMAKE_C_FLAGS'='${FLAGS}' -D'CMAKE_CXX_FLAGS'='${FLAGS}'
 else
 	CMAKE_COMPILER_FLAGS :=
-endif
-
-ifeq ($(LTO),OFF)
-else ifeq ($(LTO),ON)
-else ifeq ($(LTO),)
-	LTO := ON
-else
-$(error Bad LTO value: $(VM))
-endif
-
-ifeq ($(CMAKE_BIN),)
-	CMAKE_BIN := cmake
 endif
 
 DEBUG :=
