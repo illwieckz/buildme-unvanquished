@@ -262,6 +262,7 @@ configure-game:
 	echo "${VM_TYPE}" > "${VM_BUILD}/vm_type.txt"
 
 set-current-game:
+	mkdir -p build/game
 	${LN_BIN} --verbose --symbolic --force --no-target-directory ${VM_PREFIX} build/game/current
 
 game: set-current-game configure-game
