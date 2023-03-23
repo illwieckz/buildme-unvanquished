@@ -35,10 +35,13 @@ endif
 
 ifeq ($(DPK),ON)
 	PAK_PREFIX := pkg
+	DATA_ACTION := package
 else ifeq ($(DPK),OFF)
 	PAK_PREFIX := test
+	DATA_ACTION := build
 else ifeq ($(DPK),)
 	PAK_PREFIX := test
+	DATA_ACTION := build
 endif
 
 ifeq ($(VM),nexe)
@@ -290,7 +293,7 @@ build-maps: prepare-maps
 package-maps: build-maps
 	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' package src/map-*.dpkdir
 
-maps: package-maps
+maps: ${DATA_ACTION}-maps
 
 prepare-resources:
 	cd '${DATA_DIR}' && urcheon prepare src/res-*_src.dpkdir src/tex-*_src.dpkdir src/unvanquished_src.dpkdir
@@ -301,7 +304,7 @@ build-resources: prepare-resources
 package-resources: build-resources
 	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' package src/res-*_src.dpkdir src/tex-*_src.dpkdir src/unvanquished_src.dpkdir
 
-resources: package-resources
+resources: ${DATA_ACTION}-resources
 
 prepare-data: prepare-resources prepare-maps
 
@@ -309,7 +312,7 @@ build-data: build-resources build-maps
 
 package-data: package-resources package-maps
 
-data: package-data
+data: ${DATA_ACTION}-data
 
 build: bin data
 
