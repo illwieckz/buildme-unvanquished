@@ -3,18 +3,18 @@
 # See LICENSE.md for details
 
 .DEFAULT_GOAL := build
-.PHONY: assets bin bin-client bin-server bin-tty build build-assets build-maps build-resources build-textures clean-bin clean-engine clean-game clone clone-assets clone-bin clone-engine clone-game configure-engine configure-game data engine engine-client engine-server engine-tty it maps package-assets package-maps package-resources package-textures prepare-assets prepare-maps prepare-resources prepare-textures pull pull-assets pull-bin pull-engine pull-game resources run run-client run-server run-tty set-current-engine set-current-game textures game
+.PHONY: data bin bin-client bin-server bin-tty build build-data build-maps build-resources clean-bin clean-engine clean-game clone clone-data clone-bin clone-engine clone-game configure-engine configure-game data engine engine-client engine-server engine-tty it maps package-data package-maps package-resources prepare-data prepare-maps prepare-resources pull pull-data pull-bin pull-engine pull-game resources run run-client run-server run-tty set-current-engine set-current-game game
 
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 NPROC := $(shell nproc)
 
 ENGINE_REPO := https://github.com/DaemonEngine/Daemon.git
 VM_REPO := https://github.com/Unvanquished/Unvanquished.git
-ASSETS_REPO := https://github.com/UnvanquishedAssets/UnvanquishedAssets.git
+DATA_REPO := https://github.com/UnvanquishedAssets/UnvanquishedAssets.git
 
 ENGINE_DIR := ${ROOT_DIR}/Daemon
 VM_DIR := ${ROOT_DIR}/Unvanquished
-ASSETS_DIR := ${ROOT_DIR}/UnvanquishedAssets
+DATA_DIR := ${ROOT_DIR}/UnvanquishedAssets
 
 BUILD_DIR := ${ROOT_DIR}/build
 EXDEPS_DIR := ${BUILD_DIR}/deps
@@ -168,8 +168,8 @@ VM_PREFIX := ${PREFIX}-${VM_COMPILER_SLUG}-${VM_LINK}-${BUILD_SLUG}-${VM}
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
 VM_BUILD := ${BUILD_DIR}/game/${VM_PREFIX}
 
-ASSETS_BUILD_PREFIX := ${BUILD_DIR}/assets
-ASSETS_BUILD := ${ASSETS_BUILD_PREFIX}/${PAK_PREFIX}
+DATA_BUILD_PREFIX := ${BUILD_DIR}/assets
+DATA_BUILD := ${DATA_BUILD_PREFIX}/${PAK_PREFIX}
 
 ENGINE_VMTYPE_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
 
@@ -180,7 +180,7 @@ else
 endif
 
 ifneq ($(DATA),OFF)
-	DPKDIR_PAKPATH_ARGS := -pakpath '${ASSETS_BUILD}'
+	DPKDIR_PAKPATH_ARGS := -pakpath '${DATA_BUILD}'
 else
 	DPKDIR_PAKPATH_ARGS :=
 endif
@@ -200,8 +200,8 @@ clone-game:
 	(! [ -d '${VM_DIR}' ] && git clone '${VM_REPO}' '${VM_DIR}') || true
 
 clone-assets:
-	(! [ -d '${ASSETS_DIR}' ] && git clone '${ASSETS_REPO}' '${ASSETS_DIR}') || true
-	cd '${ASSETS_DIR}' && git submodule update --init --recursive
+	(! [ -d '${DATA_DIR}' ] && git clone '${DATA_REPO}' '${DATA_DIR}') || true
+	cd '${DATA_DIR}' && git submodule update --init --recursive
 
 clone-bin: clone-engine clone-game
 
@@ -214,8 +214,8 @@ pull-game:
 	cd '${VM_DIR}' && git checkout master && git pull origin master
 
 pull-assets:
-	cd '${ASSETS_DIR}' && git checkout master && git pull origin master
-	cd '${ASSETS_DIR}' && git submodule foreach pull origin master
+	cd '${DATA_DIR}' && git checkout master && git pull origin master
+	cd '${DATA_DIR}' && git submodule foreach pull origin master
 
 pull-bin: pull-engine pull-game
 
@@ -282,50 +282,34 @@ engine: engine-server engine-client engine-tty
 bin: engine game
 
 prepare-maps:
-	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' prepare src/map-*.dpkdir
+	cd '${DATA_DIR}' && urcheon prepare src/map-*.dpkdir
 
 build-maps: prepare-maps
-	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' build src/map-*.dpkdir
+	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' build src/map-*.dpkdir
 
 package-maps: build-maps
-	cd '${ASSETS_DIR}' && urcheon --package-prefix='${ASSETS_BUILD_PREFIX}' package src/map-*.dpkdir
+	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' package src/map-*.dpkdir
 
 maps: package-maps
 
 prepare-resources:
-	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' prepare src/res-*.dpkdir
+	cd '${DATA_DIR}' && urcheon prepare src/res-*_src.dpkdir src/tex-*_src.dpkdir src/unvanquished_src.dpkdir
 
 build-resources: prepare-resources
-	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' build src/res-*.dpkdir
+	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' build src/res-*_src.dpkdir src/tex-*_src.dpkdir src/unvanquished_src.dpkdir
 
 package-resources: build-resources
-	cd '${ASSETS_DIR}' && urcheon --package-prefix='${ASSETS_BUILD_PREFIX}' package src/res-*.dpkdir
+	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' package src/res-*_src.dpkdir src/tex-*_src.dpkdir src/unvanquished_src.dpkdir
 
 resources: package-resources
 
-prepare-textures:
-	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' prepare src/tex-*.dpkdir
+prepare-data: prepare-resources prepare-maps
 
-build-textures: prepare-textures
-	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' build src/tex-*.dpkdir
+build-data: build-resources build-maps
 
-package-textures: build-textures
-	cd '${ASSETS_DIR}' && urcheon --package-prefix='${ASSETS_BUILD_PREFIX}' package src/tex-*.dpkdir
+package-data: package-resources package-maps
 
-textures: package-textures
-
-prepare-assets:
-	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' prepare src/*.dpkdir
-
-build-assets: prepare-assets
-	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' build src/*.dpkdir
-
-package-assets: build-assets
-	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' package src/*.dpkdir
-
-assets: package-assets
-
-data: assets
+data: package-data
 
 build: bin data
 
