@@ -104,12 +104,12 @@ else
 endif
 
 # CC and CXX are always set by Make, so we cannot rely on those variable names.
-ifneq ($(CMAKE_CC),)
-	CMAKE_COMPILER_ARGS := ${CMAKE_COMPILER_ARGS} -D'CMAKE_C_COMPILER'='$(CMAKE_CC)'
+ifneq ($(CC_BIN),)
+	CMAKE_COMPILER_ARGS := ${CMAKE_COMPILER_ARGS} -D'CMAKE_C_COMPILER'='$(CC_BIN)'
 endif
 
-ifneq ($(CMAKE_CXX),)
-	CMAKE_COMPILER_ARGS := ${CMAKE_COMPILER_ARGS} -D'CMAKE_CXX_COMPILER'='$(CMAKE_CXX)'
+ifneq ($(CXX_BIN),)
+	CMAKE_COMPILER_ARGS := ${CMAKE_COMPILER_ARGS} -D'CMAKE_CXX_COMPILER'='$(CXX_BIN)'
 endif
 
 ifneq ($(FLAGS),)
