@@ -33,13 +33,14 @@ ifeq ($(PREFIX),)
 	PREFIX := default
 endif
 
+ifeq ($(DPK),)
+	DPK := OFF
+endif
+
 ifeq ($(DPK),ON)
 	PAK_PREFIX := pkg
 	DATA_ACTION := package
 else ifeq ($(DPK),OFF)
-	PAK_PREFIX := test
-	DATA_ACTION := build
-else ifeq ($(DPK),)
 	PAK_PREFIX := test
 	DATA_ACTION := build
 endif
@@ -131,7 +132,6 @@ else ifeq ($(BUILD),RelWithDebInfo)
 
 	# See above.
 	DEBUG := gdb -x .gdbinit.txt -args
-else ifeq ($(BUILD),RelWithDebInfo)
 endif
 
 ifeq ($(VM),dll)
