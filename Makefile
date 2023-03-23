@@ -24,9 +24,10 @@ SERVER_ARGS := -set sv_pure 0
 
 SYSTEM := $(shell uname -s)
 
-LN_BIN := ln
 ifeq ($(SYSTEM),Darwin)
 	LN_BIN := gln
+else
+	LN_BIN := ln
 endif
 
 ifeq ($(CMAKE_BIN),)
