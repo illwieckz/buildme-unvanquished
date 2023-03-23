@@ -36,6 +36,7 @@ endif
 ifeq ($(DPK),ON)
 	PAK_PREFIX := pkg
 else ifeq ($(DPK),OFF)
+	PAK_PREFIX := test
 else ifeq ($(DPK),)
 	PAK_PREFIX := test
 endif
@@ -64,45 +65,37 @@ else
 	$(error Bad BUILD value: $(VM))
 endif
 
-ifeq ($(COMPILER),)
-	COMPILER := gcc
-	COMPILER_SLUG := $(shell gcc --version 2>/dev/null | if grep -q clang; then echo clang; else echo gcc; fi)
-endif
-
-CMAKE_FUSELD_ARGS :=
-
 ifneq ($(FUSELD),)
 	CMAKE_FUSELD_ARGS := -D'CMAKE_EXE_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD}' -D'CMAKE_MODULE_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD}' -D'CMAKE_SHARED_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD}'
+else
+	CMAKE_FUSELD_ARGS :=
 endif
 
-ifeq ($(COMPILER),gcc)
+ifeq ($(COMPILER),)
+	COMPILER_SLUG := $(shell gcc --version 2>/dev/null | if grep -q clang; then echo clang; else echo gcc; fi)
+else ifeq ($(COMPILER),gcc)
+	COMPILER_SLUG := gcc
 	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='gcc' -D'CMAKE_CXX_COMPILER'='g++'
 else ifeq ($(COMPILER),clang)
+	COMPILER_SLUG := clang
 	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='clang' -D'CMAKE_CXX_COMPILER'='clang++'
-else ifeq ($(COMPILER),icc)
-	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='/opt/intel/oneapi/compiler/latest/linux/bin/clang' -D'CMAKE_CXX_COMPILER'='/opt/intel/oneapi/compiler/latest/linux/bin/clang++'
 else
 	CMAKE_COMPILER_ARGS :=
 endif
 
-CMAKE_CC :=
-
-ifneq ($(CC),)
-	CMAKE_CC := -D'CMAKE_C_COMPILER'='$(CC)'
+# CC and CXX are always set by Make, so we cannot rely on those variable names.
+ifneq ($(CMAKE_CC),)
+	CMAKE_COMPILER_ARGS := ${CMAKE_COMPILER_ARGS} -D'CMAKE_C_COMPILER'='$(CMAKE_CC)'
 endif
 
-CMAKE_CXX :=
-
-ifneq ($(CXX),)
-	CMAKE_CXX := -D'CMAKE_CXX_COMPILER'='$(CXX)'
+ifneq ($(CMAKE_CXX),)
+	CMAKE_COMPILER_ARGS := ${CMAKE_COMPILER_ARGS} -D'CMAKE_CXX_COMPILER'='$(CMAKE_CXX)'
 endif
-
-CMAKE_COMPILER_ARGS := ${CMAKE_COMPILER_ARGS} ${CMAKE_CC} ${CMAKE_CXX}
-
-CMAKE_COMPILER_FLAGS :=
 
 ifneq ($(FLAGS),)
 	CMAKE_COMPILER_FLAGS := -D'CMAKE_C_FLAGS'='${FLAGS}' -D'CMAKE_CXX_FLAGS'='${FLAGS}'
+else
+	CMAKE_COMPILER_FLAGS :=
 endif
 
 ifeq ($(LTO),OFF)
@@ -188,7 +181,7 @@ endif
 
 DPKDIR_PAKPATH_ARGS :=
 
-ifneq ($(DPKDIR),OFF)
+ifneq ($(DATA),OFF)
 		DPKDIR_PAKPATH_ARGS := -pakpath '${ASSETS_BUILD}'
 endif
 
