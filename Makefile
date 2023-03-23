@@ -3,7 +3,7 @@
 # See LICENSE.md for details
 
 .DEFAULT_GOAL := build
-.PHONY: assets bin bin-client bin-server bin-tty build build-assets build-maps build-resources build-textures clean-bin clean-engine clean-vms clone clone-assets clone-bin clone-engine clone-vms configure-engine configure-vms data engine engine-client engine-server engine-tty it maps package-assets package-maps package-resources package-textures prepare-assets prepare-maps prepare-resources prepare-textures pull pull-assets pull-bin pull-engine pull-vms resources run run-client run-server run-tty set-current-engine set-current-vms textures vms
+.PHONY: assets bin bin-client bin-server bin-tty build build-assets build-maps build-resources build-textures clean-bin clean-engine clean-game clone clone-assets clone-bin clone-engine clone-game configure-engine configure-game data engine engine-client engine-server engine-tty it maps package-assets package-maps package-resources package-textures prepare-assets prepare-maps prepare-resources prepare-textures pull pull-assets pull-bin pull-engine pull-game resources run run-client run-server run-tty set-current-engine set-current-game textures game
 
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 NPROC := $(shell nproc)
@@ -166,7 +166,7 @@ ENGINE_PREFIX := ${PREFIX}-${COMPILER_SLUG}-${LINK}-${BUILD_SLUG}-exe
 VM_PREFIX := ${PREFIX}-${VM_COMPILER_SLUG}-${VM_LINK}-${BUILD_SLUG}-${VM}
 
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
-VM_BUILD := ${BUILD_DIR}/vms/${VM_PREFIX}
+VM_BUILD := ${BUILD_DIR}/game/${VM_PREFIX}
 
 ASSETS_BUILD_PREFIX := ${BUILD_DIR}/assets
 ASSETS_BUILD := ${ASSETS_BUILD_PREFIX}/${PAK_PREFIX}
@@ -196,28 +196,28 @@ endif
 clone-engine:
 	(! [ -d '${ENGINE_DIR}' ] && git clone '${ENGINE_REPO}' '${ENGINE_DIR}') || true
 
-clone-vms:
+clone-game:
 	(! [ -d '${VM_DIR}' ] && git clone '${VM_REPO}' '${VM_DIR}') || true
 
 clone-assets:
 	(! [ -d '${ASSETS_DIR}' ] && git clone '${ASSETS_REPO}' '${ASSETS_DIR}') || true
 	cd '${ASSETS_DIR}' && git submodule update --init --recursive
 
-clone-bin: clone-engine clone-vms
+clone-bin: clone-engine clone-game
 
 clone: clone-bin clone-assets
 
 pull-engine:
 	cd '${ENGINE_DIR}' && git checkout master && git pull origin master
 
-pull-vms:
+pull-game:
 	cd '${VM_DIR}' && git checkout master && git pull origin master
 
 pull-assets:
 	cd '${ASSETS_DIR}' && git checkout master && git pull origin master
 	cd '${ASSETS_DIR}' && git submodule foreach pull origin master
 
-pull-bin: pull-engine pull-vms
+pull-bin: pull-engine pull-game
 
 pull: pull-bin pull-assets
 
@@ -245,7 +245,7 @@ engine-client: set-current-engine configure-engine
 engine-tty: set-current-engine configure-engine
 	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' ttyclient
 
-configure-vms:
+configure-game:
 	${CMAKE_BIN} '${VM_DIR}' -B'${VM_BUILD}' \
 		${CMAKE_VM_COMPILER_ARGS} \
 		${CMAKE_VM_FUSELD_ARGS} \
@@ -261,24 +261,24 @@ configure-vms:
 		-G'Unix Makefiles'
 	echo "${VM_TYPE}" > "${VM_BUILD}/vm_type.txt"
 
-set-current-vms:
-	${LN_BIN} --verbose --symbolic --force --no-target-directory ${VM_PREFIX} build/vms/current
+set-current-game:
+	${LN_BIN} --verbose --symbolic --force --no-target-directory ${VM_PREFIX} build/game/current
 
-vms: set-current-vms configure-vms
+game: set-current-game configure-game
 	${CMAKE_BIN} --build '${VM_BUILD}' -- -j'${NPROC}'
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-x86_64.nexe ${VM_BUILD}/irt_core-x86_64.nexe
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${VM_BUILD}/nacl_helper_bootstrap
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader ${VM_BUILD}/nacl_loader
 
-bin-client: engine-client vms
+bin-client: engine-client game
 
-bin-server: engine-server vms
+bin-server: engine-server game
 
-bin-tty: engine-tty vms
+bin-tty: engine-tty game
 
 engine: engine-server engine-client engine-tty
 
-bin: engine vms
+bin: engine game
 
 prepare-maps:
 	cd '${ASSETS_DIR}' && urcheon prepare --build-prefix='${ASSETS_BUILD_PREFIX}' src/map-*.dpkdir
@@ -331,10 +331,10 @@ build: bin data
 clean-engine:
 	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- clean
 
-clean-vms:
+clean-game:
 	${CMAKE_BIN} --build '${VM_BUILD}' -- clean
 
-clean-bin: clean-engine clean-vms
+clean-bin: clean-engine clean-game
 
 run-server: bin-server
 	${DEBUG} \
