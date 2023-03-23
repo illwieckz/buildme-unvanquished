@@ -282,46 +282,46 @@ engine: engine-server engine-client engine-tty
 bin: engine game
 
 prepare-maps:
-	cd '${ASSETS_DIR}' && urcheon prepare --build-prefix='${ASSETS_BUILD_PREFIX}' src/map-*.dpkdir
+	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' prepare src/map-*.dpkdir
 
 build-maps: prepare-maps
-	cd '${ASSETS_DIR}' && urcheon build --build-prefix='${ASSETS_BUILD_PREFIX}' src/map-*.dpkdir
+	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' build src/map-*.dpkdir
 
 package-maps: build-maps
-	cd '${ASSETS_DIR}' && urcheon package --package-prefix='${ASSETS_BUILD_PREFIX}' src/map-*.dpkdir
+	cd '${ASSETS_DIR}' && urcheon --package-prefix='${ASSETS_BUILD_PREFIX}' package src/map-*.dpkdir
 
 maps: package-maps
 
 prepare-resources:
-	cd '${ASSETS_DIR}' && urcheon prepare --build-prefix='${ASSETS_BUILD_PREFIX}' src/res-*.dpkdir
+	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' prepare src/res-*.dpkdir
 
 build-resources: prepare-resources
-	cd '${ASSETS_DIR}' && urcheon build --build-prefix='${ASSETS_BUILD_PREFIX}' src/res-*.dpkdir
+	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' build src/res-*.dpkdir
 
 package-resources: build-resources
-	cd '${ASSETS_DIR}' && urcheon package --package-prefix='${ASSETS_BUILD_PREFIX}' src/res-*.dpkdir
+	cd '${ASSETS_DIR}' && urcheon --package-prefix='${ASSETS_BUILD_PREFIX}' package src/res-*.dpkdir
 
 resources: package-resources
 
 prepare-textures:
-	cd '${ASSETS_DIR}' && urcheon prepare --build-prefix='${ASSETS_BUILD_PREFIX}' src/tex-*.dpkdir
+	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' prepare src/tex-*.dpkdir
 
 build-textures: prepare-textures
-	cd '${ASSETS_DIR}' && urcheon build --build-prefix='${ASSETS_BUILD_PREFIX}' src/tex-*.dpkdir
+	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' build src/tex-*.dpkdir
 
 package-textures: build-textures
-	cd '${ASSETS_DIR}' && urcheon package --package-prefix='${ASSETS_BUILD_PREFIX}' src/tex-*.dpkdir
+	cd '${ASSETS_DIR}' && urcheon --package-prefix='${ASSETS_BUILD_PREFIX}' package src/tex-*.dpkdir
 
 textures: package-textures
 
 prepare-assets:
-	cd '${ASSETS_DIR}' && urcheon prepare --build-prefix='${ASSETS_BUILD_PREFIX}' src/*.dpkdir
+	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' prepare src/*.dpkdir
 
 build-assets: prepare-assets
-	cd '${ASSETS_DIR}' && urcheon build --build-prefix='${ASSETS_BUILD_PREFIX}' src/*.dpkdir
+	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' build src/*.dpkdir
 
 package-assets: build-assets
-	cd '${ASSETS_DIR}' && urcheon package --build-prefix='${ASSETS_BUILD_PREFIX}' src/*.dpkdir
+	cd '${ASSETS_DIR}' && urcheon --build-prefix='${ASSETS_BUILD_PREFIX}' package src/*.dpkdir
 
 assets: package-assets
 
