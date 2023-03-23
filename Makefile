@@ -95,22 +95,28 @@ ifeq ($(COMPILER),)
 	COMPILER_SLUG := $(shell gcc --version 2>/dev/null | if grep -q clang; then echo clang; else echo gcc; fi)
 else ifeq ($(COMPILER),gcc)
 	COMPILER_SLUG := gcc
-	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='gcc' -D'CMAKE_CXX_COMPILER'='g++'
+	CC_BIN := gcc
+	CXX_BIN := g++
 else ifeq ($(COMPILER),clang)
 	COMPILER_SLUG := clang
-	CMAKE_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='clang' -D'CMAKE_CXX_COMPILER'='clang++'
-else
-	CMAKE_COMPILER_ARGS :=
+	CC_BIN := clang
+	CXX_BIN := clang++
 endif
 
 # CC and CXX are always set by Make, so we cannot rely on those variable names.
 ifneq ($(CC_BIN),)
-	CMAKE_COMPILER_ARGS := ${CMAKE_COMPILER_ARGS} -D'CMAKE_C_COMPILER'='$(CC_BIN)'
+	CMAKE_C_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='$(CC_BIN)'
+else
+	CMAKE_C_COMPILER_ARGS :=
 endif
 
 ifneq ($(CXX_BIN),)
-	CMAKE_COMPILER_ARGS := ${CMAKE_COMPILER_ARGS} -D'CMAKE_CXX_COMPILER'='$(CXX_BIN)'
+	CMAKE_CXX_COMPILER_ARGS := -D'CMAKE_CXX_COMPILER'='$(CXX_BIN)'
+else
+	CMAKE_CXX_COMPILER_ARGS :=
 endif
+
+CMAKE_COMPILER_ARGS := ${CMAKE_C_COMPILER_ARGS} ${CMAKE_CXX_COMPILER_ARGS}
 
 ifneq ($(FLAGS),)
 	CMAKE_COMPILER_FLAGS := -D'CMAKE_C_FLAGS'='${FLAGS}' -D'CMAKE_CXX_FLAGS'='${FLAGS}'
