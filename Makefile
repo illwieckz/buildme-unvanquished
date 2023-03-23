@@ -101,6 +101,8 @@ else ifeq ($(COMPILER),clang)
 	COMPILER_SLUG := clang
 	CC_BIN := clang
 	CXX_BIN := clang++
+else
+	COMPILER_SLUG := $(COMPILER)
 endif
 
 # CC and CXX are always set by Make, so we cannot rely on those variable names.
