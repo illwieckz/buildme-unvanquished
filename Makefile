@@ -124,8 +124,6 @@ else
 	CMAKE_COMPILER_FLAGS :=
 endif
 
-DEBUG :=
-
 ifeq ($(BUILD),Release)
 	BUILD_SLUG := release
 	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Release' -D'USE_DEBUG_OPTIMIZE'='OFF'
@@ -142,6 +140,8 @@ else ifeq ($(BUILD),RelWithDebInfo)
 
 	# See above.
 	DEBUG := gdb -x .gdbinit.txt -args
+else
+	DEBUG :=
 endif
 
 ifeq ($(VM),dll)
