@@ -86,6 +86,23 @@ else
 $(error Bad LTO value: $(VM))
 endif
 
+ifeq ($(ARCH),)
+	ARCH := generic
+endif
+
+ifeq ($(ARCH),generic)
+	CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='ON' -D'USE_CPU_RECOMMENDED_FEATURES'='ON'
+	ARCH_FLAGS :=
+else ifeq ($(ARCH),lowend)
+	CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='ON' -D'USE_CPU_RECOMMENDED_FEATURES'='OFF'
+	ARCH_FLAGS :=
+else ifeq ($(ARCH),native)
+	CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='OFF' -D'USE_CPU_RECOMMENDED_FEATURES'='OFF'
+	ARCH_FLAGS := -march=native -mtune=native
+else
+$(error Bad ARCH value: $(ARCH))
+endif
+
 ifneq ($(FUSELD_BIN),)
 	CMAKE_FUSELD_ARGS := -D'CMAKE_EXE_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD_BIN}' -D'CMAKE_MODULE_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD_BIN}' -D'CMAKE_SHARED_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD_BIN}'
 else
@@ -125,7 +142,7 @@ ifneq ($(FLAGS),)
 	FLAGS :=
 endif
 
-CMAKE_COMPILER_FLAGS := -D'CMAKE_C_FLAGS'='${FLAGS}' -D'CMAKE_CXX_FLAGS'='${FLAGS}'
+CMAKE_COMPILER_FLAGS := -D'CMAKE_C_FLAGS'='${ARCH_FLAGS} ${FLAGS}' -D'CMAKE_CXX_FLAGS'='${ARCH_FLAGS} ${FLAGS}'
 
 ifeq ($(BUILD),Release)
 	BUILD_SLUG := release
