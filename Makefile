@@ -75,7 +75,7 @@ ifeq ($(BUILD),Debug)
 else ifeq ($(BUILD),RelWithDebInfo)
 else ifeq ($(BUILD),Release)
 else
-$(error Bad BUILD value: $(VM))
+$(error Bad BUILD value: $(BUILD))
 endif
 
 ifeq ($(LTO),OFF)
@@ -83,7 +83,7 @@ else ifeq ($(LTO),ON)
 else ifeq ($(LTO),)
 	LTO := ON
 else
-$(error Bad LTO value: $(VM))
+$(error Bad LTO value: $(LTO))
 endif
 
 ifeq ($(ARCH),)
