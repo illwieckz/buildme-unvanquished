@@ -119,6 +119,17 @@ else ifeq ($(COMPILER),clang)
 	COMPILER_SLUG := clang
 	CC_BIN := clang
 	CXX_BIN := clang++
+else ifeq ($(COMPILER),icc)
+	COMPILER_SLUG := icc
+	CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icc
+	CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icpc
+	export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin
+	COMPILER_FLAGS := -diag-disable=10441
+else ifeq ($(COMPILER),icx)
+	COMPILER_SLUG := icx
+	CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/icx
+	CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/icpx
+	export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin
 else
 	COMPILER_SLUG := $(COMPILER)
 endif
@@ -142,7 +153,7 @@ ifneq ($(FLAGS),)
 	FLAGS :=
 endif
 
-CMAKE_COMPILER_FLAGS := -D'CMAKE_C_FLAGS'='${ARCH_FLAGS} ${FLAGS}' -D'CMAKE_CXX_FLAGS'='${ARCH_FLAGS} ${FLAGS}'
+CMAKE_COMPILER_FLAGS := -D'CMAKE_C_FLAGS'='${COMPILER_FLAGS} ${ARCH_FLAGS} ${FLAGS}' -D'CMAKE_CXX_FLAGS'='${COMPILER_FLAGS} ${ARCH_FLAGS} ${FLAGS}'
 
 ifeq ($(BUILD),Release)
 	BUILD_SLUG := release
