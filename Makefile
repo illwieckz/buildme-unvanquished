@@ -329,6 +329,17 @@ engine: engine-server engine-client engine-tty
 
 bin: engine game
 
+prepare-base:
+	urcheon -C '${GAME_DIR}' --build-prefix='${DATA_BUILD_PREFIX}' prepare pkg/unvanquished_src.dpkdir
+
+build-base: prepare-base
+	urcheon -C '${GAME_DIR}' --build-prefix='${DATA_BUILD_PREFIX}' build pkg/unvanquished_src.dpkdir
+
+package-base: build-base
+	urcheon -C '${GAME_DIR}' --build-prefix='${DATA_BUILD_PREFIX}' package pkg/unvanquished_src.dpkdir
+
+base: ${DATA_ACTION}-base
+
 prepare-maps:
 	cd '${DATA_DIR}' && urcheon prepare src/map-*.dpkdir
 
@@ -341,21 +352,21 @@ package-maps: build-maps
 maps: ${DATA_ACTION}-maps
 
 prepare-resources:
-	cd '${DATA_DIR}' && urcheon prepare src/res-*_src.dpkdir src/tex-*_src.dpkdir src/unvanquished_src.dpkdir
+	cd '${DATA_DIR}' && urcheon prepare src/res-*_src.dpkdir src/tex-*_src.dpkdir
 
 build-resources: prepare-resources
-	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' build src/res-*_src.dpkdir src/tex-*_src.dpkdir src/unvanquished_src.dpkdir
+	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' build src/res-*_src.dpkdir src/tex-*_src.dpkdir
 
 package-resources: build-resources
-	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' package src/res-*_src.dpkdir src/tex-*_src.dpkdir src/unvanquished_src.dpkdir
+	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' package src/res-*_src.dpkdir src/tex-*_src.dpkdir
 
 resources: ${DATA_ACTION}-resources
 
-prepare-data: prepare-resources prepare-maps
+prepare-data: prepare-base prepare-resources prepare-maps
 
-build-data: build-resources build-maps
+build-data: build-base build-resources build-maps
 
-package-data: package-resources package-maps
+package-data: package-base package-resources package-maps
 
 data: ${DATA_ACTION}-data
 
