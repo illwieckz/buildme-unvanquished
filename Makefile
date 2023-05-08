@@ -275,7 +275,8 @@ configure-engine:
 		-D'USE_LTO'='${LTO}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='ON' -D'BUILD_CLIENT'='ON' -D'BUILD_TTY_CLIENT'='ON' \
-		-G'Unix Makefiles'
+		-G'Unix Makefiles' \
+	|| ( rm -v "${ENGINE_BUILD}/CMakeCache.txt" ; false )
 
 set-current-engine:
 	${LN_BIN} --verbose --symbolic --force --no-target-directory ${ENGINE_PREFIX} build/engine/current
@@ -302,7 +303,9 @@ configure-game:
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
 		-D'BUILD_SGAME'='ON' -D'BUILD_CGAME'='ON' \
 		-D'DAEMON_DIR'='${ENGINE_DIR}' \
-		-G'Unix Makefiles'
+		-G'Unix Makefiles' \
+	|| ( rm -v "${GAME_BUILD}/CMakeCache.txt" ; false )
+
 	echo "${VM_TYPE}" > "${GAME_BUILD}/vm_type.txt"
 
 set-current-game:
