@@ -8,12 +8,11 @@
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 NPROC := $(shell nproc)
 
-ENGINE_REPO := https://github.com/DaemonEngine/Daemon.git
 GAME_REPO := https://github.com/Unvanquished/Unvanquished.git
 DATA_REPO := https://github.com/UnvanquishedAssets/UnvanquishedAssets.git
 
-ENGINE_DIR := ${ROOT_DIR}/Daemon
 GAME_DIR := ${ROOT_DIR}/Unvanquished
+ENGINE_DIR := ${GAME_DIR}/daemon
 DATA_DIR := ${ROOT_DIR}/UnvanquishedAssets
 
 BUILD_DIR := ${ROOT_DIR}/build
@@ -241,9 +240,6 @@ else
 	EXTRA_PAKPATH_ARGS :=
 endif
 
-clone-engine:
-	(! [ -d '${ENGINE_DIR}' ] && git clone '${ENGINE_REPO}' '${ENGINE_DIR}') || true
-
 clone-game:
 	(! [ -d '${GAME_DIR}' ] && git clone '${GAME_REPO}' '${GAME_DIR}') || true
 
@@ -251,7 +247,7 @@ clone-assets:
 	(! [ -d '${DATA_DIR}' ] && git clone '${DATA_REPO}' '${DATA_DIR}') || true
 	cd '${DATA_DIR}' && git submodule update --init --recursive
 
-clone-bin: clone-engine clone-game
+clone-bin: clone-game
 
 clone: clone-bin clone-assets
 
