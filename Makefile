@@ -33,6 +33,28 @@ ifeq ($(CMAKE_BIN),)
 	CMAKE_BIN := cmake
 endif
 
+# HACK: Pass every argument after "run" goal as game options.
+# This is only done if ARGS option is not set (which is safer to use).
+# The -- option should be used so -options are not interpreted by make.
+# Example:
+# make data run -- -set sv_hostname "test server" +devmap plat23
+ifeq (run,$(findstring run,$(MAKECMDGOALS)))
+ifeq ($(ARGS),)
+# https://stackoverflow.com/a/37483943/9131399
+_pos = $(if $(findstring $1,$2),$(call _pos,$1,$(wordlist 2,$(words $2),$2),x $3),$3)
+# return the position after the word
+posafter = $(words $(call _pos,$1,$2) x)
+
+# https://stackoverflow.com/a/14061796/9131399
+# find "run" position
+RUN_POSAFTER :=  $(call posafter,run,$(MAKECMDGOALS))
+# use the rest as arguments for "run"
+ARGS := $(wordlist $(RUN_POSAFTER),$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+# and turn them into do-nothing targets
+$(eval $(ARGS):;@:)
+endif
+endif
+
 ifeq ($(PREFIX),)
 	PREFIX := default
 endif
