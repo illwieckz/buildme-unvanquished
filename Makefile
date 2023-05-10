@@ -107,19 +107,19 @@ else
     $(error Bad LTO value: $(LTO))
 endif
 
-ifeq ($(ARCH),)
-    ARCH := generic
+ifeq ($(MARCH),)
+    MARCH := generic
 endif
 
-ifeq ($(ARCH),generic)
+ifeq ($(MARCH),generic)
     CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='ON' -D'USE_CPU_RECOMMENDED_FEATURES'='ON'
-else ifeq ($(ARCH),lowend)
+else ifeq ($(MARCH),lowend)
     CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='ON' -D'USE_CPU_RECOMMENDED_FEATURES'='OFF'
-else ifeq ($(ARCH),native)
+else ifeq ($(MARCH),native)
     CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='OFF' -D'USE_CPU_RECOMMENDED_FEATURES'='OFF'
     ARCH_FLAGS := -march=native -mtune=native
 else
-    $(error Bad ARCH value: $(ARCH))
+    $(error Bad MARCH value: $(MARCH))
 endif
 
 ifneq ($(FUSELD_BIN),)
