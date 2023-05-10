@@ -129,42 +129,35 @@ endif
 getCompilerVersion = $(word 2,$(subst -, ,$1))
 
 ifeq ($(COMPILER),)
-    COMPILER_SLUG := $(shell gcc --version 2>/dev/null | if grep -q clang; then echo clang; else echo gcc; fi)
+    COMPILER := $(shell gcc --version 2>/dev/null | if grep -q clang; then echo clang; else echo gcc; fi)
+endif
+
+ifeq ($(COMPILER),gcc)
+    CC_BIN := gcc
+    CXX_BIN := g++
 else ifeq ($(findstring gcc-,$(COMPILER)),gcc-)
-    COMPILER_SLUG := $(COMPILER)
     COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
     CC_BIN := gcc-$(COMPILER_VERSION)
     CXX_BIN := g++-$(COMPILER_VERSION)
+else ifeq ($(COMPILER),clang)
+    CC_BIN := clang
+    CXX_BIN := clang++
 else ifeq ($(findstring clang-,$(COMPILER)),clang-)
-    COMPILER_SLUG := $(COMPILER)
     COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
     CC_BIN := clang-$(COMPILER_VERSION)
     CXX_BIN := clang++-$(COMPILER_VERSION)
-else ifeq ($(COMPILER),gcc)
-    COMPILER_SLUG := gcc
-    CC_BIN := gcc
-    CXX_BIN := g++
-else ifeq ($(COMPILER),clang)
-    COMPILER_SLUG := clang
-    CC_BIN := clang
-    CXX_BIN := clang++
 else ifeq ($(COMPILER),icc)
-    COMPILER_SLUG := icc
     CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icc
     CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icpc
     export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin
     COMPILER_FLAGS := -diag-disable=10441
 else ifeq ($(COMPILER),icx)
-    COMPILER_SLUG := icx
     CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/icx
     CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/icpx
     export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin
 else ifeq ($(COMPILER),aocc)
-    COMPILER_SLUG := aocc
     CC_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang | sort | tail -n1)
     CXX_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang++ | sort | tail -n1)
-else
-    COMPILER_SLUG := $(COMPILER)
 endif
 
 # CC and CXX are always set by Make, so we cannot rely on those variable names.
@@ -218,17 +211,17 @@ endif
 ifeq ($(VM),nexe)
     GAME_LINK := nolto
     GAME_LTO := OFF
-    GAME_COMPILER_SLUG := nacl
+    GAME_COMPILER := nacl
 else
     GAME_LINK := ${LINK}
     GAME_LTO := $(LTO)
-    GAME_COMPILER_SLUG := ${COMPILER_SLUG}
+    GAME_COMPILER := ${COMPILER}
     CMAKE_GAME_COMPILER_ARGS := $(CMAKE_COMPILER_ARGS)
     CMAKE_GAME_FUSELD_ARGS := $(CMAKE_FUSELD_ARGS)
 endif
 
-ENGINE_PREFIX := ${PREFIX}-${COMPILER_SLUG}-${LINK}-${BUILD_SLUG}-exe
-GAME_PREFIX := ${PREFIX}-${GAME_COMPILER_SLUG}-${GAME_LINK}-${BUILD_SLUG}-${VM}
+ENGINE_PREFIX := ${PREFIX}-${COMPILER}-${LINK}-${BUILD_SLUG}-exe
+GAME_PREFIX := ${PREFIX}-${GAME_COMPILER}-${GAME_LINK}-${BUILD_SLUG}-${VM}
 
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
 GAME_BUILD := ${BUILD_DIR}/game/${GAME_PREFIX}
