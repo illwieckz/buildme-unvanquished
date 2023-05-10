@@ -24,13 +24,13 @@ SERVER_ARGS := -set sv_pure 0
 SYSTEM := $(shell uname -s)
 
 ifeq ($(SYSTEM),Darwin)
-	LN_BIN := gln
+    LN_BIN := gln
 else
-	LN_BIN := ln
+    LN_BIN := ln
 endif
 
 ifeq ($(CMAKE_BIN),)
-	CMAKE_BIN := cmake
+    CMAKE_BIN := cmake
 endif
 
 # HACK: Pass every argument after "run" goal as game options.
@@ -39,210 +39,210 @@ endif
 # Example:
 # make data run -- -set sv_hostname "test server" +devmap plat23
 ifeq (run,$(findstring run,$(MAKECMDGOALS)))
-ifeq ($(ARGS),)
-# https://stackoverflow.com/a/37483943/9131399
-_pos = $(if $(findstring $1,$2),$(call _pos,$1,$(wordlist 2,$(words $2),$2),x $3),$3)
-# return the position after the word
-posafter = $(words $(call _pos,$1,$2) x)
+    ifeq ($(ARGS),)
+        # https://stackoverflow.com/a/37483943/9131399
+        _pos = $(if $(findstring $1,$2),$(call _pos,$1,$(wordlist 2,$(words $2),$2),x $3),$3)
+        # return the position after the word
+        posafter = $(words $(call _pos,$1,$2) x)
 
-# https://stackoverflow.com/a/14061796/9131399
-# find "run" position
-RUN_POSAFTER :=  $(call posafter,run,$(MAKECMDGOALS))
-# use the rest as arguments for "run"
-ARGS := $(wordlist $(RUN_POSAFTER),$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-# and turn them into do-nothing targets
-$(eval $(ARGS):;@:)
-endif
+        # https://stackoverflow.com/a/14061796/9131399
+        # find "run" position
+        RUN_POSAFTER :=  $(call posafter,run,$(MAKECMDGOALS))
+        # use the rest as arguments for "run"
+        ARGS := $(wordlist $(RUN_POSAFTER),$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+        # and turn them into do-nothing targets
+        $(eval $(ARGS):;@:)
+    endif
 endif
 
 ifeq ($(PREFIX),)
-	PREFIX := default
+    PREFIX := default
 endif
 
 ifeq ($(DPK),)
-	DPK := OFF
+    DPK := OFF
 endif
 
 ifeq ($(DPK),ON)
-	PAK_PREFIX := pkg
-	DATA_ACTION := package
+    PAK_PREFIX := pkg
+    DATA_ACTION := package
 else ifeq ($(DPK),OFF)
-	PAK_PREFIX := test
-	DATA_ACTION := build
+    PAK_PREFIX := test
+    DATA_ACTION := build
 endif
 
 ifeq ($(VM),)
-	VM := nexe
+    VM := nexe
 endif
 
 ifeq ($(VM),nexe)
 else ifeq ($(VM),exe)
 else ifeq ($(VM),dll)
 else
-$(error Bad VM value: $(VM))
+    $(error Bad VM value: $(VM))
 endif
 
 ifeq ($(VM),nexe)
-	ifeq ($(NEXE),)
-		NEXE := native
-	endif
+    ifeq ($(NEXE),)
+        NEXE := native
+    endif
 endif
 
 ifeq ($(BUILD),)
-	BUILD := RelWithDebInfo
+    BUILD := RelWithDebInfo
 endif
 
 ifeq ($(BUILD),Debug)
 else ifeq ($(BUILD),RelWithDebInfo)
 else ifeq ($(BUILD),Release)
 else
-$(error Bad BUILD value: $(BUILD))
+    $(error Bad BUILD value: $(BUILD))
 endif
 
 ifeq ($(LTO),OFF)
 else ifeq ($(LTO),ON)
 else ifeq ($(LTO),)
-	LTO := ON
+    LTO := ON
 else
-$(error Bad LTO value: $(LTO))
+    $(error Bad LTO value: $(LTO))
 endif
 
 ifeq ($(ARCH),)
-	ARCH := generic
+    ARCH := generic
 endif
 
 ifeq ($(ARCH),generic)
-	CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='ON' -D'USE_CPU_RECOMMENDED_FEATURES'='ON'
-	ARCH_FLAGS :=
+    CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='ON' -D'USE_CPU_RECOMMENDED_FEATURES'='ON'
+    ARCH_FLAGS :=
 else ifeq ($(ARCH),lowend)
-	CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='ON' -D'USE_CPU_RECOMMENDED_FEATURES'='OFF'
-	ARCH_FLAGS :=
+    CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='ON' -D'USE_CPU_RECOMMENDED_FEATURES'='OFF'
+    ARCH_FLAGS :=
 else ifeq ($(ARCH),native)
-	CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='OFF' -D'USE_CPU_RECOMMENDED_FEATURES'='OFF'
-	ARCH_FLAGS := -march=native -mtune=native
+    CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='OFF' -D'USE_CPU_RECOMMENDED_FEATURES'='OFF'
+    ARCH_FLAGS := -march=native -mtune=native
 else
-$(error Bad ARCH value: $(ARCH))
+    $(error Bad ARCH value: $(ARCH))
 endif
 
 ifneq ($(FUSELD_BIN),)
-	CMAKE_FUSELD_ARGS := -D'CMAKE_EXE_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD_BIN}' -D'CMAKE_MODULE_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD_BIN}' -D'CMAKE_SHARED_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD_BIN}'
+    CMAKE_FUSELD_ARGS := -D'CMAKE_EXE_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD_BIN}' -D'CMAKE_MODULE_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD_BIN}' -D'CMAKE_SHARED_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD_BIN}'
 else
-	CMAKE_FUSELD_ARGS :=
+    CMAKE_FUSELD_ARGS :=
 endif
 
 getCompilerName = $(firstword $(subst -, ,$1))
 getCompilerVersion = $(word 2,$(subst -, ,$1))
 
 ifeq ($(COMPILER),)
-	COMPILER_SLUG := $(shell gcc --version 2>/dev/null | if grep -q clang; then echo clang; else echo gcc; fi)
+    COMPILER_SLUG := $(shell gcc --version 2>/dev/null | if grep -q clang; then echo clang; else echo gcc; fi)
 else ifeq ($(findstring gcc-,$(COMPILER)),gcc-)
-	COMPILER := $(call getCompilerName,$(COMPILER))
-	COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
-	CC_BIN := gcc-$(COMPILER_VERSION)
-	CXX_BIN := g++-$(COMPILER_VERSION)
+    COMPILER := $(call getCompilerName,$(COMPILER))
+    COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
+    CC_BIN := gcc-$(COMPILER_VERSION)
+    CXX_BIN := g++-$(COMPILER_VERSION)
 else ifeq ($(findstring clang-,$(COMPILER)),clang-)
-	COMPILER := $(call getCompilerName,$(COMPILER))
-	COMPILER := $(call getCompilerName,$(COMPILER))
-	COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
-	CC_BIN := clang-$(COMPILER_VERSION)
-	CXX_BIN := clang++-$(COMPILER_VERSION)
+    COMPILER := $(call getCompilerName,$(COMPILER))
+    COMPILER := $(call getCompilerName,$(COMPILER))
+    COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
+    CC_BIN := clang-$(COMPILER_VERSION)
+    CXX_BIN := clang++-$(COMPILER_VERSION)
 else ifeq ($(COMPILER),gcc)
-	COMPILER_SLUG := gcc
-	CC_BIN := gcc
-	CXX_BIN := g++
+    COMPILER_SLUG := gcc
+    CC_BIN := gcc
+    CXX_BIN := g++
 else ifeq ($(COMPILER),clang)
-	COMPILER_SLUG := clang
-	CC_BIN := clang
-	CXX_BIN := clang++
+    COMPILER_SLUG := clang
+    CC_BIN := clang
+    CXX_BIN := clang++
 else ifeq ($(COMPILER),icc)
-	COMPILER_SLUG := icc
-	CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icc
-	CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icpc
-	export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin
-	COMPILER_FLAGS := -diag-disable=10441
+    COMPILER_SLUG := icc
+    CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icc
+    CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icpc
+    export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin
+    COMPILER_FLAGS := -diag-disable=10441
 else ifeq ($(COMPILER),icx)
-	COMPILER_SLUG := icx
-	CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/icx
-	CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/icpx
-	export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin
+    COMPILER_SLUG := icx
+    CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/icx
+    CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/icpx
+    export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin
 else ifeq ($(COMPILER),aocc)
-	COMPILER_SLUG := aocc
-	CC_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang | sort | tail -n1)
-	CXX_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang++ | sort | tail -n1)
+    COMPILER_SLUG := aocc
+    CC_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang | sort | tail -n1)
+    CXX_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang++ | sort | tail -n1)
 else
-	COMPILER_SLUG := $(COMPILER)
+    COMPILER_SLUG := $(COMPILER)
 endif
 
 # CC and CXX are always set by Make, so we cannot rely on those variable names.
 ifneq ($(CC_BIN),)
-	CMAKE_C_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='$(CC_BIN)'
+    CMAKE_C_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='$(CC_BIN)'
 else
-	CMAKE_C_COMPILER_ARGS :=
+    CMAKE_C_COMPILER_ARGS :=
 endif
 
 ifneq ($(CXX_BIN),)
-	CMAKE_CXX_COMPILER_ARGS := -D'CMAKE_CXX_COMPILER'='$(CXX_BIN)'
+    CMAKE_CXX_COMPILER_ARGS := -D'CMAKE_CXX_COMPILER'='$(CXX_BIN)'
 else
-	CMAKE_CXX_COMPILER_ARGS :=
+    CMAKE_CXX_COMPILER_ARGS :=
 endif
 
 CMAKE_COMPILER_ARGS := ${CMAKE_C_COMPILER_ARGS} ${CMAKE_CXX_COMPILER_ARGS}
 
 ifneq ($(FLAGS),)
-	FLAGS :=
+    FLAGS :=
 endif
 
 CMAKE_COMPILER_FLAGS := -D'CMAKE_C_FLAGS'='${COMPILER_FLAGS} ${ARCH_FLAGS} ${FLAGS}' -D'CMAKE_CXX_FLAGS'='${COMPILER_FLAGS} ${ARCH_FLAGS} ${FLAGS}'
 
 ifeq ($(BUILD),Release)
-	BUILD_SLUG := release
-	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Release' -D'USE_DEBUG_OPTIMIZE'='OFF'
+    BUILD_SLUG := release
+    CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Release' -D'USE_DEBUG_OPTIMIZE'='OFF'
 else ifeq ($(BUILD),Debug)
-	BUILD_SLUG := debug
-	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='OFF' -D'CMAKE_EXE_LINKER_FLAGS'='-lprofiler -ltcmalloc'
+    BUILD_SLUG := debug
+    CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='OFF' -D'CMAKE_EXE_LINKER_FLAGS'='-lprofiler -ltcmalloc'
 
-	# Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
-	# Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
-	DEBUG := gdb -x .gdbinit.txt -args
+    # Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
+    # Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
+    DEBUG := gdb -x .gdbinit.txt -args
 else ifeq ($(BUILD),RelWithDebInfo)
-	BUILD_SLUG := reldeb
-	CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='RelWithDebInfo' -D'USE_DEBUG_OPTIMIZE'='ON'
+    BUILD_SLUG := reldeb
+    CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='RelWithDebInfo' -D'USE_DEBUG_OPTIMIZE'='ON'
 
-	# See above.
-	DEBUG := gdb -x .gdbinit.txt -args
+    # See above.
+    DEBUG := gdb -x .gdbinit.txt -args
 else
-	DEBUG :=
+    DEBUG :=
 endif
 
 ifeq ($(VM),dll)
-	VM_TYPE := 3
-	CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='ON'
+    VM_TYPE := 3
+    CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='ON'
 else ifeq ($(VM),exe)
-	VM_TYPE := 2
-	CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='ON' -D'BUILD_GAME_NATIVE_DLL'='OFF'
+    VM_TYPE := 2
+    CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='ON' -D'BUILD_GAME_NATIVE_DLL'='OFF'
 else ifeq ($(VM),nexe)
-	VM_TYPE := 1
-	CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='ON' -D'BUILD_GAME_NACL_NEXE'='ON' -D'BUILD_GAME_NACL_TARGETS'="$(NEXE)" -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='OFF'
+    VM_TYPE := 1
+    CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='ON' -D'BUILD_GAME_NACL_NEXE'='ON' -D'BUILD_GAME_NACL_TARGETS'="$(NEXE)" -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='OFF'
 endif
 
 ifeq ($(LTO),ON)
-	LINK := lto
+    LINK := lto
 else
-	LINK := nolto
+    LINK := nolto
 endif
 
 ifeq ($(VM),nexe)
-	GAME_LINK := nolto
-	GAME_LTO := OFF
-	GAME_COMPILER_SLUG := nacl
-	CMAKE_GAME_COMPILER_ARGS :=
-	CMAKE_GAME_FUSELD_ARGS :=
+    GAME_LINK := nolto
+    GAME_LTO := OFF
+    GAME_COMPILER_SLUG := nacl
+    CMAKE_GAME_COMPILER_ARGS :=
+    CMAKE_GAME_FUSELD_ARGS :=
 else
-	GAME_LINK := ${LINK}
-	GAME_LTO := $(LTO)
-	GAME_COMPILER_SLUG := ${COMPILER_SLUG}
-	CMAKE_GAME_COMPILER_ARGS := $(CMAKE_COMPILER_ARGS)
-	CMAKE_GAME_FUSELD_ARGS := $(CMAKE_FUSELD_ARGS)
+    GAME_LINK := ${LINK}
+    GAME_LTO := $(LTO)
+    GAME_COMPILER_SLUG := ${COMPILER_SLUG}
+    CMAKE_GAME_COMPILER_ARGS := $(CMAKE_COMPILER_ARGS)
+    CMAKE_GAME_FUSELD_ARGS := $(CMAKE_FUSELD_ARGS)
 endif
 
 ENGINE_PREFIX := ${PREFIX}-${COMPILER_SLUG}-${LINK}-${BUILD_SLUG}-exe
@@ -257,23 +257,23 @@ DATA_BUILD := ${DATA_BUILD_PREFIX}/${PAK_PREFIX}
 ENGINE_VMTYPE_ARGS := -set vm.cgame.type ${VM_TYPE} -set vm.sgame.type ${VM_TYPE}
 
 ifeq ($(LOG),Debug)
-	ENGINE_LOG_ARGS := -set logs.suppression.enabled 0 -set logs.level.default debug -set logs.level.audio debug -set logs.level.glconfig debug -set developer 1
+    ENGINE_LOG_ARGS := -set logs.suppression.enabled 0 -set logs.level.default debug -set logs.level.audio debug -set logs.level.glconfig debug -set developer 1
 else
-	ENGINE_LOG_ARGS := -set logs.suppression.enabled 1 -set logs.level.default notice -set logs.level.audio notice  -set logs.level.glconfig notice -set developer 0
+    ENGINE_LOG_ARGS := -set logs.suppression.enabled 1 -set logs.level.default notice -set logs.level.audio notice  -set logs.level.glconfig notice -set developer 0
 endif
 
 ifneq ($(DATA),OFF)
-	DPKDIR_PAKPATH_ARGS := -pakpath '${DATA_BUILD}'
+    DPKDIR_PAKPATH_ARGS := -pakpath '${DATA_BUILD}'
 else
-	DPKDIR_PAKPATH_ARGS :=
+    DPKDIR_PAKPATH_ARGS :=
 endif
 
 EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
 
 ifneq ($(EXTRA_PAKPATHS),)
-	EXTRA_PAKPATH_ARGS := ${EXTRA_PAKPATHS}
+    EXTRA_PAKPATH_ARGS := ${EXTRA_PAKPATHS}
 else
-	EXTRA_PAKPATH_ARGS :=
+    EXTRA_PAKPATH_ARGS :=
 endif
 
 clone-game:
