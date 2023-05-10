@@ -113,10 +113,8 @@ endif
 
 ifeq ($(ARCH),generic)
     CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='ON' -D'USE_CPU_RECOMMENDED_FEATURES'='ON'
-    ARCH_FLAGS :=
 else ifeq ($(ARCH),lowend)
     CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='ON' -D'USE_CPU_RECOMMENDED_FEATURES'='OFF'
-    ARCH_FLAGS :=
 else ifeq ($(ARCH),native)
     CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='OFF' -D'USE_CPU_RECOMMENDED_FEATURES'='OFF'
     ARCH_FLAGS := -march=native -mtune=native
@@ -126,8 +124,6 @@ endif
 
 ifneq ($(FUSELD_BIN),)
     CMAKE_FUSELD_ARGS := -D'CMAKE_EXE_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD_BIN}' -D'CMAKE_MODULE_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD_BIN}' -D'CMAKE_SHARED_LINKER_FLAGS_INIT'='-fuse-ld=${FUSELD_BIN}'
-else
-    CMAKE_FUSELD_ARGS :=
 endif
 
 getCompilerName = $(firstword $(subst -, ,$1))
@@ -176,21 +172,13 @@ endif
 # CC and CXX are always set by Make, so we cannot rely on those variable names.
 ifneq ($(CC_BIN),)
     CMAKE_C_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='$(CC_BIN)'
-else
-    CMAKE_C_COMPILER_ARGS :=
 endif
 
 ifneq ($(CXX_BIN),)
     CMAKE_CXX_COMPILER_ARGS := -D'CMAKE_CXX_COMPILER'='$(CXX_BIN)'
-else
-    CMAKE_CXX_COMPILER_ARGS :=
 endif
 
 CMAKE_COMPILER_ARGS := ${CMAKE_C_COMPILER_ARGS} ${CMAKE_CXX_COMPILER_ARGS}
-
-ifneq ($(FLAGS),)
-    FLAGS :=
-endif
 
 CMAKE_COMPILER_FLAGS := -D'CMAKE_C_FLAGS'='${COMPILER_FLAGS} ${ARCH_FLAGS} ${FLAGS}' -D'CMAKE_CXX_FLAGS'='${COMPILER_FLAGS} ${ARCH_FLAGS} ${FLAGS}'
 
@@ -210,8 +198,6 @@ else ifeq ($(BUILD),RelWithDebInfo)
 
     # See above.
     DEBUG := gdb -x .gdbinit.txt -args
-else
-    DEBUG :=
 endif
 
 ifeq ($(VM),dll)
@@ -235,8 +221,6 @@ ifeq ($(VM),nexe)
     GAME_LINK := nolto
     GAME_LTO := OFF
     GAME_COMPILER_SLUG := nacl
-    CMAKE_GAME_COMPILER_ARGS :=
-    CMAKE_GAME_FUSELD_ARGS :=
 else
     GAME_LINK := ${LINK}
     GAME_LTO := $(LTO)
@@ -264,16 +248,12 @@ endif
 
 ifneq ($(DATA),OFF)
     DPKDIR_PAKPATH_ARGS := -pakpath '${DATA_BUILD}'
-else
-    DPKDIR_PAKPATH_ARGS :=
 endif
 
 EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
 
 ifneq ($(EXTRA_PAKPATHS),)
     EXTRA_PAKPATH_ARGS := ${EXTRA_PAKPATHS}
-else
-    EXTRA_PAKPATH_ARGS :=
 endif
 
 clone-game:
