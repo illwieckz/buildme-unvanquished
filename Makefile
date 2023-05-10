@@ -130,8 +130,22 @@ else
 	CMAKE_FUSELD_ARGS :=
 endif
 
+getCompilerName = $(firstword $(subst -, ,$1))
+getCompilerVersion = $(word 2,$(subst -, ,$1))
+
 ifeq ($(COMPILER),)
 	COMPILER_SLUG := $(shell gcc --version 2>/dev/null | if grep -q clang; then echo clang; else echo gcc; fi)
+else ifeq ($(findstring gcc-,$(COMPILER)),gcc-)
+	COMPILER := $(call getCompilerName,$(COMPILER))
+	COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
+	CC_BIN := gcc-$(COMPILER_VERSION)
+	CXX_BIN := g++-$(COMPILER_VERSION)
+else ifeq ($(findstring clang-,$(COMPILER)),clang-)
+	COMPILER := $(call getCompilerName,$(COMPILER))
+	COMPILER := $(call getCompilerName,$(COMPILER))
+	COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
+	CC_BIN := clang-$(COMPILER_VERSION)
+	CXX_BIN := clang++-$(COMPILER_VERSION)
 else ifeq ($(COMPILER),gcc)
 	COMPILER_SLUG := gcc
 	CC_BIN := gcc
