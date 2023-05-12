@@ -135,7 +135,7 @@ endif
 getCompilerVersion = $(word 2,$(subst -, ,$1))
 
 ifeq ($(COMPILER),)
-    COMPILER := $(shell gcc --version 2>/dev/null | if grep -q clang; then echo clang; else echo gcc; fi)
+    COMPILER := $(shell cc --version 2>/dev/null | if grep -q clang; then echo clang; else echo gcc; fi)
 endif
 
 ifeq ($(COMPILER),gcc)
