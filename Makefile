@@ -174,6 +174,9 @@ else ifeq ($(COMPILER),icx)
 else ifeq ($(COMPILER),aocc)
     CC_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang | sort | tail -n1)
     CXX_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang++ | sort | tail -n1)
+else ifeq ($(COMPILER),armclang)
+    CC_BIN := $(shell ls /opt/arm/arm-linux-compiler-*/bin/armclang | sort | tail -n 1)
+    CXX_BIN := $(shell ls /opt/arm/arm-linux-compiler-*/bin/armclang++ | sort | tail -n 1)
 endif
 
 # CC and CXX are always set by Make, so we cannot rely on those variable names.
