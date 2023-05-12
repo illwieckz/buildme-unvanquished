@@ -151,6 +151,10 @@ else ifeq ($(COMPILER),mingw)
     CXX_BIN := x86_64-w64-mingw32-g++
     TOOLCHAIN := cmake/cross-toolchain-mingw64.cmake
     ENGINE_EXT := .exe
+else ifeq ($(COMPILER),zig)
+    CC_BIN := zig;cc
+    CXX_BIN := zig;c++
+    CMAKE := ${CMAKE} -D'USE_PRECOMPILED_HEADER'='OFF'
 else ifeq ($(COMPILER),icc)
     CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icc
     CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icpc
