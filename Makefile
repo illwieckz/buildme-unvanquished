@@ -146,6 +146,11 @@ else ifeq ($(findstring clang-,$(COMPILER)),clang-)
     COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
     CC_BIN := clang-$(COMPILER_VERSION)
     CXX_BIN := clang++-$(COMPILER_VERSION)
+else ifeq ($(COMPILER),mingw)
+    CC_BIN := x86_64-w64-mingw32-gcc
+    CXX_BIN := x86_64-w64-mingw32-g++
+    TOOLCHAIN := cmake/cross-toolchain-mingw64.cmake
+    ENGINE_EXT := .exe
 else ifeq ($(COMPILER),icc)
     CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icc
     CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icpc
@@ -194,9 +199,11 @@ endif
 ifeq ($(VM),dll)
     VM_TYPE := 3
     CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='ON'
+    GAME_TOOLCHAIN := ${TOOLCHAIN}
 else ifeq ($(VM),exe)
     VM_TYPE := 2
     CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='ON' -D'BUILD_GAME_NATIVE_DLL'='OFF'
+    GAME_TOOLCHAIN := ${TOOLCHAIN}
 else ifeq ($(VM),nexe)
     VM_TYPE := 1
     CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='ON' -D'BUILD_GAME_NACL_NEXE'='ON' -D'BUILD_GAME_NACL_TARGETS'="$(NEXE)" -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='OFF'
@@ -270,6 +277,7 @@ pull: pull-bin pull-assets
 
 configure-engine:
 	${CMAKE_BIN} '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
+		-DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
 		${CMAKE_COMPILER_ARGS} \
 		${CMAKE_FUSELD_ARGS} \
 		${CMAKE_DEBUG_ARGS} \
@@ -295,6 +303,7 @@ engine-tty: set-current-engine configure-engine
 
 configure-game:
 	${CMAKE_BIN} '${GAME_DIR}' -B'${GAME_BUILD}' \
+		-DCMAKE_TOOLCHAIN_FILE=${GAME_TOOLCHAIN} \
 		${CMAKE_GAME_COMPILER_ARGS} \
 		${CMAKE_GAME_FUSELD_ARGS} \
 		${CMAKE_DEBUG_ARGS} \
@@ -384,7 +393,7 @@ clean-bin: clean-engine clean-game
 
 run-server: bin-server
 	${DEBUG} \
-	'${ENGINE_BUILD}/daemonded' \
+	'${ENGINE_BUILD}/daemonded${ENGINE_EXT}' \
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${GAME_BUILD}' \
@@ -395,7 +404,7 @@ run-server: bin-server
 
 run-client: bin-client
 	${DEBUG} \
-	'${ENGINE_BUILD}/daemon' \
+	'${ENGINE_BUILD}/daemon${ENGINE_EXT}' \
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${GAME_BUILD}' \
@@ -407,7 +416,7 @@ run-client: bin-client
 
 run-tty: bin-tty
 	${DEBUG} \
-	'${ENGINE_BUILD}/daemon-tty' \
+	'${ENGINE_BUILD}/daemon-tty${ENGINE_EXT}' \
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${GAME_BUILD}' \
