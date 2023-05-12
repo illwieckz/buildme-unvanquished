@@ -241,11 +241,7 @@ ifneq ($(DATA),OFF)
     DPKDIR_PAKPATH_ARGS := -pakpath '${DATA_BUILD}'
 endif
 
-EXTRA_PAKPATHS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
-
-ifneq ($(EXTRA_PAKPATHS),)
-    EXTRA_PAKPATH_ARGS := ${EXTRA_PAKPATHS}
-endif
+EXTRA_PAKPATHS_ARGS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
 
 clone-game:
 	(! [ -d '${GAME_DIR}' ] && git clone '${GAME_REPO}' '${GAME_DIR}') || true
