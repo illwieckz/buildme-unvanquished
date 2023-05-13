@@ -170,6 +170,8 @@ else ifeq ($(COMPILER),icc)
 else ifeq ($(COMPILER),icx)
     CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/icx
     CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/icpx
+    C_COMPILER_FLAGs := -Rdebug-disables-optimization
+    CXX_COMPILER_FLAGs := -Rdebug-disables-optimization
     export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin
 else ifeq ($(COMPILER),aocc)
     CC_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang | sort | tail -n1)
