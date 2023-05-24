@@ -18,8 +18,8 @@ DATA_DIR := ${ROOT_DIR}/UnvanquishedAssets
 BUILD_DIR := ${ROOT_DIR}/build
 EXDEPS_DIR := ${BUILD_DIR}/deps
 
-CLIENT_ARGS := -set client.allowRemotePakDir on
-SERVER_ARGS := -set sv_pure 0
+CLIENT_ARGS := -set common.pedanticShutdown on -set client.allowRemotePakDir on
+SERVER_ARGS := -set common.pedanticShutdown on -set sv_pure 0
 
 SYSTEM := $(shell uname -s)
 
@@ -200,16 +200,28 @@ ifeq ($(BUILD),Release)
 else ifeq ($(BUILD),Debug)
     BUILD_SLUG := debug
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='OFF' -D'CMAKE_EXE_LINKER_FLAGS'='-lprofiler -ltcmalloc'
-
-    # Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
-    # Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
-    DEBUG := gdb -x .gdbinit.txt -args
+    DEBUG := gdb
 else ifeq ($(BUILD),RelWithDebInfo)
     BUILD_SLUG := reldeb
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='RelWithDebInfo' -D'USE_DEBUG_OPTIMIZE'='ON'
+    DEBUG := gdb
+endif
 
-    # See above.
-    DEBUG := gdb -x .gdbinit.txt -args
+ifeq ($(DEBUG),)
+else ifeq ($(DEBUG),gdb)
+    # Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
+    # Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
+    RUNNER := gdb -x .gdbinit.txt -args
+else ifeq ($(DEBUG),nemiver)
+    RUNNER := nemiver
+else ifeq ($(DEBUG),alleyoop)
+    RUNNER := alleyoop -R "${GAME_DIR}"
+else ifeq ($(DEBUG),valgrind)
+    RUNNER := valgrind --tool=memcheck --num-callers=4 --track-origins=yes --time-stamp=yes --run-libc-freeres=yes --leak-check=full --leak-resolution=high --track-origins=yes --show-leak-kinds=all --log-file='logs/valgrind-$(shell date '+%Y%m%d-%H%M%S').log' --
+else ifeq ($(DEBUG),heapusage)
+    RUNNER := heapusage -m 0 -o 'logs/heapusage-$(shell date '+%Y%m%d-%H%M%S').log'
+else
+    $(error Bad DEBUG value: $(DEBUG))
 endif
 
 ifeq ($(VM),dll)
@@ -264,7 +276,7 @@ ifneq ($(DATA),OFF)
     DPKDIR_PAKPATH_ARGS := -pakpath '${DATA_BUILD}'
 endif
 
-EXTRA_PAKPATHS_ARGS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
+EXTRA_PAKPATH_ARGS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
 
 clone-game:
 	(! [ -d '${GAME_DIR}' ] && git clone '${GAME_REPO}' '${GAME_DIR}') || true
@@ -408,7 +420,7 @@ clean-game:
 clean-bin: clean-engine clean-game
 
 run-server: bin-server
-	${DEBUG} \
+	${RUNNER} \
 	'${ENGINE_BUILD}/daemonded${ENGINE_EXT}' \
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
@@ -419,7 +431,7 @@ run-server: bin-server
 		${ARGS}
 
 run-client: bin-client
-	${DEBUG} \
+	${RUNNER} \
 	'${ENGINE_BUILD}/daemon${ENGINE_EXT}' \
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
@@ -431,7 +443,7 @@ run-client: bin-client
 		${ARGS}
 
 run-tty: bin-tty
-	${DEBUG} \
+	${RUNNER} \
 	'${ENGINE_BUILD}/daemon-tty${ENGINE_EXT}' \
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
