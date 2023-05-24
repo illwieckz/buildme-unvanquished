@@ -219,6 +219,10 @@ else ifeq ($(DEBUG),valgrind)
     RUNNER := valgrind --tool=memcheck --num-callers=4 --track-origins=yes --time-stamp=yes --run-libc-freeres=yes --leak-check=full --leak-resolution=high --track-origins=yes --show-leak-kinds=all --log-file='logs/valgrind-$(shell date '+%Y%m%d-%H%M%S').log' --
 else ifeq ($(DEBUG),heapusage)
     RUNNER := heapusage -m 0 -o 'logs/heapusage-$(shell date '+%Y%m%d-%H%M%S').log'
+else ifeq ($(DEBUG),asan)
+    # LeakSanitizer does not work under ptrace (strace, gdb, etc)
+    COMPILER_FLAGS := ${COMPILER_FLAGS} -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
+    LINKER_FLAGS := ${LINKER_FLAGS} -fsanitize=address
 else
     $(error Bad DEBUG value: $(DEBUG))
 endif
