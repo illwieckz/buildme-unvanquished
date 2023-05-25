@@ -3,7 +3,7 @@
 # See LICENSE.md for details
 
 .DEFAULT_GOAL := build
-.PHONY: data bin bin-client bin-server bin-tty build build-data build-maps build-resources clean-bin clean-engine clean-game clone clone-data clone-bin clone-game configure-engine configure-game data engine engine-client engine-server engine-tty it maps package-data package-maps package-resources prepare-data prepare-maps prepare-resources pull pull-data pull-bin pull-engine pull-game resources run run-client run-server run-tty set-current-engine set-current-game game
+.PHONY: data bin bin-client bin-server bin-tty build build-data build-maps build-resources clean-bin clean-engine clean-game clone clone-data clone-bin clone-game configure-engine configure-game data engine engine-client engine-server engine-tty it maps package-data package-maps package-resources prepare-data prepare-maps prepare-resources pull pull-data pull-bin pull-engine pull-game resources run run-client run-server run-tty set-current-engine set-current-game copy-engine-windows-deps copy-engine-none-deps game
 
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 NPROC := $(shell nproc)
@@ -227,6 +227,12 @@ else
     $(error Bad DEBUG value: $(DEBUG))
 endif
 
+ifeq ($(COMPILER),mingw)
+    export RUNNER = wine
+    export WINEPREFIX = $(shell realpath "${BUILD_DIR}/wine")
+    EXE_EXT := .exe
+endif
+
 CMAKE_COMPILER_FLAGS := \
     -D'CMAKE_C_FLAGS'='${C_COMPILER_FLAGS} ${ARCH_FLAGS} ${COMPILER_FLAGS}' \
 	-D'CMAKE_CXX_FLAGS'='${CXX_COMPILER_FLAGS} ${ARCH_FLAGS} ${COMPILER_FLAGS}'
@@ -286,6 +292,12 @@ ifneq ($(DATA),OFF)
 endif
 
 EXTRA_PAKPATH_ARGS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
+
+ifeq ($(RUNNER), wine)
+    SYSTEM_DEPS := windows
+else
+    SYSTEM_DEPS := none
+endif
 
 clone-game:
 	(! [ -d '${GAME_DIR}' ] && git clone '${GAME_REPO}' '${GAME_DIR}') || true
@@ -359,6 +371,18 @@ configure-game:
 
 	echo "${VM_TYPE}" > "${GAME_BUILD}/vm_type.txt"
 
+copy-engine-windows-deps:
+	{ \
+		for dll_name in libwinpthread-1.dll libgcc_s_seh-1.dll libstdc++-6.dll; \
+		do \
+			mingw_arch='x86_64-w64-mingw32'; \
+			dll_location="$$(find '/usr' -name "$${dll_name}" -type f | sort | grep --max-count=1 "$${mingw_arch}")"; \
+			cp -av "$${dll_location}" "${ENGINE_BUILD}/$${dll_name}"; \
+		done; \
+	}
+
+copy-engine-none-deps:
+
 set-current-game:
 	mkdir -p build/game
 	${LN_BIN} --verbose --symbolic --force --no-target-directory ${GAME_PREFIX} build/game/current
@@ -366,14 +390,15 @@ set-current-game:
 game: set-current-game configure-game
 	${CMAKE_BIN} --build '${GAME_BUILD}' -- -j'${NPROC}'
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-amd64.nexe ${GAME_BUILD}/irt_core-amd64.nexe
+	# FIXME: this doesn't exist for Windows, so the symbolic link is just garbage.
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
-	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader ${GAME_BUILD}/nacl_loader
+	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader${EXE_EXT} ${GAME_BUILD}/nacl_loader${EXE_EXT}
 
-bin-client: engine-client game
+bin-client: engine-client copy-engine-${SYSTEM_DEPS}-deps game
 
-bin-server: engine-server game
+bin-server: engine-server copy-engine-${SYSTEM_DEPS}-deps game
 
-bin-tty: engine-tty game
+bin-tty: engine-tty copy-engine-deps game
 
 engine: engine-server engine-client engine-tty
 
