@@ -67,7 +67,7 @@ ifeq ($(DPK),ON)
     PAK_PREFIX := pkg
     DATA_ACTION := package
 else ifeq ($(DPK),OFF)
-    PAK_PREFIX := test
+    PAK_PREFIX := _pakdir/pkg
     DATA_ACTION := build
 endif
 
