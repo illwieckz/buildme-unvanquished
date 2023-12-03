@@ -165,14 +165,14 @@ else ifeq ($(COMPILER),icc)
     CC_BIN := /opt/intel/oneapi/compiler/2023.2.2/linux/bin/intel64/icc
     CXX_BIN := /opt/intel/oneapi/compiler/2023.2.2/linux/bin/intel64/icpc
     export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/2023.2.2/linux/compiler/lib/intel64_lin
-    C_COMPILER_FLAGS := -diag-disable=10441
-    CXX_COMPILER_FLAGS := -diag-disable=10441
+    NATIVE_C_COMPILER_FLAGS := -diag-disable=10441
+    NATIVE_CXX_COMPILER_FLAGS := -diag-disable=10441
 else ifeq ($(COMPILER),icx)
     CC_BIN := /opt/intel/oneapi/compiler/latest/bin/icx
     CXX_BIN := /opt/intel/oneapi/compiler/latest/bin/icpx
     export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/lib
-    C_COMPILER_FLAGS := -Rdebug-disables-optimization
-    CXX_COMPILER_FLAGS := -Rdebug-disables-optimization
+    NATIVE_C_COMPILER_FLAGS := -Rdebug-disables-optimization
+    NATIVE_CXX_COMPILER_FLAGS := -Rdebug-disables-optimization
 else ifeq ($(COMPILER),aocc)
     CC_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang | sort | tail -n1)
     CXX_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang++ | sort | tail -n1)
@@ -234,23 +234,33 @@ ifeq ($(COMPILER),mingw)
     EXE_EXT := .exe
 endif
 
-CMAKE_COMPILER_FLAGS := \
-    -D'CMAKE_C_FLAGS'='${C_COMPILER_FLAGS} ${ARCH_FLAGS} ${COMPILER_FLAGS}' \
-	-D'CMAKE_CXX_FLAGS'='${CXX_COMPILER_FLAGS} ${ARCH_FLAGS} ${COMPILER_FLAGS}'
+CMAKE_ENGINE_COMPILER_FLAGS := \
+    -D'CMAKE_C_FLAGS'='${NATIVE_C_COMPILER_FLAGS} ${ARCH_FLAGS} ${COMPILER_FLAGS}' \
+    -D'CMAKE_CXX_FLAGS'='${NATIVE_CXX_COMPILER_FLAGS} ${ARCH_FLAGS} ${COMPILER_FLAGS}'
 
+# FIXME: Maybe we have to split engine and game linker flags.
 CMAKE_LINKER_FLAGS := -D'CMAKE_EXE_LINKER_FLAGS'='${LINKER_FLAGS}'
 
 ifeq ($(VM),dll)
     VM_TYPE := 3
     CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='ON'
     GAME_TOOLCHAIN := ${TOOLCHAIN}
+    CMAKE_GAME_COMPILER_FLAGS := \
+        -D'CMAKE_C_FLAGS'='${NATIVE_C_COMPILER_FLAGS} ${ARCH_FLAGS} ${COMPILER_FLAGS}' \
+        -D'CMAKE_CXX_FLAGS'='${NATIVE_CXX_COMPILER_FLAGS} ${ARCH_FLAGS} ${COMPILER_FLAGS}'
 else ifeq ($(VM),exe)
     VM_TYPE := 2
     CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='ON' -D'BUILD_GAME_NATIVE_DLL'='OFF'
     GAME_TOOLCHAIN := ${TOOLCHAIN}
+    CMAKE_GAME_COMPILER_FLAGS := \
+        -D'CMAKE_C_FLAGS'='${NATIVE_C_COMPILER_FLAGS} ${ARCH_FLAGS} ${COMPILER_FLAGS}' \
+        -D'CMAKE_CXX_FLAGS'='${NATIVE_CXX_COMPILER_FLAGS} ${ARCH_FLAGS} ${COMPILER_FLAGS}'
 else ifeq ($(VM),nexe)
     VM_TYPE := 1
     CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='ON' -D'BUILD_GAME_NACL_NEXE'='ON' -D'BUILD_GAME_NACL_TARGETS'="$(NEXE)" -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='OFF'
+    CMAKE_GAME_COMPILER_FLAGS := \
+        -D'CMAKE_C_FLAGS'='${ARCH_FLAGS} ${COMPILER_FLAGS}' \
+        -D'CMAKE_CXX_FLAGS'='${ARCH_FLAGS} ${COMPILER_FLAGS}'
 endif
 
 ifeq ($(LTO),ON)
@@ -331,7 +341,7 @@ configure-engine:
 		${CMAKE_COMPILER_ARGS} \
 		${CMAKE_USELD_ARGS} \
 		${CMAKE_DEBUG_ARGS} \
-		${CMAKE_COMPILER_FLAGS} \
+		${CMAKE_ENGINE_COMPILER_FLAGS} \
 		${CMAKE_LINKER_FLAGS} \
 		${CMAKE} \
 		-D'USE_LTO'='${LTO}' \
@@ -359,7 +369,7 @@ configure-game:
 		${CMAKE_GAME_USELD_ARGS} \
 		${CMAKE_DEBUG_ARGS} \
 		${CMAKE_GAME_ARGS} \
-		${CMAKE_COMPILER_FLAGS} \
+		${CMAKE_GAME_COMPILER_FLAGS} \
 		${CMAKE_LINKER_FLAGS} \
 		${CMAKE} \
 		-D'USE_LTO'='${GAME_LTO}' \
