@@ -162,17 +162,17 @@ else ifeq ($(COMPILER),zig)
     CXX_BIN := zig;c++
     CMAKE := ${CMAKE} -D'USE_PRECOMPILED_HEADER'='OFF'
 else ifeq ($(COMPILER),icc)
-    CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icc
-    CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/intel64/icpc
-    export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin
+    CC_BIN := /opt/intel/oneapi/compiler/2023.2.2/linux/bin/intel64/icc
+    CXX_BIN := /opt/intel/oneapi/compiler/2023.2.2/linux/bin/intel64/icpc
+    export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/2023.2.2/linux/compiler/lib/intel64_lin
     C_COMPILER_FLAGS := -diag-disable=10441
     CXX_COMPILER_FLAGS := -diag-disable=10441
 else ifeq ($(COMPILER),icx)
-    CC_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/icx
-    CXX_BIN := /opt/intel/oneapi/compiler/latest/linux/bin/icpx
-    C_COMPILER_FLAGs := -Rdebug-disables-optimization
-    CXX_COMPILER_FLAGs := -Rdebug-disables-optimization
-    export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin
+    CC_BIN := /opt/intel/oneapi/compiler/latest/bin/icx
+    CXX_BIN := /opt/intel/oneapi/compiler/latest/bin/icpx
+    export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/lib
+    C_COMPILER_FLAGS := -Rdebug-disables-optimization
+    CXX_COMPILER_FLAGS := -Rdebug-disables-optimization
 else ifeq ($(COMPILER),aocc)
     CC_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang | sort | tail -n1)
     CXX_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang++ | sort | tail -n1)
