@@ -263,6 +263,10 @@ else ifeq ($(VM),nexe)
         -D'CMAKE_CXX_FLAGS'='${ARCH_FLAGS} ${COMPILER_FLAGS}'
 endif
 
+ifneq ($(GAME_TOOLCHAIN),)
+    GAME_TOOLCHAIN := daemon/${GAME_TOOLCHAIN}
+endif
+
 ifeq ($(LTO),ON)
     LINK := lto
 else
