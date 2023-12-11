@@ -229,7 +229,11 @@ else
 endif
 
 ifeq ($(COMPILER),mingw)
-    export RUNNER = wine
+    ifeq ($(DEBUG),gdb)
+        export RUNNER = winedbg
+    else
+        export RUNNER = wine
+    endif
     export WINEPREFIX = $(shell realpath "${BUILD_DIR}/wine")
     EXE_EXT := .exe
 endif
