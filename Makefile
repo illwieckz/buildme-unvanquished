@@ -162,9 +162,9 @@ else ifeq ($(COMPILER),zig)
     CXX_BIN := zig;c++
     CMAKE := ${CMAKE} -D'USE_PRECOMPILED_HEADER'='OFF'
 else ifeq ($(COMPILER),icc)
-    CC_BIN := /opt/intel/oneapi/compiler/2023.2.2/linux/bin/intel64/icc
-    CXX_BIN := /opt/intel/oneapi/compiler/2023.2.2/linux/bin/intel64/icpc
-    export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/2023.2.2/linux/compiler/lib/intel64_lin
+    CC_BIN := $(shell ls /opt/intel/oneapi/compiler/*/linux/bin/intel64/icc | sort | tail -n1)
+    CXX_BIN := $(shell ls /opt/intel/oneapi/compiler/*/linux/bin/intel64/icpc | sort | tail -n1)
+    export LD_LIBRARY_PATH += :$(shell ls -d /opt/intel/oneapi/compiler/*/linux/compiler/lib/intel64_lin | sort | tail -n1)
     NATIVE_C_COMPILER_FLAGS := -diag-disable=10441
     NATIVE_CXX_COMPILER_FLAGS := -diag-disable=10441
 else ifeq ($(COMPILER),icx)
