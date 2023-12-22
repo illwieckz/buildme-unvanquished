@@ -145,6 +145,13 @@ else ifeq ($(findstring gcc-,$(COMPILER)),gcc-)
     COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
     CC_BIN := gcc-$(COMPILER_VERSION)
     CXX_BIN := g++-$(COMPILER_VERSION)
+else ifeq ($(COMPILER),armclang)
+    CC_BIN := $(shell ls /opt/arm/arm-linux-compiler-*/bin/armclang | sort | tail -n 1)
+    CXX_BIN := $(shell dirname "${CC_BIN}")/armclang++
+else ifeq ($(findstring armclang-,$(COMPILER)),armclang-)
+    COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
+    CC_BIN := $(shell ls "/opt/arm/arm-linux-compiler-${COMPILER_VERSION}"_*/bin/armclang | sort | tail -n 1)
+    CXX_BIN := $(shell dirname "${CC_BIN}")/armclang++
 else ifeq ($(COMPILER),clang)
     CC_BIN := clang
     CXX_BIN := clang++
@@ -167,18 +174,35 @@ else ifeq ($(COMPILER),icc)
     export LD_LIBRARY_PATH += :$(shell ls -d /opt/intel/oneapi/compiler/*/linux/compiler/lib/intel64_lin | sort | tail -n1)
     NATIVE_C_COMPILER_FLAGS := -diag-disable=10441
     NATIVE_CXX_COMPILER_FLAGS := -diag-disable=10441
+else ifeq ($(findstring icc-,$(COMPILER)),icc-)
+    COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
+    CC_BIN := /opt/intel/oneapi/compiler/${COMPILER_VERSION}/linux/bin/intel64/icc
+    CXX_BIN := /opt/intel/oneapi/compiler/${COMPILER_VERSION}/linux/bin/intel64/icpc
+    export LD_LIBRARY_PATH += :$(shell ls -d /opt/intel/oneapi/compiler/*/linux/compiler/lib/intel64_lin | sort | tail -n1)
+    NATIVE_C_COMPILER_FLAGS := -diag-disable=10441
+    NATIVE_CXX_COMPILER_FLAGS := -diag-disable=10441
 else ifeq ($(COMPILER),icx)
-    CC_BIN := /opt/intel/oneapi/compiler/latest/bin/icx
-    CXX_BIN := /opt/intel/oneapi/compiler/latest/bin/icpx
-    export LD_LIBRARY_PATH += :/opt/intel/oneapi/compiler/latest/lib
-    NATIVE_C_COMPILER_FLAGS := -Rdebug-disables-optimization
-    NATIVE_CXX_COMPILER_FLAGS := -Rdebug-disables-optimization
+    CC_BIN := $(shell find /opt/intel/oneapi/compiler/latest/ -type f -name icx)
+    CXX_BIN := $(shell dirname "${CC_BIN}")/icpx
+    IMF_LIB := $(shell find /opt/intel/oneapi/compiler/latest/  -type f -name libimf.so)
+    export LD_LIBRARY_PATH += :$(shell dirname "$(IMF_LIB)")
+#    NATIVE_C_COMPILER_FLAGS := -Rdebug-disables-optimization
+#    NATIVE_CXX_COMPILER_FLAGS := -Rdebug-disables-optimization
+else ifeq ($(findstring icx-,$(COMPILER)),icx-)
+    COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
+    CC_BIN := $(shell find "/opt/intel/oneapi/compiler/${COMPILER_VERSION}/" -type f -name icx)
+    CXX_BIN := $(shell dirname "${CC_BIN}")/icpx
+    IMF_LIB := $(shell find "/opt/intel/oneapi/compiler/${COMPILER_VERSION}/"  -type f -name libimf.so)
+    export LD_LIBRARY_PATH += :$(shell dirname "$(IMF_LIB)")
+#    NATIVE_C_COMPILER_FLAGS := -Rdebug-disables-optimization
+#    NATIVE_CXX_COMPILER_FLAGS := -Rdebug-disables-optimization
 else ifeq ($(COMPILER),aocc)
     CC_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang | sort | tail -n1)
-    CXX_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang++ | sort | tail -n1)
-else ifeq ($(COMPILER),armclang)
-    CC_BIN := $(shell ls /opt/arm/arm-linux-compiler-*/bin/armclang | sort | tail -n 1)
-    CXX_BIN := $(shell ls /opt/arm/arm-linux-compiler-*/bin/armclang++ | sort | tail -n 1)
+    CXX_BIN := $(shell dirname "${CC_BIN}")/clang++
+else ifeq ($(findstring aocc-,$(COMPILER)),aocc-)
+    COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
+    CC_BIN := /opt/AMD/aocc-compiler-${COMPILER_VERSION}/bin/clang
+    CXX_BIN := $(shell dirname "${CC_BIN}")/clang++
 endif
 
 # CC and CXX are always set by Make, so we cannot rely on those variable names.
