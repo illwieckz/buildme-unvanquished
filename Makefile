@@ -459,24 +459,24 @@ package-base: build-base
 base: ${DATA_ACTION}-base
 
 prepare-maps:
-	cd '${DATA_DIR}' && urcheon prepare src/map-*.dpkdir
+	cd '${DATA_DIR}' && urcheon prepare pkg/map-*.dpkdir
 
 build-maps: prepare-maps
-	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' build src/map-*.dpkdir
+	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' build pkg/map-*.dpkdir
 
 package-maps: build-maps
-	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' package src/map-*.dpkdir
+	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' package pkg/map-*.dpkdir
 
 maps: ${DATA_ACTION}-maps
 
 prepare-resources:
-	cd '${DATA_DIR}' && urcheon prepare src/res-*_src.dpkdir src/tex-*_src.dpkdir
+	cd '${DATA_DIR}' && urcheon prepare pkg/res-*_src.dpkdir pkg/tex-*_src.dpkdir
 
 build-resources: prepare-resources
-	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' build src/res-*_src.dpkdir src/tex-*_src.dpkdir
+	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' build pkg/res-*_src.dpkdir pkg/tex-*_src.dpkdir
 
 package-resources: build-resources
-	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' package src/res-*_src.dpkdir src/tex-*_src.dpkdir
+	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' package pkg/res-*_src.dpkdir pkg/tex-*_src.dpkdir
 
 resources: ${DATA_ACTION}-resources
 
