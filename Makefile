@@ -441,7 +441,7 @@ bin-client: engine-client copy-engine-${SYSTEM_DEPS}-deps game
 
 bin-server: engine-server copy-engine-${SYSTEM_DEPS}-deps game
 
-bin-tty: engine-tty copy-engine-deps game
+bin-tty: engine-tty copy-engine-${SYSTEM_DEPS}-deps game
 
 engine: engine-server engine-client engine-tty
 
