@@ -91,18 +91,6 @@ ifeq ($(VM),nexe)
     endif
 endif
 
-ifeq ($(BUILD),)
-    BUILD := RelWithDebInfo
-endif
-
-ifeq ($(BUILD),Debug)
-else ifeq ($(BUILD),Profile)
-else ifeq ($(BUILD),RelWithDebInfo)
-else ifeq ($(BUILD),Release)
-else
-    $(error Bad BUILD value: $(BUILD))
-endif
-
 ifeq ($(LTO),OFF)
 else ifeq ($(LTO),ON)
 else ifeq ($(LTO),)
@@ -220,6 +208,10 @@ endif
 
 CMAKE_COMPILER_ARGS := ${CMAKE_C_COMPILER_ARGS} ${CMAKE_CXX_COMPILER_ARGS}
 
+ifeq ($(BUILD),)
+    BUILD := RelWithDebInfo
+endif
+
 ifeq ($(BUILD),Release)
     BUILD_SLUG := release
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Release' -D'USE_DEBUG_OPTIMIZE'='OFF'
@@ -239,6 +231,8 @@ else ifeq ($(BUILD),RelWithDebInfo)
     BUILD_SLUG := reldeb
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='RelWithDebInfo' -D'USE_DEBUG_OPTIMIZE'='ON'
     DEBUG := gdb
+else
+    $(error Bad BUILD value: $(BUILD))
 endif
 
 ifeq ($(DEBUG),)
