@@ -96,6 +96,7 @@ ifeq ($(BUILD),)
 endif
 
 ifeq ($(BUILD),Debug)
+else ifeq ($(BUILD),Profile)
 else ifeq ($(BUILD),RelWithDebInfo)
 else ifeq ($(BUILD),Release)
 else
@@ -225,6 +226,12 @@ ifeq ($(BUILD),Release)
 else ifeq ($(BUILD),Debug)
     BUILD_SLUG := debug
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='OFF'
+    COMPILER_FLAGS := ${COMPILER_FLAGS} -fno-omit-frame-pointer
+    LINKER_FLAG := -lprofiler -ltcmalloc
+    DEBUG := gdb
+else ifeq ($(BUILD),Profile)
+    BUILD_SLUG := profile
+    CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='ON'
     COMPILER_FLAGS := ${COMPILER_FLAGS} -fno-omit-frame-pointer
     LINKER_FLAG := -lprofiler -ltcmalloc
     DEBUG := gdb
