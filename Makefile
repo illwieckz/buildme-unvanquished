@@ -212,6 +212,11 @@ ifeq ($(CLANG_LIBCPP),ON)
     COMPILER_FLAGS := ${COMPILER_FLAGS} -stdlib=libc++
 endif
 
+ifeq ($(CLANG_GCC),)
+else
+    COMPILER_FLAGS := ${COMPILER_FLAGS} --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/${CLANG_GCC}
+endif
+
 ifneq ($(CC_BIN),)
     CMAKE_C_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='$(CC_BIN)'
 endif
