@@ -197,7 +197,18 @@ else ifeq ($(findstring aocc-,$(COMPILER)),aocc-)
     CXX_BIN := $(shell dirname "${CC_BIN}")/clang++
 endif
 
-# CC and CXX are always set by Make, so we cannot rely on those variable names.
+ifeq ($(CLANG_LIBCPP),ON)
+else ifeq ($(CLANG_LIBCPP),OFF)
+else ifeq ($(CLANG_LIBCPP),)
+    CLANG_LIBCPP := OFF
+else
+    $(error Bad CLANG_LIBCPP value: $(CLANG_LIBCPP))
+endif
+
+ifeq ($(CLANG_LIBCPP),ON)
+    COMPILER_FLAGS := ${COMPILER_FLAGS} -stdlib=libc++
+endif
+
 ifneq ($(CC_BIN),)
     CMAKE_C_COMPILER_ARGS := -D'CMAKE_C_COMPILER'='$(CC_BIN)'
 endif
