@@ -91,8 +91,8 @@ ifeq ($(VM),nexe)
     endif
 endif
 
-ifeq ($(LTO),OFF)
-else ifeq ($(LTO),ON)
+ifeq ($(LTO),ON)
+else ifeq ($(LTO),OFF)
 else ifeq ($(LTO),)
     LTO := ON
 else
