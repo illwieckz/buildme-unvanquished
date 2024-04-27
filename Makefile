@@ -215,6 +215,9 @@ endif
 ifeq ($(BUILD),Release)
     BUILD_SLUG := release
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Release' -D'USE_DEBUG_OPTIMIZE'='OFF'
+else ifeq ($(BUILD),MinSizeRel)
+    BUILD_SLUG := minsize
+    CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='MinSizeRel' -D'USE_DEBUG_OPTIMIZE'='OFF'
 else ifeq ($(BUILD),Debug)
     BUILD_SLUG := debug
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='OFF'
