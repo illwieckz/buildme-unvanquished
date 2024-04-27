@@ -191,10 +191,13 @@ else ifeq ($(findstring icx-,$(COMPILER)),icx-)
 else ifeq ($(COMPILER),aocc)
     CC_BIN := $(shell ls /opt/AMD/aocc-compiler-*/bin/clang | sort | tail -n1)
     CXX_BIN := $(shell dirname "${CC_BIN}")/clang++
+    CPP_LIB := $(shell ls /opt/AMD/aocc-compiler-*/lib/libc++.so | sort | tail -n1)
+    export LD_LIBRARY_PATH += $(shell dirname "${CPP_LIB}")
 else ifeq ($(findstring aocc-,$(COMPILER)),aocc-)
     COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
     CC_BIN := /opt/AMD/aocc-compiler-${COMPILER_VERSION}/bin/clang
     CXX_BIN := $(shell dirname "${CC_BIN}")/clang++
+    export LD_LIBRARY_PATH += :/opt/AMD/aocc-compiler-${COMPILER_VERSION}/lib/
 endif
 
 ifeq ($(CLANG_LIBCPP),ON)
