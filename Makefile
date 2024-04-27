@@ -243,6 +243,10 @@ else ifeq ($(DEBUG),gdb)
     # Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
     # Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
     RUNNER := gdb -x .gdbinit.txt -args
+else ifeq ($(DEBUG),gdbgui)
+    RUNNER := pipx run gdbgui --args
+else ifeq ($(DEBUG),lldb)
+    RUNNER := lldb -s .lldbinit.txt --
 else ifeq ($(DEBUG),nemiver)
     RUNNER := nemiver
 else ifeq ($(DEBUG),alleyoop)
