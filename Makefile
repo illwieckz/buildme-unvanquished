@@ -111,7 +111,7 @@ else ifeq ($(MARCH),native)
     CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='OFF' -D'USE_CPU_RECOMMENDED_FEATURES'='OFF'
     ARCH_FLAGS := -march=native -mtune=native
 else
-    $(error Bad MARCH value: $(MARCH))
+    ARCH_FLAGS := -march=$(MARCH)
 endif
 
 ifeq ($(LD_BIN),)
