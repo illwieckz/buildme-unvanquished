@@ -372,6 +372,14 @@ else
     SYSTEM_DEPS := none
 endif
 
+ifneq ($(ARGS),)
+    USER_ARGS := ${ARGS}
+endif
+
+ifneq ($(MAP),)
+    USER_ARGS := ${USER_ARGS} +devmap ${MAP}
+endif
+
 clone-game:
 	(! [ -d '${GAME_DIR}' ] && git clone '${GAME_REPO}' '${GAME_DIR}') || true
 
@@ -537,7 +545,7 @@ run-server: bin-server
 		${DPKDIR_PAKPATH_ARGS} \
 		${EXTRA_PAKPATH_ARGS} \
 		${SERVER_ARGS} \
-		${ARGS}
+		${USER_ARGS}
 
 run-client: bin-client
 	${RUNNER} \
@@ -549,7 +557,7 @@ run-client: bin-client
 		${EXTRA_PAKPATH_ARGS} \
 		${SERVER_ARGS} \
 		${CLIENT_ARGS} \
-		${ARGS}
+		${USER_ARGS}
 
 run-tty: bin-tty
 	${RUNNER} \
@@ -561,7 +569,7 @@ run-tty: bin-tty
 		${EXTRA_PAKPATH_ARGS} \
 		${SERVER_ARGS} \
 		${CLIENT_ARGS} \
-		${ARGS}
+		${USER_ARGS}
 
 run: run-client
 
