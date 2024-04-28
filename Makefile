@@ -241,13 +241,13 @@ else ifeq ($(BUILD),Debug)
     BUILD_SLUG := debug
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='OFF'
     COMPILER_FLAGS := ${COMPILER_FLAGS} -fno-omit-frame-pointer
-    LINKER_FLAG := -lprofiler -ltcmalloc
+    LINKER_FLAGS := -lprofiler -ltcmalloc
     DEBUG := gdb
 else ifeq ($(BUILD),Profile)
     BUILD_SLUG := profile
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='ON'
     COMPILER_FLAGS := ${COMPILER_FLAGS} -fno-omit-frame-pointer
-    LINKER_FLAG := -lprofiler -ltcmalloc
+    LINKER_FLAGS := -lprofiler -ltcmalloc
     DEBUG := gdb
 else ifeq ($(BUILD),RelWithDebInfo)
     BUILD_SLUG := reldeb
