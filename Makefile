@@ -213,6 +213,7 @@ endif
 
 ifeq ($(CLANG_LIBCPP),ON)
     GENERIC_COMPILER_FLAGS := ${GENERIC_COMPILER_FLAGS} -stdlib=libc++
+    GENERIC_LINKER_FLAGS := ${GENERIC_LINKER_FLAGS} -stdlib=libc++
 endif
 
 ifeq ($(CLANG_GCC),)
