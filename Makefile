@@ -91,14 +91,6 @@ ifeq ($(VM),nexe)
     endif
 endif
 
-ifeq ($(LTO),ON)
-else ifeq ($(LTO),OFF)
-else ifeq ($(LTO),)
-    LTO := ON
-else
-    $(error Bad LTO value: $(LTO))
-endif
-
 ifeq ($(MARCH),)
     MARCH := generic
 endif
@@ -226,6 +218,8 @@ ifneq ($(CXX_BIN),)
     CMAKE_CXX_COMPILER_ARGS := -D'CMAKE_CXX_COMPILER'='$(CXX_BIN)'
 endif
 
+CMAKE_COMPILER_ARGS := ${CMAKE_C_COMPILER_ARGS} ${CMAKE_CXX_COMPILER_ARGS}
+
 ifeq ($(TCMALLOC),ON)
 else ifeq ($(TCMALLOC),OFF)
 else ifeq ($(TCMALLOC),)
@@ -237,8 +231,6 @@ endif
 ifeq ($(TCMALLOC),ON)
     NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -ltcmalloc
 endif
-
-CMAKE_COMPILER_ARGS := ${CMAKE_C_COMPILER_ARGS} ${CMAKE_CXX_COMPILER_ARGS}
 
 ifeq ($(BUILD),)
     BUILD := RelWithDebInfo
@@ -312,36 +304,14 @@ CMAKE_ENGINE_COMPILER_FLAGS := \
     -D'CMAKE_C_FLAGS'='${ARCH_FLAGS} ${NATIVE_C_COMPILER_FLAGS} ${COMPILER_FLAGS}' \
     -D'CMAKE_CXX_FLAGS'='${ARCH_FLAGS} ${NATIVE_CXX_COMPILER_FLAGS} ${COMPILER_FLAGS}'
 
-# FIXME: Maybe we have to split engine and game linker flags.
 CMAKE_ENGINE_LINKER_FLAGS := -D'CMAKE_EXE_LINKER_FLAGS'='${NATIVE_LINKER_FLAGS} ${LINKER_FLAGS}'
 
-ifeq ($(VM),dll)
-    VM_TYPE := 3
-    CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='ON'
-    GAME_TOOLCHAIN := ${TOOLCHAIN}
-    CMAKE_GAME_COMPILER_FLAGS := \
-        -D'CMAKE_C_FLAGS'='${ARCH_FLAGS} ${NATIVE_C_COMPILER_FLAGS} ${COMPILER_FLAGS}' \
-        -D'CMAKE_CXX_FLAGS'='${ARCH_FLAGS} ${NATIVE_CXX_COMPILER_FLAGS} ${COMPILER_FLAGS}'
-    CMAKE_GAME_LINKER_FLAGS := -D'CMAKE_EXE_LINKER_FLAGS'='${NATIVE_LINKER_FLAGS} ${LINKER_FLAGS}'
-else ifeq ($(VM),exe)
-    VM_TYPE := 2
-    CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='OFF' -D'BUILD_GAME_NACL_NEXE'='OFF' -D'BUILD_GAME_NATIVE_EXE'='ON' -D'BUILD_GAME_NATIVE_DLL'='OFF'
-    GAME_TOOLCHAIN := ${TOOLCHAIN}
-    CMAKE_GAME_COMPILER_FLAGS := \
-        -D'CMAKE_C_FLAGS'='${ARCH_FLAGS} ${NATIVE_C_COMPILER_FLAGS} ${COMPILER_FLAGS}' \
-        -D'CMAKE_CXX_FLAGS'='${ARCH_FLAGS} ${NATIVE_CXX_COMPILER_FLAGS} ${COMPILER_FLAGS}'
-    CMAKE_GAME_LINKER_FLAGS := -D'CMAKE_EXE_LINKER_FLAGS'='${NATIVE_LINKER_FLAGS} ${LINKER_FLAGS}'
-else ifeq ($(VM),nexe)
-    VM_TYPE := 1
-    CMAKE_GAME_ARGS := -D'BUILD_GAME_NACL'='ON' -D'BUILD_GAME_NACL_NEXE'='ON' -D'BUILD_GAME_NACL_TARGETS'="$(NEXE)" -D'BUILD_GAME_NATIVE_EXE'='OFF' -D'BUILD_GAME_NATIVE_DLL'='OFF'
-    CMAKE_GAME_COMPILER_FLAGS := \
-        -D'CMAKE_C_FLAGS'='' \
-        -D'CMAKE_CXX_FLAGS'=''
-    CMAKE_GAME_LINKER_FLAGS := -D'CMAKE_EXE_LINKER_FLAGS'=''
-endif
-
-ifneq ($(GAME_TOOLCHAIN),)
-    GAME_TOOLCHAIN := daemon/${GAME_TOOLCHAIN}
+ifeq ($(LTO),ON)
+else ifeq ($(LTO),OFF)
+else ifeq ($(LTO),)
+    LTO := ON
+else
+    $(error Bad LTO value: $(LTO))
 endif
 
 ifeq ($(LTO),ON)
@@ -350,16 +320,55 @@ else
     LINK := nolto
 endif
 
+ifeq ($(VM),dll)
+    VM_TYPE := 3
+    CMAKE_GAME_ARGS := \
+        -D'BUILD_GAME_NACL'='OFF' \
+        -D'BUILD_GAME_NACL_NEXE'='OFF' \
+        -D'BUILD_GAME_NATIVE_EXE'='OFF' \
+        -D'BUILD_GAME_NATIVE_DLL'='ON'
+else ifeq ($(VM),exe)
+    VM_TYPE := 2
+    CMAKE_GAME_ARGS := \
+        -D'BUILD_GAME_NACL'='OFF' \
+        -D'BUILD_GAME_NACL_NEXE'='OFF' \
+        -D'BUILD_GAME_NATIVE_EXE'='ON' \
+        -D'BUILD_GAME_NATIVE_DLL'='OFF'
+else ifeq ($(VM),nexe)
+    VM_TYPE := 1
+    CMAKE_GAME_ARGS := \
+        -D'BUILD_GAME_NACL'='ON' \
+        -D'BUILD_GAME_NACL_NEXE'='ON' \
+        -D'BUILD_GAME_NACL_TARGETS'="$(NEXE)" \
+        -D'BUILD_GAME_NATIVE_EXE'='OFF'\
+        -D'BUILD_GAME_NATIVE_DLL'='OFF'
+endif
+
 ifeq ($(VM),nexe)
     GAME_LINK := nolto
     GAME_LTO := OFF
     GAME_COMPILER := nacl
+    CMAKE_GAME_COMPILER_FLAGS := \
+        -D'CMAKE_C_FLAGS'='' \
+        -D'CMAKE_CXX_FLAGS'=''
+    CMAKE_GAME_LINKER_FLAGS := \
+        -D'CMAKE_EXE_LINKER_FLAGS'=''
 else
     GAME_LINK := ${LINK}
     GAME_LTO := $(LTO)
     GAME_COMPILER := ${COMPILER}
+    GAME_TOOLCHAIN := ${TOOLCHAIN}
     CMAKE_GAME_COMPILER_ARGS := $(CMAKE_COMPILER_ARGS)
     CMAKE_GAME_USELD_ARGS := $(CMAKE_USELD_ARGS)
+    CMAKE_GAME_COMPILER_FLAGS := \
+        -D'CMAKE_C_FLAGS'='${ARCH_FLAGS} ${NATIVE_C_COMPILER_FLAGS} ${COMPILER_FLAGS}' \
+        -D'CMAKE_CXX_FLAGS'='${ARCH_FLAGS} ${NATIVE_CXX_COMPILER_FLAGS} ${COMPILER_FLAGS}'
+    CMAKE_GAME_LINKER_FLAGS := \
+        -D'CMAKE_EXE_LINKER_FLAGS'='${NATIVE_LINKER_FLAGS} ${LINKER_FLAGS}'
+endif
+
+ifneq ($(GAME_TOOLCHAIN),)
+    GAME_TOOLCHAIN := daemon/${GAME_TOOLCHAIN}
 endif
 
 ENGINE_PREFIX := ${PREFIX}-${COMPILER}-${LINK}-${BUILD_SLUG}-exe
@@ -379,13 +388,21 @@ else
     ENGINE_LOG_ARGS := -set logs.suppression.enabled 1 -set logs.level.default notice -set logs.level.audio notice  -set logs.level.glconfig notice -set developer 0
 endif
 
-ifneq ($(DATA),OFF)
+ifeq ($(DATA),ON)
+else ifeq ($(DATA),OFF)
+else ifeq ($(DATA),)
+    DATA := ON
+else
+    $(error Bad DATA value: $(DATA))
+endif
+
+ifeq ($(DATA),ON)
     DPKDIR_PAKPATH_ARGS := -pakpath '${DATA_BUILD}'
 endif
 
 EXTRA_PAKPATH_ARGS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
 
-ifeq ($(RUNNER), wine)
+ifeq ($(RUNNER),wine)
     SYSTEM_DEPS := windows
 else
     SYSTEM_DEPS := none
@@ -426,7 +443,7 @@ pull: pull-bin pull-assets
 
 configure-engine:
 	${CMAKE_BIN} '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
-		-DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
+		-D'CMAKE_TOOLCHAIN_FILE'='${TOOLCHAIN}' \
 		${CMAKE_COMPILER_ARGS} \
 		${CMAKE_USELD_ARGS} \
 		${CMAKE_DEBUG_ARGS} \
@@ -453,7 +470,7 @@ engine-tty: set-current-engine configure-engine
 
 configure-game:
 	${CMAKE_BIN} '${GAME_DIR}' -B'${GAME_BUILD}' \
-		-DCMAKE_TOOLCHAIN_FILE=${GAME_TOOLCHAIN} \
+		-D'CMAKE_TOOLCHAIN_FILE'='${GAME_TOOLCHAIN}' \
 		${CMAKE_GAME_COMPILER_ARGS} \
 		${CMAKE_GAME_USELD_ARGS} \
 		${CMAKE_DEBUG_ARGS} \
