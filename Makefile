@@ -226,6 +226,18 @@ ifneq ($(CXX_BIN),)
     CMAKE_CXX_COMPILER_ARGS := -D'CMAKE_CXX_COMPILER'='$(CXX_BIN)'
 endif
 
+ifeq ($(TCMALLOC),ON)
+else ifeq ($(TCMALLOC),OFF)
+else ifeq ($(TCMALLOC),)
+    TCMALLOC := OFF
+else
+    $(error Bad TCMALLOC value: $(TCMALLOC))
+endif
+
+ifeq ($(TCMALLOC),ON)
+    NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -ltcmalloc
+endif
+
 CMAKE_COMPILER_ARGS := ${CMAKE_C_COMPILER_ARGS} ${CMAKE_CXX_COMPILER_ARGS}
 
 ifeq ($(BUILD),)
@@ -242,13 +254,13 @@ else ifeq ($(BUILD),Debug)
     BUILD_SLUG := debug
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='OFF'
     NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fno-omit-frame-pointer
-    NATIVE_LINKER_FLAGS := -lprofiler -ltcmalloc
+    NATIVE_LINKER_FLAGS := -lprofiler
     DEBUG := gdb
 else ifeq ($(BUILD),Profile)
     BUILD_SLUG := profile
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='ON'
     NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fno-omit-frame-pointer
-    NATIVE_LINKER_FLAGS := -lprofiler -ltcmalloc
+    NATIVE_LINKER_FLAGS := -lprofiler
     DEBUG := gdb
 else ifeq ($(BUILD),RelWithDebInfo)
     BUILD_SLUG := reldeb
