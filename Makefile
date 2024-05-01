@@ -246,13 +246,11 @@ else ifeq ($(BUILD),Debug)
     BUILD_SLUG := debug
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='OFF'
     NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fno-omit-frame-pointer
-    NATIVE_LINKER_FLAGS := -lprofiler
     DEBUG := gdb
 else ifeq ($(BUILD),Profile)
     BUILD_SLUG := profile
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='ON'
     NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fno-omit-frame-pointer
-    NATIVE_LINKER_FLAGS := -lprofiler
     DEBUG := gdb
 else ifeq ($(BUILD),RelWithDebInfo)
     BUILD_SLUG := reldeb
@@ -283,6 +281,10 @@ else ifeq ($(DEBUG),asan)
     # LeakSanitizer does not work under ptrace (strace, gdb, etc)
     NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
     NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -fsanitize=address
+else ifeq ($(DEBUG),gperftools)
+#    NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -lprofiler
+    LD_RUNNER := /usr/lib/x86_64-linux-gnu/libprofiler.so
+    export CPUPROFILE = logs/gperftools-$(shell date '+%Y%m%d-%H%M%S').prof
 else
     $(error Bad DEBUG value: $(DEBUG))
 endif
@@ -573,6 +575,7 @@ clean-game:
 clean-bin: clean-engine clean-game
 
 run-server: bin-server
+	LD_PRELOAD='${LD_RUNNER}' \
 	${RUNNER} \
 	'${ENGINE_BUILD}/daemonded${ENGINE_EXT}' \
 		${ENGINE_LOG_ARGS} \
@@ -584,6 +587,7 @@ run-server: bin-server
 		${USER_ARGS}
 
 run-client: bin-client
+	LD_PRELOAD='${LD_RUNNER}' \
 	${RUNNER} \
 	'${ENGINE_BUILD}/daemon${ENGINE_EXT}' \
 		${ENGINE_LOG_ARGS} \
@@ -596,6 +600,7 @@ run-client: bin-client
 		${USER_ARGS}
 
 run-tty: bin-tty
+	LD_PRELOAD='${LD_RUNNER}' \
 	${RUNNER} \
 	'${ENGINE_BUILD}/daemon-tty${ENGINE_EXT}' \
 		${ENGINE_LOG_ARGS} \
