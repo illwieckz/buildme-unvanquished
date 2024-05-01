@@ -260,6 +260,12 @@ else
     $(error Bad BUILD value: $(BUILD))
 endif
 
+ifeq ($(COMPILER),mingw)
+    RUNNER := wine
+    EXE_EXT := .exe
+    export WINEPREFIX = $(shell realpath "${BUILD_DIR}/wine")
+endif
+
 ifeq ($(DEBUG),)
 else ifeq ($(DEBUG),gdb)
     # Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
@@ -269,6 +275,8 @@ else ifeq ($(DEBUG),gdbgui)
     RUNNER := pipx run gdbgui --args
 else ifeq ($(DEBUG),lldb)
     RUNNER := lldb -s .lldbinit.txt --
+else ifeq ($(DEBUG),winedbg)
+    RUNNER := winedbg
 else ifeq ($(DEBUG),nemiver)
     RUNNER := nemiver
 else ifeq ($(DEBUG),alleyoop)
@@ -289,16 +297,6 @@ else ifeq ($(DEBUG),gperftools)
     export CPUPROFILE = logs/gperftools-$(shell date '+%Y%m%d-%H%M%S').prof
 else
     $(error Bad DEBUG value: $(DEBUG))
-endif
-
-ifeq ($(COMPILER),mingw)
-    ifeq ($(DEBUG),gdb)
-        export RUNNER = winedbg
-    else
-        export RUNNER = wine
-    endif
-    export WINEPREFIX = $(shell realpath "${BUILD_DIR}/wine")
-    EXE_EXT := .exe
 endif
 
 NATIVE_C_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} ${NATIVE_C_COMPILER_FLAGS}
