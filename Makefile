@@ -278,7 +278,9 @@ else ifeq ($(DEBUG),valgrind)
 else ifeq ($(DEBUG),heapusage)
     RUNNER := heapusage -m 0 -o 'logs/heapusage-$(shell date '+%Y%m%d-%H%M%S').log'
 else ifeq ($(DEBUG),asan)
-    # LeakSanitizer does not work under ptrace (strace, gdb, etc)
+    # AddressSanitizer only builds with exe.
+    # LeakSanitizer only works if program is built with Clang.
+    # LeakSanitizer does not work under ptrace (strace, gdb, etc).
     NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
     NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -fsanitize=address
 else ifeq ($(DEBUG),gperftools)
