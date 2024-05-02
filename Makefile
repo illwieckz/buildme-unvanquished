@@ -294,6 +294,15 @@ else ifeq ($(DEBUG),asan)
     # LeakSanitizer does not work under ptrace (strace, gdb, etc).
     NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
     NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -fsanitize=address
+else ifeq ($(DEBUG),lsan)
+    NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fsanitize=leak -fno-omit-frame-pointer -fno-optimize-sibling-calls
+    NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -fsanitize=leak
+else ifeq ($(DEBUG),msan)
+    NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fsanitize=memory -fno-omit-frame-pointer -fno-optimize-sibling-calls -fPIE
+    NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -fsanitize=memory -pie
+else ifeq ($(DEBUG),tsan)
+    NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fsanitize=thread
+    NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -fsanitize=thread
 else ifeq ($(DEBUG),gperftools)
 #    NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -lprofiler
     LD_RUNNER := /usr/lib/x86_64-linux-gnu/libprofiler.so

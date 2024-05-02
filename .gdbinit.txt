@@ -1,6 +1,7 @@
 set pagination off
 set logging on
 set backtrace limit 0
+set disable-randomization off
 run
 thread apply all backtrace
 quit
