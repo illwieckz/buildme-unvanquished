@@ -55,7 +55,7 @@ make run COMPILER='clang'
 # and run the game from folders:
 # build/engine/default-clang12-lto-reldeb-exe/
 # build/game/default-nacl-nolto-reldeb-nexe/
-make run COMPILER='clang12' CC_BIN='clang-12' CXX_BIN='clang++-12' FUSELD_BIN='lld-12'
+make run COMPILER='clang12' CC_BIN='clang-12' CXX_BIN='clang++-12' LD_BIN='lld-12'
 
 # Build default-like build but with -O3 optimization level,
 # then run the game from folders:
@@ -94,7 +94,7 @@ Some options
 - `LTO`, link time optimization: `ON` (default), `OFF`;
 - `CC_BIN`, alternate C compiler;
 - `CXX_BIN`, alternate C++ compiler;
-- `LDFUSE_BIN`, alternate linker to use with ld-fuse mechanism;
+- `LD_BIN`, alternate linker to use with ld-fuse mechanism;
 - `CMAKE_BIN`, alternate cmake binary;
 - `CMAKE`, optional extra CMake options;
 - `FLAGS`, optional `CFLAGS` and `CXXFLAGS`;
