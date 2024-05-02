@@ -303,16 +303,18 @@ else ifeq ($(DEBUG),msan)
 else ifeq ($(DEBUG),tsan)
     NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fsanitize=thread
     NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -fsanitize=thread
-else ifeq ($(DEBUG),efence)
-    NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -Wl,-no-as-needed -lefence
-#    LD_RUNNER := /usr/lib/x86_64-linux-gnu/libefence.so
-    export EF_ALLOW_MALLOC_0 = 1
-else ifeq ($(DEBUG),gperftools)
-    NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -Wl,-no-as-needed -lprofiler
-#    LD_RUNNER := /usr/lib/x86_64-linux-gnu/libprofiler.so
-    export CPUPROFILE = logs/gperftools-$(shell date '+%Y%m%d-%H%M%S').prof
 else
     $(error Bad DEBUG value: $(DEBUG))
+endif
+
+ifeq ($(PROFILE),efence)
+    NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -Wl,-no-as-needed -lefence
+    export EF_ALLOW_MALLOC_0 = 1
+else ifeq ($(PROFILE),gperftools)
+    NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -Wl,-no-as-needed -lprofiler
+    export CPUPROFILE = logs/gperftools-$(shell date '+%Y%m%d-%H%M%S').prof
+else
+    $(error Bad PROFILE value: $(PROFILE))
 endif
 
 NATIVE_C_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} ${NATIVE_C_COMPILER_FLAGS}
