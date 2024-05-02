@@ -149,9 +149,12 @@ else ifeq ($(COMPILER),mingw)
     TOOLCHAIN := cmake/cross-toolchain-mingw64.cmake
     ENGINE_EXT := .exe
 else ifeq ($(COMPILER),zig)
+    # You may have to do:
+    #   sudo ln -s /usr/include/asm-generic/ /usr/include/asm
+    # if you get:
+    #   /usr/include/linux/errno.h:1:10: fatal error: 'asm/errno.h' file not found
     CC_BIN := zig;cc
     CXX_BIN := zig;c++
-    CMAKE := ${CMAKE} -D'USE_PRECOMPILED_HEADER'='OFF'
 else ifeq ($(COMPILER),icc)
     CC_BIN := $(shell ls /opt/intel/oneapi/compiler/*/linux/bin/intel64/icc | sort | tail -n1)
     CXX_BIN := $(shell ls /opt/intel/oneapi/compiler/*/linux/bin/intel64/icpc | sort | tail -n1)
