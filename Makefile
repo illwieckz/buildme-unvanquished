@@ -307,7 +307,8 @@ else
     $(error Bad DEBUG value: $(DEBUG))
 endif
 
-ifeq ($(PROFILE),efence)
+ifeq ($(PROFILE),)
+else ifeq ($(PROFILE),efence)
     NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -Wl,-no-as-needed -lefence
     export EF_ALLOW_MALLOC_0 = 1
 else ifeq ($(PROFILE),gperftools)
