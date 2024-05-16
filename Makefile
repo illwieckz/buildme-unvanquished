@@ -532,11 +532,11 @@ game: set-current-game configure-game
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader${EXE_EXT} ${GAME_BUILD}/nacl_loader${EXE_EXT}
 
-bin-client: engine-client copy-engine-${SYSTEM_DEPS}-deps game
+bin-client: engine-client game copy-engine-${SYSTEM_DEPS}-deps
 
-bin-server: engine-server copy-engine-${SYSTEM_DEPS}-deps game
+bin-server: engine-server game copy-engine-${SYSTEM_DEPS}-deps
 
-bin-tty: engine-tty copy-engine-${SYSTEM_DEPS}-deps game
+bin-tty: engine-tty game copy-engine-${SYSTEM_DEPS}-deps
 
 engine: engine-server engine-client engine-tty
 
