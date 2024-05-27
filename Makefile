@@ -3,7 +3,7 @@
 # See LICENSE.md for details
 
 .DEFAULT_GOAL := build
-.PHONY: data bin bin-client bin-server bin-tty build build-data build-maps build-resources clean-bin clean-engine clean-game clone clone-data clone-bin clone-game configure-engine configure-game data engine engine-client engine-server engine-tty it maps package-data package-maps package-resources prepare-data prepare-maps prepare-resources pull pull-data pull-bin pull-engine pull-game resources run run-client run-server run-tty set-current-engine set-current-game copy-engine-windows-deps copy-engine-none-deps game
+.PHONY: data bin bin-client bin-server bin-tty build build-data build-maps build-resources clean-bin clean-engine clean-game clone clone-data clone-bin clone-game configure-engine configure-game data engine engine-client engine-server engine-tty it maps package-data package-maps package-resources prepare-data prepare-maps prepare-resources pull pull-data pull-bin pull-engine pull-game resources run run-client run-server run-tty set-current-engine set-current-game engine-windows-extra engine-other-extra engine-extra game game-nexe-extra game-nexe-windows-extra game-nexe-other-extra game-dll-extra game-exe-extra game-extra bin-extra build-client build-server build-tty
 
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
@@ -426,7 +426,7 @@ EXTRA_PAKPATH_ARGS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed
 ifeq ($(RUNNER),wine)
     SYSTEM_DEPS := windows
 else
-    SYSTEM_DEPS := none
+    SYSTEM_DEPS := other
 endif
 
 ifneq ($(ARGS),)
@@ -462,7 +462,12 @@ pull-bin: pull-engine pull-game
 
 pull: pull-bin pull-assets
 
-configure-engine:
+set-current-engine:
+	mkdir -p build/engine
+	${LN_BIN} --verbose --symbolic --force --no-target-directory \
+		${ENGINE_PREFIX} build/engine/current
+
+configure-engine: set-current-engine
 	${CMAKE_BIN} '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${TOOLCHAIN}' \
 		${CMAKE_COMPILER_ARGS} \
@@ -477,19 +482,38 @@ configure-engine:
 		-G'Unix Makefiles' \
 	|| ( rm -v "${ENGINE_BUILD}/CMakeCache.txt" ; false )
 
-set-current-engine:
-	${LN_BIN} --verbose --symbolic --force --no-target-directory ${ENGINE_PREFIX} build/engine/current
-
-engine-server: set-current-engine configure-engine
+engine-server: configure-engine
 	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' server
 
-engine-client: set-current-engine configure-engine
+engine-client: configure-engine
 	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' client
 
-engine-tty: set-current-engine configure-engine
+engine-tty: configure-engine
 	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' ttyclient
 
-configure-game:
+engine: configure-engine
+	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' server client ttyclient
+
+engine-windows-extra:
+	{ \
+		for dll_name in libwinpthread-1.dll libgcc_s_seh-1.dll libstdc++-6.dll; \
+		do \
+			mingw_arch='x86_64-w64-mingw32'; \
+			dll_location="$$(find '/usr' -name "$${dll_name}" -type f | sort | grep --max-count=1 "$${mingw_arch}")"; \
+			cp -av "$${dll_location}" "${ENGINE_BUILD}/$${dll_name}"; \
+		done; \
+	}
+
+engine-other-extra:
+
+engine-extra: engine-${SYSTEM_DEPS}-extra
+
+set-current-game:
+	mkdir -p build/game
+	${LN_BIN} --verbose --symbolic --force --no-target-directory \
+		${GAME_PREFIX} build/game/current
+
+configure-game: configure-engine set-current-game
 	${CMAKE_BIN} '${GAME_DIR}' -B'${GAME_BUILD}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${GAME_TOOLCHAIN}' \
 		${CMAKE_GAME_COMPILER_ARGS} \
@@ -509,36 +533,34 @@ configure-game:
 
 	echo "${VM_TYPE}" > "${GAME_BUILD}/vm_type.txt"
 
-copy-engine-windows-deps:
-	{ \
-		for dll_name in libwinpthread-1.dll libgcc_s_seh-1.dll libstdc++-6.dll; \
-		do \
-			mingw_arch='x86_64-w64-mingw32'; \
-			dll_location="$$(find '/usr' -name "$${dll_name}" -type f | sort | grep --max-count=1 "$${mingw_arch}")"; \
-			cp -av "$${dll_location}" "${ENGINE_BUILD}/$${dll_name}"; \
-		done; \
-	}
-
-copy-engine-none-deps:
-
-set-current-game:
-	mkdir -p build/game
-	${LN_BIN} --verbose --symbolic --force --no-target-directory ${GAME_PREFIX} build/game/current
-
-game: set-current-game configure-game
+game: configure-game
 	${CMAKE_BIN} --build '${GAME_BUILD}' -- -j'${NPROC}'
-	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-amd64.nexe ${GAME_BUILD}/irt_core-amd64.nexe
-	# FIXME: this doesn't exist for Windows, so the symbolic link is just garbage.
+
+game-nexe-windows-extra:
+
+game-nexe-other-extra:
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
+
+game-nexe-extra: game-nexe-${SYSTEM_DEPS}-extra
+	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-amd64.nexe ${GAME_BUILD}/irt_core-amd64.nexe
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader${EXE_EXT} ${GAME_BUILD}/nacl_loader${EXE_EXT}
 
-bin-client: engine-client game copy-engine-${SYSTEM_DEPS}-deps
+game-exe-extra:
 
-bin-server: engine-server game copy-engine-${SYSTEM_DEPS}-deps
+game-dll-extra:
 
-bin-tty: engine-tty game copy-engine-${SYSTEM_DEPS}-deps
+game-extra: game-${VM}-extra
 
-engine: engine-server engine-client engine-tty
+bin-extra: engine-extra game-extra
+
+build-client: engine-client game
+bin-client: build-client bin-extra
+
+build-server: engine-server game
+bin-server: build-server bin-extra
+
+build-tty: engine-tty game
+bin-tty: build-tty bin-extra
 
 bin: engine game
 
