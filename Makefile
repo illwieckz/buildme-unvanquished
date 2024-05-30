@@ -475,7 +475,7 @@ configure-engine: set-current-engine
 		${CMAKE_DEBUG_ARGS} \
 		${CMAKE_ENGINE_COMPILER_FLAGS} \
 		${CMAKE_ENGINE_LINKER_FLAGS} \
-		${CMAKE} \
+		${CMAKE_ARGS} \
 		-D'USE_LTO'='${LTO}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='ON' -D'BUILD_CLIENT'='ON' -D'BUILD_TTY_CLIENT'='ON' \
@@ -522,7 +522,7 @@ configure-game: configure-engine set-current-game
 		${CMAKE_GAME_ARGS} \
 		${CMAKE_GAME_COMPILER_FLAGS} \
 		${CMAKE_GAME_LINKER_FLAGS} \
-		${CMAKE} \
+		${CMAKE_ARGS} \
 		-D'USE_LTO'='${GAME_LTO}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
