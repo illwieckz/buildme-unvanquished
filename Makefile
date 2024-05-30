@@ -341,6 +341,30 @@ else
     LINK := nolto
 endif
 
+ifeq ($(HARDENING),ON)
+else ifeq ($(HARDENING),OFF)
+else ifeq ($(HARDENING),)
+    HARDENING := ON
+else
+    $(error Bad HARDENING value: $(HARDENING))
+endif
+
+ifeq ($(PEDANTIC),ON)
+else ifeq ($(PEDANTIC),OFF)
+else ifeq ($(PEDANTIC),)
+    PEDANTIC := OFF
+else
+    $(error Bad PEDANTIC value: $(PEDANTIC))
+endif
+
+ifeq ($(WERROR),ON)
+else ifeq ($(WERROR),OFF)
+else ifeq ($(WERROR),)
+    WERROR := OFF
+else
+    $(error Bad WERROR value: $(WERROR))
+endif
+
 ifeq ($(VM),dll)
     VM_TYPE := 3
     CMAKE_GAME_ARGS := \
@@ -475,6 +499,9 @@ configure-engine: set-current-engine
 		${CMAKE_ENGINE_LINKER_FLAGS} \
 		${CMAKE_ARGS} \
 		-D'USE_LTO'='${LTO}' \
+		-D'USE_HARDENING'='${HARDENING}' \
+		-D'USE_PEDANTIC'='${PEDANTIC}' \
+		-D'USE_WERROR'='${WERROR}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='ON' -D'BUILD_CLIENT'='ON' -D'BUILD_TTY_CLIENT'='ON' \
 		-G'Unix Makefiles' \
@@ -522,6 +549,9 @@ configure-game: configure-engine set-current-game
 		${CMAKE_GAME_LINKER_FLAGS} \
 		${CMAKE_ARGS} \
 		-D'USE_LTO'='${LTO}' \
+		-D'USE_HARDENING'='${HARDENING}' \
+		-D'USE_PEDANTIC'='${PEDANTIC}' \
+		-D'USE_WERROR'='${WERROR}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
 		-D'BUILD_SGAME'='ON' -D'BUILD_CGAME'='ON' \
