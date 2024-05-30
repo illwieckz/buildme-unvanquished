@@ -367,7 +367,6 @@ endif
 
 ifeq ($(VM),nexe)
     GAME_LINK := nolto
-    GAME_LTO := OFF
     GAME_COMPILER := nacl
     CMAKE_GAME_COMPILER_FLAGS := \
         -D'CMAKE_C_FLAGS'='' \
@@ -376,7 +375,6 @@ ifeq ($(VM),nexe)
         -D'CMAKE_EXE_LINKER_FLAGS'=''
 else
     GAME_LINK := ${LINK}
-    GAME_LTO := $(LTO)
     GAME_COMPILER := ${COMPILER}
     GAME_TOOLCHAIN := ${TOOLCHAIN}
     CMAKE_GAME_COMPILER_ARGS := $(CMAKE_COMPILER_ARGS)
@@ -523,7 +521,7 @@ configure-game: configure-engine set-current-game
 		${CMAKE_GAME_COMPILER_FLAGS} \
 		${CMAKE_GAME_LINKER_FLAGS} \
 		${CMAKE_ARGS} \
-		-D'USE_LTO'='${GAME_LTO}' \
+		-D'USE_LTO'='${LTO}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
 		-D'BUILD_SGAME'='ON' -D'BUILD_CGAME'='ON' \
