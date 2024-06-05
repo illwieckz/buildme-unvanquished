@@ -292,6 +292,8 @@ else ifeq ($(DEBUG),nemiver)
     RUNNER := nemiver
 else ifeq ($(DEBUG),alleyoop)
     RUNNER := alleyoop -R "${GAME_DIR}"
+else ifeq ($(DEBUG),gprofng)
+    RUNNER := gprofng collect app
 else ifeq ($(DEBUG),valgrind)
     RUNNER := valgrind --tool=memcheck --num-callers=4 --track-origins=yes --time-stamp=yes --run-libc-freeres=yes --leak-check=full --leak-resolution=high --track-origins=yes --show-leak-kinds=all --log-file='logs/valgrind-$(shell date '+%Y%m%d-%H%M%S').log' --
 else ifeq ($(DEBUG),heapusage)
