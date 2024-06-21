@@ -517,6 +517,9 @@ configure-engine: set-current-engine
 		-G'Unix Makefiles' \
 	|| ( rm -v "${ENGINE_BUILD}/CMakeCache.txt" ; false )
 
+engine-runtime: configure-engine
+	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' runtime_deps
+
 engine-server: configure-engine
 	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' server
 
@@ -576,10 +579,10 @@ game: configure-game
 
 game-nexe-windows-extra:
 
-game-nexe-other-extra:
+game-nexe-other-extra: engine-runtime set-current-game
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
 
-game-nexe-extra: game-nexe-${SYSTEM_DEPS}-extra
+game-nexe-extra: game-nexe-${SYSTEM_DEPS}-extra engine-runtime set-current-game
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-amd64.nexe ${GAME_BUILD}/irt_core-amd64.nexe
 	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader${EXE_EXT} ${GAME_BUILD}/nacl_loader${EXE_EXT}
 
