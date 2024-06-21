@@ -400,7 +400,6 @@ else ifeq ($(VM),nexe)
 endif
 
 ifeq ($(VM),nexe)
-    GAME_LINK := nolto
     GAME_COMPILER := nacl
     CMAKE_GAME_COMPILER_FLAGS := \
         -D'CMAKE_C_FLAGS'='' \
@@ -408,7 +407,6 @@ ifeq ($(VM),nexe)
     CMAKE_GAME_LINKER_FLAGS := \
         -D'CMAKE_EXE_LINKER_FLAGS'=''
 else
-    GAME_LINK := ${LINK}
     GAME_COMPILER := ${COMPILER}
     GAME_TOOLCHAIN := ${TOOLCHAIN}
     CMAKE_GAME_COMPILER_ARGS := $(CMAKE_COMPILER_ARGS)
@@ -425,7 +423,7 @@ ifneq ($(GAME_TOOLCHAIN),)
 endif
 
 ENGINE_PREFIX := ${PREFIX}-${COMPILER}-${LINK}-${BUILD_SLUG}-exe
-GAME_PREFIX := ${PREFIX}-${GAME_COMPILER}-${GAME_LINK}-${BUILD_SLUG}-${VM}
+GAME_PREFIX := ${PREFIX}-${GAME_COMPILER}-${LINK}-${BUILD_SLUG}-${VM}
 
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
 GAME_BUILD := ${BUILD_DIR}/game/${GAME_PREFIX}
