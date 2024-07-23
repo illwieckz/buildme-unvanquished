@@ -229,6 +229,24 @@ ifneq ($(CXX_BIN),)
     CMAKE_CXX_COMPILER_ARGS := -D'CMAKE_CXX_COMPILER'='$(CXX_BIN)'
 endif
 
+ifeq ($(CCACHE),)
+    CCACHE_PATH := $(shell command -v ccache || true)
+
+    ifneq ($(CCACHE_PATH),)
+        CCACHE := ON
+    endif
+else ifeq ($(CCACHE),ON)
+else ifeq ($(CCACHE),OFF)
+else
+    $(error Bad CCACHE value: $(CCACHE))
+endif
+
+ifeq ($(CCACHE),ON)
+    CCACHE_BIN := ccache
+    CMAKE_C_COMPILER_ARGS += -D'CMAKE_C_COMPILER_LAUNCHER'='${CCACHE_BIN}'
+    CMAKE_CXX_COMPILER_ARGS += -D'CMAKE_CXX_COMPILER_LAUNCHER'='${CCACHE_BIN}'
+endif
+
 CMAKE_COMPILER_ARGS := ${CMAKE_C_COMPILER_ARGS} ${CMAKE_CXX_COMPILER_ARGS}
 
 ifeq ($(TCMALLOC),ON)
