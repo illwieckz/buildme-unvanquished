@@ -355,6 +355,14 @@ CMAKE_ENGINE_COMPILER_FLAGS := \
 
 CMAKE_ENGINE_LINKER_FLAGS := -D'CMAKE_EXE_LINKER_FLAGS'='${NATIVE_LINKER_FLAGS} ${LINKER_FLAGS}'
 
+NINJA_PATH := $(shell command -v ninja || true)
+
+ifneq ($(NINJA_PATH),)
+    GEN := Ninja
+else
+    GEN := Unix Makefiles
+endif
+
 ifeq ($(PCH),ON)
 else ifeq ($(PCH),OFF)
 else ifeq ($(PCH),)
@@ -525,6 +533,7 @@ set-current-engine:
 
 configure-engine: set-current-engine
 	${CMAKE_BIN} '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
+		-G'${GEN}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${TOOLCHAIN}' \
 		${CMAKE_COMPILER_ARGS} \
 		${CMAKE_USELD_ARGS} \
@@ -539,7 +548,6 @@ configure-engine: set-current-engine
 		-D'USE_WERROR'='${WERROR}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='ON' -D'BUILD_CLIENT'='ON' -D'BUILD_TTY_CLIENT'='ON' \
-		-G'Unix Makefiles' \
 	|| ( rm -v "${ENGINE_BUILD}/CMakeCache.txt" ; false )
 
 engine-runtime: configure-engine
@@ -578,6 +586,7 @@ set-current-game:
 
 configure-game: configure-engine set-current-game
 	${CMAKE_BIN} '${GAME_DIR}' -B'${GAME_BUILD}' \
+		-G'${GEN}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${GAME_TOOLCHAIN}' \
 		${CMAKE_GAME_COMPILER_ARGS} \
 		${CMAKE_GAME_USELD_ARGS} \
@@ -595,7 +604,6 @@ configure-game: configure-engine set-current-game
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
 		-D'BUILD_SGAME'='ON' -D'BUILD_CGAME'='ON' \
 		-D'DAEMON_DIR'='${ENGINE_DIR}' \
-		-G'Unix Makefiles' \
 	|| ( rm -v "${GAME_BUILD}/CMakeCache.txt" ; false )
 
 	echo "${VM_TYPE}" > "${GAME_BUILD}/vm_type.txt"
