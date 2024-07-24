@@ -528,11 +528,11 @@ pull: pull-bin pull-assets
 
 set-current-engine:
 	mkdir -p build/engine
-	${LN_BIN} --verbose --symbolic --force --no-target-directory \
-		${ENGINE_PREFIX} build/engine/current
+	'${LN_BIN}' --verbose --symbolic --force --no-target-directory \
+		'${ENGINE_PREFIX}' build/engine/current
 
 configure-engine: set-current-engine
-	${CMAKE_BIN} '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
+	'${CMAKE_BIN}' '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
 		-G'${GEN}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${TOOLCHAIN}' \
 		${CMAKE_COMPILER_ARGS} \
@@ -548,22 +548,22 @@ configure-engine: set-current-engine
 		-D'USE_WERROR'='${WERROR}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='ON' -D'BUILD_CLIENT'='ON' -D'BUILD_TTY_CLIENT'='ON' \
-	|| ( rm -v "${ENGINE_BUILD}/CMakeCache.txt" ; false )
+	|| ( rm -v '${ENGINE_BUILD}/CMakeCache.txt' ; false )
 
 engine-runtime: configure-engine
-	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' runtime_deps
+	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' runtime_deps
 
 engine-server: configure-engine
-	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' server
+	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' server
 
 engine-client: configure-engine
-	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' client
+	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' client
 
 engine-tty: configure-engine
-	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' ttyclient
+	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' ttyclient
 
 engine: configure-engine
-	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- -j'${NPROC}' server client ttyclient
+	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' server client ttyclient
 
 engine-windows-extra:
 	{ \
@@ -581,11 +581,11 @@ engine-extra: engine-${SYSTEM_DEPS}-extra
 
 set-current-game:
 	mkdir -p build/game
-	${LN_BIN} --verbose --symbolic --force --no-target-directory \
-		${GAME_PREFIX} build/game/current
+	'${LN_BIN}' --verbose --symbolic --force --no-target-directory \
+		'${GAME_PREFIX}' build/game/current
 
 configure-game: configure-engine set-current-game
-	${CMAKE_BIN} '${GAME_DIR}' -B'${GAME_BUILD}' \
+	'${CMAKE_BIN}' '${GAME_DIR}' -B'${GAME_BUILD}' \
 		-G'${GEN}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${GAME_TOOLCHAIN}' \
 		${CMAKE_GAME_COMPILER_ARGS} \
@@ -604,21 +604,21 @@ configure-game: configure-engine set-current-game
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
 		-D'BUILD_SGAME'='ON' -D'BUILD_CGAME'='ON' \
 		-D'DAEMON_DIR'='${ENGINE_DIR}' \
-	|| ( rm -v "${GAME_BUILD}/CMakeCache.txt" ; false )
+	|| ( rm -v '${GAME_BUILD}/CMakeCache.txt' ; false )
 
-	echo "${VM_TYPE}" > "${GAME_BUILD}/vm_type.txt"
+	echo '${VM_TYPE}' > '${GAME_BUILD}/vm_type.txt'
 
 game: configure-game
-	${CMAKE_BIN} --build '${GAME_BUILD}' -- -j'${NPROC}'
+	'${CMAKE_BIN}' --build '${GAME_BUILD}' -- -j'${NPROC}'
 
 game-nexe-windows-extra:
 
 game-nexe-other-extra: engine-runtime set-current-game
-	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
+	'${LN_BIN}' --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
 
 game-nexe-extra: game-nexe-${SYSTEM_DEPS}-extra engine-runtime set-current-game
-	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-amd64.nexe ${GAME_BUILD}/irt_core-amd64.nexe
-	${LN_BIN} --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader${EXE_EXT} ${GAME_BUILD}/nacl_loader${EXE_EXT}
+	'${LN_BIN}' --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-amd64.nexe ${GAME_BUILD}/irt_core-amd64.nexe
+	'${LN_BIN}' --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader${EXE_EXT} ${GAME_BUILD}/nacl_loader${EXE_EXT}
 
 game-exe-extra:
 
@@ -686,10 +686,10 @@ data: ${DATA_ACTION}-data
 build: bin data
 
 clean-engine:
-	${CMAKE_BIN} --build '${ENGINE_BUILD}' -- clean
+	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- clean
 
 clean-game:
-	${CMAKE_BIN} --build '${GAME_BUILD}' -- clean
+	'${CMAKE_BIN}' --build '${GAME_BUILD}' -- clean
 
 clean-bin: clean-engine clean-game
 
