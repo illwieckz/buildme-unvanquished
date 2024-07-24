@@ -355,6 +355,14 @@ CMAKE_ENGINE_COMPILER_FLAGS := \
 
 CMAKE_ENGINE_LINKER_FLAGS := -D'CMAKE_EXE_LINKER_FLAGS'='${NATIVE_LINKER_FLAGS} ${LINKER_FLAGS}'
 
+ifeq ($(PCH),ON)
+else ifeq ($(PCH),OFF)
+else ifeq ($(PCH),)
+    PCH := ON
+else
+    $(error Bad PCH value: $(PCH))
+endif
+
 ifeq ($(LTO),ON)
 else ifeq ($(LTO),OFF)
 else ifeq ($(LTO),)
@@ -524,6 +532,7 @@ configure-engine: set-current-engine
 		${CMAKE_ENGINE_COMPILER_FLAGS} \
 		${CMAKE_ENGINE_LINKER_FLAGS} \
 		${CMAKE_ARGS} \
+		-D'USE_PRECOMPILED_HEADER'='${PCH}' \
 		-D'USE_LTO'='${LTO}' \
 		-D'USE_HARDENING'='${HARDENING}' \
 		-D'USE_PEDANTIC'='${PEDANTIC}' \
@@ -577,6 +586,7 @@ configure-game: configure-engine set-current-game
 		${CMAKE_GAME_COMPILER_FLAGS} \
 		${CMAKE_GAME_LINKER_FLAGS} \
 		${CMAKE_ARGS} \
+		-D'USE_PRECOMPILED_HEADER'='${PCH}' \
 		-D'USE_LTO'='${LTO}' \
 		-D'USE_HARDENING'='${HARDENING}' \
 		-D'USE_PEDANTIC'='${PEDANTIC}' \
