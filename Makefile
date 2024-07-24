@@ -7,7 +7,7 @@
 
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-NOW := $(shell date '+%Y%m%d-%H%M%S')
+NOW := $(shell date -u '+%Y%m%d-%H%M%S')
 
 ifeq ($(NPROC),)
     NPROC := $(shell nproc)
