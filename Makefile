@@ -355,6 +355,23 @@ CMAKE_ENGINE_COMPILER_FLAGS := \
 
 CMAKE_ENGINE_LINKER_FLAGS := -D'CMAKE_EXE_LINKER_FLAGS'='${NATIVE_LINKER_FLAGS} ${LINKER_FLAGS}'
 
+ifeq ($(MOLD),)
+    MOLD_PATH := $(shell command -v mold || true)
+
+    ifneq ($(MOLD_PATH),)
+        MOLD := ON
+    endif
+else ifeq ($(MOLD),ON)
+else ifeq ($(MOLD),OFF)
+else
+    $(error Bad MOLD value: $(MOLD))
+endif
+
+ifeq ($(MOLD),ON)
+   MOLD_BIN := mold
+   MOLD_CMD := '${MOLD_BIN}' --run
+endif
+
 NINJA_PATH := $(shell command -v ninja || true)
 
 ifneq ($(NINJA_PATH),)
@@ -532,7 +549,7 @@ set-current-engine:
 		'${ENGINE_PREFIX}' build/engine/current
 
 configure-engine: set-current-engine
-	'${CMAKE_BIN}' '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
+	${MOLD_CMD} '${CMAKE_BIN}' '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
 		-G'${GEN}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${TOOLCHAIN}' \
 		${CMAKE_COMPILER_ARGS} \
@@ -551,19 +568,19 @@ configure-engine: set-current-engine
 	|| ( rm -v '${ENGINE_BUILD}/CMakeCache.txt' ; false )
 
 engine-runtime: configure-engine
-	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' runtime_deps
+	${MOLD_CMD} '${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' runtime_deps
 
 engine-server: configure-engine
-	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' server
+	${MOLD_CMD} '${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' server
 
 engine-client: configure-engine
-	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' client
+	${MOLD_CMD} '${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' client
 
 engine-tty: configure-engine
-	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' ttyclient
+	${MOLD_CMD} '${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' ttyclient
 
 engine: configure-engine
-	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' server client ttyclient
+	${MOLD_CMD} '${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' server client ttyclient
 
 engine-windows-extra:
 	{ \
@@ -585,7 +602,7 @@ set-current-game:
 		'${GAME_PREFIX}' build/game/current
 
 configure-game: configure-engine set-current-game
-	'${CMAKE_BIN}' '${GAME_DIR}' -B'${GAME_BUILD}' \
+	${MOLD_CMD} '${CMAKE_BIN}' '${GAME_DIR}' -B'${GAME_BUILD}' \
 		-G'${GEN}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${GAME_TOOLCHAIN}' \
 		${CMAKE_GAME_COMPILER_ARGS} \
@@ -609,7 +626,7 @@ configure-game: configure-engine set-current-game
 	echo '${VM_TYPE}' > '${GAME_BUILD}/vm_type.txt'
 
 game: configure-game
-	'${CMAKE_BIN}' --build '${GAME_BUILD}' -- -j'${NPROC}'
+	${MOLD_CMD} '${CMAKE_BIN}' --build '${GAME_BUILD}' -- -j'${NPROC}'
 
 game-nexe-windows-extra:
 
@@ -686,10 +703,10 @@ data: ${DATA_ACTION}-data
 build: bin data
 
 clean-engine:
-	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- clean
+	${MOLD_CMD} '${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- clean
 
 clean-game:
-	'${CMAKE_BIN}' --build '${GAME_BUILD}' -- clean
+	${MOLD_CMD} '${CMAKE_BIN}' --build '${GAME_BUILD}' -- clean
 
 clean-bin: clean-engine clean-game
 
