@@ -7,6 +7,8 @@
 
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
+NOW := $(shell date '+%Y%m%d-%H%M%S')
+
 ifeq ($(NPROC),)
     NPROC := $(shell nproc)
 endif
@@ -313,11 +315,11 @@ else ifeq ($(DEBUG),alleyoop)
 else ifeq ($(DEBUG),gprofng)
     RUNNER := gprofng collect app
 else ifeq ($(DEBUG),valgrind)
-    RUNNER := valgrind --tool=memcheck --num-callers=4 --track-origins=yes --time-stamp=yes --run-libc-freeres=yes --leak-check=full --leak-resolution=high --track-origins=yes --show-leak-kinds=all --log-file='logs/valgrind-$(shell date '+%Y%m%d-%H%M%S').log' --
+    RUNNER := valgrind --tool=memcheck --num-callers=4 --track-origins=yes --time-stamp=yes --run-libc-freeres=yes --leak-check=full --leak-resolution=high --track-origins=yes --show-leak-kinds=all --log-file='logs/valgrind-${NOW}.log' --
 else ifeq ($(DEBUG),heapusage)
-    RUNNER := heapusage -m 0 -o 'logs/heapusage-$(shell date '+%Y%m%d-%H%M%S').log'
+    RUNNER := heapusage -m 0 -o 'logs/heapusage-${NOW}.log'
 else ifeq ($(DEBUG),apitrace)
-    RUNNER := apitrace trace --output='logs/apitrace-$(shell date '+%Y%m%d-%H%M%S').trace'
+    RUNNER := apitrace trace --output='logs/apitrace-${NOW}.trace'
 else ifeq ($(DEBUG),asan)
     # AddressSanitizer only builds with exe.
     # LeakSanitizer only works if program is built with Clang.
@@ -343,7 +345,7 @@ else ifeq ($(PROFILE),efence)
     export EF_ALLOW_MALLOC_0 = 1
 else ifeq ($(PROFILE),gperftools)
     NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -Wl,-no-as-needed -lprofiler
-    export CPUPROFILE = logs/gperftools-$(shell date '+%Y%m%d-%H%M%S').prof
+    export CPUPROFILE = logs/gperftools-${NOW}.prof
 else
     $(error Bad PROFILE value: $(PROFILE))
 endif
