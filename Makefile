@@ -40,6 +40,8 @@ ifeq ($(CMAKE_BIN),)
     CMAKE_BIN := cmake
 endif
 
+LN_CMD := '${LN_BIN}' --verbose --symbolic --force 
+
 # HACK: Pass every argument after "run" goal as game options.
 # This is only done if ARGS option is not set (which is safer to use).
 # The -- option should be used so -options are not interpreted by make.
@@ -551,7 +553,7 @@ pull: pull-bin pull-assets
 
 set-current-engine:
 	mkdir -p build/engine
-	'${LN_BIN}' --verbose --symbolic --force --no-target-directory \
+	${LN_CMD} --no-target-directory \
 		'${ENGINE_PREFIX}' build/engine/current
 
 configure-engine: set-current-engine
@@ -604,7 +606,7 @@ engine-extra: engine-${SYSTEM_DEPS}-extra
 
 set-current-game:
 	mkdir -p build/game
-	'${LN_BIN}' --verbose --symbolic --force --no-target-directory \
+	${LN_CMD} --no-target-directory \
 		'${GAME_PREFIX}' build/game/current
 
 configure-game: configure-engine set-current-game
@@ -637,11 +639,11 @@ game: configure-game
 game-nexe-windows-extra:
 
 game-nexe-other-extra: engine-runtime set-current-game
-	'${LN_BIN}' --verbose --symbolic --force ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
+	${LN_CMD} ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
 
 game-nexe-extra: game-nexe-${SYSTEM_DEPS}-extra engine-runtime set-current-game
-	'${LN_BIN}' --verbose --symbolic --force ${ENGINE_BUILD}/irt_core-amd64.nexe ${GAME_BUILD}/irt_core-amd64.nexe
-	'${LN_BIN}' --verbose --symbolic --force ${ENGINE_BUILD}/nacl_loader${EXE_EXT} ${GAME_BUILD}/nacl_loader${EXE_EXT}
+	${LN_CMD} ${ENGINE_BUILD}/irt_core-amd64.nexe ${GAME_BUILD}/irt_core-amd64.nexe
+	${LN_CMD} ${ENGINE_BUILD}/nacl_loader${EXE_EXT} ${GAME_BUILD}/nacl_loader${EXE_EXT}
 
 game-exe-extra:
 
