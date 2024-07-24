@@ -9,10 +9,6 @@ ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 NOW := $(shell date -u '+%Y%m%d-%H%M%S')
 
-ifeq ($(NPROC),)
-    NPROC := $(shell nproc)
-endif
-
 GAME_REPO := https://github.com/Unvanquished/Unvanquished.git
 DATA_REPO := https://github.com/UnvanquishedAssets/UnvanquishedAssets.git
 
@@ -30,8 +26,14 @@ SYSTEM := $(shell uname -s)
 
 ifeq ($(SYSTEM),Darwin)
     LN_BIN := gln
+    NPROC_CMD := sysctl -n hw.logicalcpu
 else
     LN_BIN := ln
+    NPROC_CMD := nproc
+endif
+
+ifeq ($(NPROC),)
+    NPROC := $(shell ${NPROC_CMD})
 endif
 
 ifeq ($(CMAKE_BIN),)
