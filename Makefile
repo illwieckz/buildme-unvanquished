@@ -316,6 +316,8 @@ else ifeq ($(DEBUG),valgrind)
     RUNNER := valgrind --tool=memcheck --num-callers=4 --track-origins=yes --time-stamp=yes --run-libc-freeres=yes --leak-check=full --leak-resolution=high --track-origins=yes --show-leak-kinds=all --log-file='logs/valgrind-$(shell date '+%Y%m%d-%H%M%S').log' --
 else ifeq ($(DEBUG),heapusage)
     RUNNER := heapusage -m 0 -o 'logs/heapusage-$(shell date '+%Y%m%d-%H%M%S').log'
+else ifeq ($(DEBUG),apitrace)
+    RUNNER := apitrace trace --output='logs/apitrace-$(shell date '+%Y%m%d-%H%M%S').trace'
 else ifeq ($(DEBUG),asan)
     # AddressSanitizer only builds with exe.
     # LeakSanitizer only works if program is built with Clang.
