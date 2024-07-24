@@ -7,8 +7,6 @@
 
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-NOW := $(shell date -u '+%Y%m%d-%H%M%S')
-
 GAME_REPO := https://github.com/Unvanquished/Unvanquished.git
 DATA_REPO := https://github.com/UnvanquishedAssets/UnvanquishedAssets.git
 
@@ -21,6 +19,8 @@ EXDEPS_DIR := ${BUILD_DIR}/deps
 
 CLIENT_ARGS := -set common.pedanticShutdown on -set client.allowRemotePakDir on
 SERVER_ARGS := -set common.pedanticShutdown on -set sv_pure 0
+
+NOW := $(shell date -u '+%Y%m%d-%H%M%S')
 
 SYSTEM := $(shell uname -s)
 
