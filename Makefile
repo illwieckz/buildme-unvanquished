@@ -397,7 +397,7 @@ endif
 ifeq ($(LTO),ON)
 else ifeq ($(LTO),OFF)
 else ifeq ($(LTO),)
-    LTO := ON
+    LTO := OFF
 else
     $(error Bad LTO value: $(LTO))
 endif
