@@ -592,7 +592,7 @@ engine: configure-engine
 
 engine-windows-extra:
 	{ \
-		for dll_name in libwinpthread-1.dll libgcc_s_seh-1.dll libstdc++-6.dll; \
+		for dll_name in libssp-0.dll libwinpthread-1.dll libgcc_s_seh-1.dll libstdc++-6.dll; \
 		do \
 			mingw_arch='x86_64-w64-mingw32'; \
 			dll_location="$$(find '/usr' -name "$${dll_name}" -type f | sort | grep --max-count=1 "$${mingw_arch}")"; \
