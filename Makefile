@@ -88,13 +88,11 @@ else ifeq ($(DPK),OFF)
     DATA_ACTION := build
 endif
 
-ifeq ($(VM),)
-    VM := nexe
-endif
-
 ifeq ($(VM),nexe)
 else ifeq ($(VM),exe)
 else ifeq ($(VM),dll)
+else ifeq ($(VM),)
+    VM := dll
 else
     $(error Bad VM value: $(VM))
 endif
