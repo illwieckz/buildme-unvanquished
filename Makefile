@@ -171,15 +171,20 @@ else ifeq ($(COMPILER),icc)
     CC_BIN := $(shell ls /opt/intel/oneapi/compiler/*/linux/bin/intel64/icc | sort | tail -n1)
     CXX_BIN := $(shell ls /opt/intel/oneapi/compiler/*/linux/bin/intel64/icpc | sort | tail -n1)
     export LD_LIBRARY_PATH += :$(shell ls -d /opt/intel/oneapi/compiler/*/linux/compiler/lib/intel64_lin | sort | tail -n1)
-    NATIVE_C_COMPILER_FLAGS := -diag-disable=10441
-    NATIVE_CXX_COMPILER_FLAGS := -diag-disable=10441
+    # remark #10441: The Intel(R) C++ Compiler Classic (ICC) is deprecated and will be removed from product release in the second half of 2023. The Intel(R) oneAPI DPC++/C++ Compiler (ICX) is the recommended compiler moving forward. Please transition to use this compiler. Use '-diag-disable=10441' to disable this message.
+    # remark #11074: Inlining inhibited by limit max-size
+    # remark #11074: Inlining inhibited by limit max-total-size
+    # remark #11076: To get full report use -qopt-report=4 -qopt-report-phase ipo
+    # ICC is incompatible with /usr/include/c++/13 and later.
+    NATIVE_C_COMPILER_FLAGS := -diag-disable=10441 -diag-disable=11074 -diag-disable=11076 -gcc-name=/usr/bin/gcc-12
+    NATIVE_CXX_COMPILER_FLAGS := ${NATIVE_C_COMPILER_FLAGS} -gxx-name=/usr/bin/g++-12
 else ifeq ($(findstring icc-,$(COMPILER)),icc-)
     COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
     CC_BIN := /opt/intel/oneapi/compiler/${COMPILER_VERSION}/linux/bin/intel64/icc
     CXX_BIN := /opt/intel/oneapi/compiler/${COMPILER_VERSION}/linux/bin/intel64/icpc
     export LD_LIBRARY_PATH += :$(shell ls -d /opt/intel/oneapi/compiler/*/linux/compiler/lib/intel64_lin | sort | tail -n1)
-    NATIVE_C_COMPILER_FLAGS := -diag-disable=10441
-    NATIVE_CXX_COMPILER_FLAGS := -diag-disable=10441
+    NATIVE_C_COMPILER_FLAGS := -diag-disable=10441 -diag-disable=11074 -diag-disable=11076 -gcc-name=/usr/bin/gcc-12
+    NATIVE_CXX_COMPILER_FLAGS := ${NATIVE_C_COMPILER_FLAGS} -gxx-name=/usr/bin/g++-12
 else ifeq ($(COMPILER),icx)
     CC_BIN := $(shell find /opt/intel/oneapi/compiler/latest/ -type f -name icx)
     CXX_BIN := $(shell dirname "${CC_BIN}")/icpx
