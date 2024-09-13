@@ -27,7 +27,7 @@ make bin
 make run
 
 # build and run the game on gdb
-make run BUILD='Debug'
+make run TYPE='Debug'
 
 # you can also build assets and binaries, run the game,
 # load a map and spawn some bots just like that:
@@ -73,23 +73,23 @@ make run FLAGS='-O3' PREFIX='o3' \
 # then run the game from folders:
 # build/engine/default-gcc-lto-release-exe/
 # build/game/default-gcc-lto-release-exe/
-make run BUILD='Release' VM='exe'
+make run TYPE='Release' VM='exe'
 
 # Build with Debug CMake profile,
 # shared library virtual machines, LTO disabled,
 # then run the game on gdb from folders:
 # build/engine/default-gcc-nolto-debug-exe/
 # build/game/default-gcc-nolto-debug-dll/
-make run BUILD='Debug' LTO='OFF' VM='dll'
+make run TYPE='Debug' LTO='OFF' VM='dll'
 
 # Does the same but use nemiver as a debugger
-make run BUILD='Debug' LTO='OFF' VM='dll' DEBUG='nemiver'
+make run TYPE='Debug' LTO='OFF' VM='dll' DEBUG='nemiver'
 ```
 
 Some options
 
 - `PREFIX`, custom string used in build folder names: defaults to `default`;
-- `BUILD`, build profiles: `RelWithDebInfo` (default), `Release`, `Debug`;
+- `TYPE`, build type: `RelWithDebInfo` (default), `Release`, `Debug`;
 - `VM`, virtual machine kind: `nexe` (default), `exe`, `dll`;
 - `LTO`, link time optimization: `ON` (default), `OFF`;
 - `CC_BIN`, alternate C compiler;
