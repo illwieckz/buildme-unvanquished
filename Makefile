@@ -273,32 +273,32 @@ ifeq ($(TCMALLOC),ON)
     NATIVE_LINKER_FLAGS := ${NATIVE_LINKER_FLAGS} -ltcmalloc
 endif
 
-ifeq ($(BUILD),)
-    BUILD := RelWithDebInfo
+ifeq ($(TYPE),)
+    TYPE := RelWithDebInfo
 endif
 
-ifeq ($(BUILD),Release)
-    BUILD_SLUG := release
+ifeq ($(TYPE),Release)
+    BUILD_TYPE := release
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Release' -D'USE_DEBUG_OPTIMIZE'='OFF'
-else ifeq ($(BUILD),MinSizeRel)
-    BUILD_SLUG := minsize
+else ifeq ($(TYPE),MinSizeRel)
+    BUILD_TYPE := minsize
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='MinSizeRel' -D'USE_DEBUG_OPTIMIZE'='OFF'
-else ifeq ($(BUILD),Debug)
-    BUILD_SLUG := debug
+else ifeq ($(TYPE),Debug)
+    BUILD_TYPE := debug
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='OFF'
     NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fno-omit-frame-pointer
     DEBUG := gdb
-else ifeq ($(BUILD),Profile)
-    BUILD_SLUG := profile
+else ifeq ($(TYPE),Profile)
+    BUILD_TYPE := profile
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='ON'
     NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fno-omit-frame-pointer
     DEBUG := gdb
-else ifeq ($(BUILD),RelWithDebInfo)
-    BUILD_SLUG := reldeb
+else ifeq ($(TYPE),RelWithDebInfo)
+    BUILD_TYPE := reldeb
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='RelWithDebInfo' -D'USE_DEBUG_OPTIMIZE'='ON'
     DEBUG := gdb
 else
-    $(error Bad BUILD value: $(BUILD))
+    $(error Bad TYPE value: $(TYPE))
 endif
 
 ifeq ($(COMPILER),mingw)
@@ -487,8 +487,8 @@ ifneq ($(GAME_TOOLCHAIN),)
     GAME_TOOLCHAIN := daemon/${GAME_TOOLCHAIN}
 endif
 
-ENGINE_PREFIX := ${PREFIX}-${COMPILER}-${LINK}-${BUILD_SLUG}-exe
-GAME_PREFIX := ${PREFIX}-${GAME_COMPILER}-${LINK}-${BUILD_SLUG}-${VM}
+ENGINE_PREFIX := ${PREFIX}-${COMPILER}-${LINK}-${BUILD_TYPE}-exe
+GAME_PREFIX := ${PREFIX}-${GAME_COMPILER}-${LINK}-${BUILD_TYPE}-${VM}
 
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
 GAME_BUILD := ${BUILD_DIR}/game/${GAME_PREFIX}
