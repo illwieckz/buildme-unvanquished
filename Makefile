@@ -71,12 +71,16 @@ ifeq ($(PREFIX),)
     PREFIX := default
 endif
 
-ifeq ($(NOBUILD),ON)
-    NOBUILDSUFFIX := -nobuild
-else ifeq ($(NOBUILD),OFF)
-else ifeq ($(NOBUILD),)
+ifeq ($(BUILD),ON)
+else ifeq ($(BUILD),OFF)
+else ifeq ($(BUILD),)
+    BUILD := ON
 else
-    $(error Bad NOBUILD value: $(VM))
+    $(error Bad BUILD value: $(VM))
+endif
+
+ifeq ($(BUILD),OFF)
+    NOBUILD_SUFFIX := -nobuild
 endif
 
 ifeq ($(DPK),)
@@ -724,7 +728,7 @@ clean-game:
 
 clean-bin: clean-engine clean-game
 
-run-server: bin-server${NOBUILDSUFFIX}
+run-server: bin-server${NOBUILD_SUFFIX}
 	LD_PRELOAD='${LD_RUNNER}' \
 	${RUNNER} \
 	'${ENGINE_BUILD}/daemonded${ENGINE_EXT}' \
@@ -736,7 +740,7 @@ run-server: bin-server${NOBUILDSUFFIX}
 		${SERVER_ARGS} \
 		${USER_ARGS}
 
-run-client: bin-client${NOBUILDSUFFIX}
+run-client: bin-client${NOBUILD_SUFFIX}
 	LD_PRELOAD='${LD_RUNNER}' \
 	${RUNNER} \
 	'${ENGINE_BUILD}/daemon${ENGINE_EXT}' \
@@ -749,7 +753,7 @@ run-client: bin-client${NOBUILDSUFFIX}
 		${CLIENT_ARGS} \
 		${USER_ARGS}
 
-run-tty: bin-tty${NOBUILDSUFFIX}
+run-tty: bin-tty${NOBUILD_SUFFIX}
 	LD_PRELOAD='${LD_RUNNER}' \
 	${RUNNER} \
 	'${ENGINE_BUILD}/daemon-tty${ENGINE_EXT}' \
