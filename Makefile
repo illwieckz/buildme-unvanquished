@@ -30,6 +30,9 @@ ifeq ($(SYSTEM),Darwin)
 else ifeq ($(SYSTEM),FreeBSD)
     LN_BIN := gln
     NPROC_CMD := sysctl -n hw.ncpu
+    # Mold produce weird bugs on FreeBSD, like the game not being loadable
+    # by the engine, whatever the format (dll, exe, nexe).
+    MOLD := OFF
 else
     LN_BIN := ln
     NPROC_CMD := nproc
