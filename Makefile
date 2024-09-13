@@ -27,6 +27,9 @@ SYSTEM := $(shell uname -s)
 ifeq ($(SYSTEM),Darwin)
     LN_BIN := gln
     NPROC_CMD := sysctl -n hw.logicalcpu
+else ifeq ($(SYSTEM),FreeBSD)
+    LN_BIN := gln
+    NPROC_CMD := sysctl -n hw.ncpu
 else
     LN_BIN := ln
     NPROC_CMD := nproc
