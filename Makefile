@@ -245,6 +245,31 @@ ifneq ($(CXX_BIN),)
     CMAKE_CXX_COMPILER_ARGS := -D'CMAKE_CXX_COMPILER'='$(CXX_BIN)'
 endif
 
+ifeq ($(MOLD),)
+    MOLD_PATH := $(shell command -v mold || true)
+
+    ifneq ($(MOLD_PATH),)
+        MOLD := ON
+    endif
+else ifeq ($(MOLD),ON)
+else ifeq ($(MOLD),OFF)
+else
+    $(error Bad MOLD value: $(MOLD))
+endif
+
+ifeq ($(MOLD),ON)
+   MOLD_BIN := mold
+   MOLD_CMD := '${MOLD_BIN}' --run
+endif
+
+NINJA_PATH := $(shell command -v ninja || true)
+
+ifneq ($(NINJA_PATH),)
+    GEN := Ninja
+else
+    GEN := Unix Makefiles
+endif
+
 ifeq ($(CCACHE),)
     CCACHE_PATH := $(shell command -v ccache || true)
 
@@ -372,31 +397,6 @@ CMAKE_ENGINE_COMPILER_FLAGS := \
     -D'CMAKE_CXX_FLAGS'='${ARCH_FLAGS} ${NATIVE_CXX_COMPILER_FLAGS} ${COMPILER_FLAGS} ${COMPILER_CXX_FLAGS}'
 
 CMAKE_ENGINE_LINKER_FLAGS := -D'CMAKE_EXE_LINKER_FLAGS'='${NATIVE_LINKER_FLAGS} ${LINKER_FLAGS}'
-
-ifeq ($(MOLD),)
-    MOLD_PATH := $(shell command -v mold || true)
-
-    ifneq ($(MOLD_PATH),)
-        MOLD := ON
-    endif
-else ifeq ($(MOLD),ON)
-else ifeq ($(MOLD),OFF)
-else
-    $(error Bad MOLD value: $(MOLD))
-endif
-
-ifeq ($(MOLD),ON)
-   MOLD_BIN := mold
-   MOLD_CMD := '${MOLD_BIN}' --run
-endif
-
-NINJA_PATH := $(shell command -v ninja || true)
-
-ifneq ($(NINJA_PATH),)
-    GEN := Ninja
-else
-    GEN := Unix Makefiles
-endif
 
 ifeq ($(PCH),ON)
 else ifeq ($(PCH),OFF)
