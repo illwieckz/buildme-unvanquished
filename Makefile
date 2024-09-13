@@ -185,6 +185,8 @@ else ifeq ($(COMPILER),icc)
     # ICC is incompatible with /usr/include/c++/13 and later.
     NATIVE_C_COMPILER_FLAGS := -diag-disable=10441 -diag-disable=11074 -diag-disable=11076 -gcc-name=/usr/bin/gcc-12
     NATIVE_CXX_COMPILER_FLAGS := ${NATIVE_C_COMPILER_FLAGS} -gxx-name=/usr/bin/g++-12
+    # ICC doesn't work correctly with mold.
+    MOLD := OFF
 else ifeq ($(findstring icc-,$(COMPILER)),icc-)
     COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
     CC_BIN := /opt/intel/oneapi/compiler/${COMPILER_VERSION}/linux/bin/intel64/icc
@@ -192,6 +194,8 @@ else ifeq ($(findstring icc-,$(COMPILER)),icc-)
     export LD_LIBRARY_PATH += :$(shell ls -d /opt/intel/oneapi/compiler/*/linux/compiler/lib/intel64_lin | sort | tail -n1)
     NATIVE_C_COMPILER_FLAGS := -diag-disable=10441 -diag-disable=11074 -diag-disable=11076 -gcc-name=/usr/bin/gcc-12
     NATIVE_CXX_COMPILER_FLAGS := ${NATIVE_C_COMPILER_FLAGS} -gxx-name=/usr/bin/g++-12
+    # ICC doesn't work correctly with mold.
+    MOLD := OFF
 else ifeq ($(COMPILER),icx)
     CC_BIN := $(shell find /opt/intel/oneapi/compiler/latest/ -type f -name icx)
     CXX_BIN := $(shell dirname "${CC_BIN}")/icpx
