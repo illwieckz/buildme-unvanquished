@@ -3,7 +3,7 @@
 # See LICENSE.md for details
 
 .DEFAULT_GOAL := build
-.PHONY: data bin bin-client bin-server bin-tty build build-data build-maps build-resources clean-bin clean-engine clean-game clone clone-data clone-bin clone-game configure-engine configure-game data engine engine-client engine-server engine-tty it maps package-data package-maps package-resources prepare-data prepare-maps prepare-resources pull pull-data pull-bin pull-engine pull-game resources run run-client run-server run-tty set-current-engine set-current-game engine-windows-extra engine-other-extra engine-extra game game-nexe-extra game-nexe-windows-extra game-nexe-other-extra game-dll-extra game-exe-extra game-extra bin-extra build-client build-server build-tty
+.PHONY: data bin bin-client bin-server bin-tty build build-data build-maps build-resources clean-bin clean-engine clean-game clone clone-data clone-bin clone-game configure-engine configure-game data engine engine-client engine-server engine-tty it maps package-data package-maps package-resources prepare-data prepare-maps prepare-resources pull pull-data pull-bin pull-engine pull-game resources run run-client run-server run-tty set-current set-current-engine set-current-game engine-windows-extra engine-other-extra engine-extra game game-nexe-extra game-nexe-windows-extra game-nexe-other-extra game-dll-extra game-exe-extra game-extra bin-extra build-client build-server build-tty
 
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
@@ -683,6 +683,8 @@ bin-tty: build-tty bin-extra
 bin-tty-nobuild:
 
 bin: engine game
+
+set-current: set-current-engine set-current-game
 
 prepare-base:
 	urcheon -C '${GAME_DIR}' --build-prefix='${DATA_BUILD_PREFIX}' prepare pkg/unvanquished_src.dpkdir
