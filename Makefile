@@ -22,12 +22,12 @@ SERVER_ARGS := -set common.pedanticShutdown on -set sv_pure 0
 
 NOW := $(shell date -u '+%Y%m%d-%H%M%S')
 
-SYSTEM := $(shell uname -s)
+SYSTEM := $(shell uname -s | tr '[:upper:]' '[:lower:]' | sed -e 's/[^a-z0-9]//g')
 
-ifeq ($(SYSTEM),Darwin)
+ifeq ($(SYSTEM),darwin)
     LN_BIN := gln
     NPROC_CMD := sysctl -n hw.logicalcpu
-else ifeq ($(SYSTEM),FreeBSD)
+else ifeq ($(SYSTEM),freebsd)
     LN_BIN := gln
     NPROC_CMD := sysctl -n hw.ncpu
     # Mold produce weird bugs on FreeBSD, like the game not being loadable
@@ -498,8 +498,8 @@ ifneq ($(GAME_TOOLCHAIN),)
     GAME_TOOLCHAIN := daemon/${GAME_TOOLCHAIN}
 endif
 
-ENGINE_PREFIX := ${PREFIX}-${COMPILER}-${LINK}-${BUILD_TYPE}-exe
-GAME_PREFIX := ${PREFIX}-${GAME_COMPILER}-${LINK}-${BUILD_TYPE}-${VM}
+ENGINE_PREFIX := ${PREFIX}-${SYSTEM}-${COMPILER}-${LINK}-${BUILD_TYPE}-exe
+GAME_PREFIX := ${PREFIX}-${SYSTEM}-${GAME_COMPILER}-${LINK}-${BUILD_TYPE}-${VM}
 
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
 GAME_BUILD := ${BUILD_DIR}/game/${GAME_PREFIX}
