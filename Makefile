@@ -529,7 +529,7 @@ endif
 
 EXTRA_PAKPATH_ARGS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
 
-ifeq ($(RUNNER),wine)
+ifeq ($(COMPILER),mingw)
     SYSTEM_DEPS := windows
 else
     SYSTEM_DEPS := other
