@@ -27,15 +27,18 @@ SYSTEM := $(shell uname -s | tr '[:upper:]' '[:lower:]' | sed -e 's/[^a-z0-9]//g
 ifeq ($(SYSTEM),darwin)
     LN_BIN := gln
     NPROC_CMD := sysctl -n hw.logicalcpu
+    SYSPKG_DIR := $(shell echo "$${HOME}/Games/Unvanquished/Unvanquished.app/Contents/MacOS")
 else ifeq ($(SYSTEM),freebsd)
     LN_BIN := gln
     NPROC_CMD := sysctl -n hw.ncpu
     # Mold produce weird bugs on FreeBSD, like the game not being loadable
     # by the engine, whatever the format (dll, exe, nexe).
     MOLD := OFF
+    SYSPKG_DIR := $(shell echo "$${XDG_DATA_HOME:-$${HOME}/.local/share}/unvanquished/base/pkg")
 else
     LN_BIN := ln
     NPROC_CMD := nproc
+    SYSPKG_DIR := $(shell echo "$${XDG_DATA_HOME:-$${HOME}/.local/share}/unvanquished/base/pkg")
 endif
 
 ifeq ($(NPROC),)
@@ -84,6 +87,14 @@ endif
 
 ifeq ($(BUILD),OFF)
     NOBUILD_SUFFIX := -nobuild
+endif
+
+ifeq ($(SYSPKG),)
+    SYSPKG := ON
+endif
+
+ifeq ($(SYSPKG),ON)
+    SYSPKG_PAKPATH_ARGS := -pakpath '${SYSPKG_DIR}'
 endif
 
 ifeq ($(DPK),)
@@ -744,6 +755,7 @@ run-server: bin-server${NOBUILD_SUFFIX}
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${GAME_BUILD}' \
+		${SYSPKG_PAKPATH_ARGS} \
 		${DPKDIR_PAKPATH_ARGS} \
 		${EXTRA_PAKPATH_ARGS} \
 		${SERVER_ARGS} \
@@ -756,6 +768,7 @@ run-client: bin-client${NOBUILD_SUFFIX}
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${GAME_BUILD}' \
+		${SYSPKG_PAKPATH_ARGS} \
 		${DPKDIR_PAKPATH_ARGS} \
 		${EXTRA_PAKPATH_ARGS} \
 		${SERVER_ARGS} \
@@ -769,6 +782,7 @@ run-tty: bin-tty${NOBUILD_SUFFIX}
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${GAME_BUILD}' \
+		${SYSPKG_PAKPATH_ARGS} \
 		${DPKDIR_PAKPATH_ARGS} \
 		${EXTRA_PAKPATH_ARGS} \
 		${SERVER_ARGS} \
