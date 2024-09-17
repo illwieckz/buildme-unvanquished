@@ -270,6 +270,10 @@ ifneq ($(CXX_BIN),)
     CMAKE_CXX_COMPILER_ARGS := -D'CMAKE_CXX_COMPILER'='$(CXX_BIN)'
 endif
 
+ifeq ($(GEN),)
+    GEN := Unix Makefiles
+endif
+
 ifeq ($(MOLD),)
     MOLD_PATH := $(shell command -v mold || true)
 
@@ -285,14 +289,6 @@ endif
 ifeq ($(MOLD),ON)
    MOLD_BIN := mold
    MOLD_CMD := '${MOLD_BIN}' --run
-endif
-
-NINJA_PATH := $(shell command -v ninja || true)
-
-ifneq ($(NINJA_PATH),)
-    GEN := Ninja
-else
-    GEN := Unix Makefiles
 endif
 
 ifeq ($(CCACHE),)
