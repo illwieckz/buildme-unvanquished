@@ -73,6 +73,13 @@ ifeq (run,$(findstring run,$(MAKECMDGOALS)))
     endif
 endif
 
+# https://unix.stackexchange.com/a/711906/544449
+after = $(filter $(strip $1), $(MAKECMDGOALS))
+post-data = $(call after, data)
+post-base = $(call after, base)
+post-clone-data = $(call after, clone-data)
+post-clone-bin = $(call after, clone-bin)
+
 ifeq ($(PREFIX),)
     PREFIX := default
 endif
@@ -565,13 +572,13 @@ clone-bin: clone-game
 
 clone: clone-bin clone-assets
 
-pull-engine:
+pull-engine: $(post-clone-bin)
 	cd '${ENGINE_DIR}' && git checkout master && git pull origin master
 
-pull-game:
+pull-game: $(post-clone-bin)
 	cd '${GAME_DIR}' && git checkout master && git pull origin master
 
-pull-assets:
+pull-assets: $(post-clone-bin)
 	cd '${DATA_DIR}' && git checkout master && git pull origin master
 	cd '${DATA_DIR}' && git submodule foreach pull origin master
 
@@ -584,7 +591,7 @@ set-current-engine:
 	${LN_CMD} --no-target-directory \
 		'${ENGINE_PREFIX}' build/engine/current
 
-configure-engine: set-current-engine
+configure-engine: set-current-engine $(post-clone-bin)
 	${MOLD_CMD} '${CMAKE_BIN}' '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
 		-G'${GEN}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${TOOLCHAIN}' \
@@ -697,35 +704,35 @@ bin: engine game
 
 set-current: set-current-engine set-current-game
 
-prepare-base:
+prepare-base: $(post-clone-bin)
 	urcheon -C '${GAME_DIR}' --build-prefix='${DATA_BUILD_PREFIX}' prepare pkg/unvanquished_src.dpkdir
 
-build-base: prepare-base
+build-base: prepare-base $(post-clone-bin)
 	urcheon -C '${GAME_DIR}' --build-prefix='${DATA_BUILD_PREFIX}' build pkg/unvanquished_src.dpkdir
 
-package-base: build-base
+package-base: build-base $(post-clone-bin)
 	urcheon -C '${GAME_DIR}' --build-prefix='${DATA_BUILD_PREFIX}' package pkg/unvanquished_src.dpkdir
 
 base: ${DATA_ACTION}-base
 
-prepare-maps:
+prepare-maps: $(post-clone-data)
 	cd '${DATA_DIR}' && urcheon prepare pkg/map-*.dpkdir
 
-build-maps: prepare-maps
+build-maps: prepare-maps $(post-clone-data)
 	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' build pkg/map-*.dpkdir
 
-package-maps: build-maps
+package-maps: build-maps $(post-clone-data)
 	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' package pkg/map-*.dpkdir
 
 maps: ${DATA_ACTION}-maps
 
-prepare-resources:
+prepare-resources: $(post-clone-data)
 	cd '${DATA_DIR}' && urcheon prepare pkg/res-*_src.dpkdir pkg/tex-*_src.dpkdir
 
-build-resources: prepare-resources
+build-resources: prepare-resources $(post-clone-data)
 	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' build pkg/res-*_src.dpkdir pkg/tex-*_src.dpkdir
 
-package-resources: build-resources
+package-resources: build-resources $(post-clone-data)
 	cd '${DATA_DIR}' && urcheon --build-prefix='${DATA_BUILD_PREFIX}' package pkg/res-*_src.dpkdir pkg/tex-*_src.dpkdir
 
 resources: ${DATA_ACTION}-resources
@@ -748,7 +755,7 @@ clean-game:
 
 clean-bin: clean-engine clean-game
 
-run-server: bin-server${NOBUILD_SUFFIX}
+run-server: bin-server${NOBUILD_SUFFIX} $(post_data) $(post_base)
 	LD_PRELOAD='${LD_RUNNER}' \
 	${RUNNER} \
 	'${ENGINE_BUILD}/daemonded${ENGINE_EXT}' \
@@ -761,7 +768,7 @@ run-server: bin-server${NOBUILD_SUFFIX}
 		${SERVER_ARGS} \
 		${USER_ARGS}
 
-run-client: bin-client${NOBUILD_SUFFIX}
+run-client: bin-client${NOBUILD_SUFFIX} $(post_data) $(post_base)
 	LD_PRELOAD='${LD_RUNNER}' \
 	${RUNNER} \
 	'${ENGINE_BUILD}/daemon${ENGINE_EXT}' \
@@ -775,7 +782,7 @@ run-client: bin-client${NOBUILD_SUFFIX}
 		${CLIENT_ARGS} \
 		${USER_ARGS}
 
-run-tty: bin-tty${NOBUILD_SUFFIX}
+run-tty: bin-tty${NOBUILD_SUFFIX} $(post_data) $(post_base)
 	LD_PRELOAD='${LD_RUNNER}' \
 	${RUNNER} \
 	'${ENGINE_BUILD}/daemon-tty${ENGINE_EXT}' \
