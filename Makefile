@@ -280,7 +280,9 @@ ifeq ($(MOLD),)
     ifneq ($(MOLD_PATH),)
         MOLD := ON
     endif
-else ifeq ($(MOLD),ON)
+endif
+
+ifeq ($(MOLD),ON)
 else ifeq ($(MOLD),OFF)
 else
     $(error Bad MOLD value: $(MOLD))
