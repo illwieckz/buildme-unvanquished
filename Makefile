@@ -424,7 +424,11 @@ CMAKE_ENGINE_LINKER_FLAGS := -D'CMAKE_EXE_LINKER_FLAGS'='${NATIVE_LINKER_FLAGS} 
 ifeq ($(PCH),ON)
 else ifeq ($(PCH),OFF)
 else ifeq ($(PCH),)
-    PCH := ON
+    ifeq ($(GEN),Ninja)
+        PCH := OFF
+    else
+        PCH := ON
+    endif
 else
     $(error Bad PCH value: $(PCH))
 endif
