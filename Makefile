@@ -379,6 +379,8 @@ else ifeq ($(DEBUG),gprofng)
     RUNNER := gprofng collect app
 else ifeq ($(DEBUG),valgrind)
     RUNNER := valgrind --tool=memcheck --num-callers=4 --track-origins=yes --time-stamp=yes --run-libc-freeres=yes --leak-check=full --leak-resolution=high --track-origins=yes --show-leak-kinds=all --log-file='logs/valgrind-${NOW}.log' --
+else ifeq ($(DEBUG),massif)
+    RUNNER := valgrind --tool=massif --log-file='logs/massif-${NOW}.log' --massif-out-file='logs/massif.out.${NOW}.%p' --
 else ifeq ($(DEBUG),heapusage)
     RUNNER := heapusage -m 0 -o 'logs/heapusage-${NOW}.log'
 else ifeq ($(DEBUG),apitrace)
