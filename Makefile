@@ -146,16 +146,6 @@ else
     ARCH_FLAGS := -march=$(MARCH)
 endif
 
-ifeq ($(LD_BIN),)
-    CMAKE_USELD_ARGS := -D'CMAKE_EXE_LINKER_FLAGS_INIT'= \
-        -D'CMAKE_MODULE_LINKER_FLAGS_INIT'= \
-        -D'CMAKE_SHARED_LINKER_FLAGS_INIT'=
-else
-    CMAKE_USELD_ARGS := -D'CMAKE_EXE_LINKER_FLAGS_INIT'='-fuse-ld=${LD_BIN}' \
-        -D'CMAKE_MODULE_LINKER_FLAGS_INIT'='-fuse-ld=${LD_BIN}' \
-        -D'CMAKE_SHARED_LINKER_FLAGS_INIT'='-fuse-ld=${LD_BIN}'
-endif
-
 getCompilerVersion = $(word 2,$(subst -, ,$1))
 
 ifeq ($(COMPILER),)
@@ -284,13 +274,24 @@ endif
 
 ifeq ($(MOLD),ON)
 else ifeq ($(MOLD),OFF)
+else ifeq ($(MOLD),)
 else
     $(error Bad MOLD value: $(MOLD))
 endif
 
 ifeq ($(MOLD),ON)
    MOLD_BIN := mold
-   MOLD_CMD := '${MOLD_BIN}' --run
+   LD_BIN := ${MOLD_BIN}
+endif
+
+ifeq ($(LD_BIN),)
+    CMAKE_USELD_ARGS := -D'CMAKE_EXE_LINKER_FLAGS_INIT'= \
+        -D'CMAKE_MODULE_LINKER_FLAGS_INIT'= \
+        -D'CMAKE_SHARED_LINKER_FLAGS_INIT'=
+else
+    CMAKE_USELD_ARGS := -D'CMAKE_EXE_LINKER_FLAGS_INIT'='-fuse-ld=${LD_BIN}' \
+        -D'CMAKE_MODULE_LINKER_FLAGS_INIT'='-fuse-ld=${LD_BIN}' \
+        -D'CMAKE_SHARED_LINKER_FLAGS_INIT'='-fuse-ld=${LD_BIN}'
 endif
 
 ifeq ($(CCACHE),)
