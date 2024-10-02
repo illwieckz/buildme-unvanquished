@@ -143,19 +143,19 @@ ifeq ($(VM),nexe)
     endif
 endif
 
-ifeq ($(MARCH),)
-    MARCH := generic
+ifeq ($(ARCH),)
+    ARCH := generic
 endif
 
-ifeq ($(MARCH),generic)
+ifeq ($(ARCH),generic)
     CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='ON' -D'USE_CPU_RECOMMENDED_FEATURES'='ON'
-else ifeq ($(MARCH),lowend)
+else ifeq ($(ARCH),lowend)
     CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='ON' -D'USE_CPU_RECOMMENDED_FEATURES'='OFF'
-else ifeq ($(MARCH),native)
+else ifeq ($(ARCH),native)
     CMAKE_ARCH_ARGS := -D'USE_CPU_GENERIC_ARCHITECTURE'='OFF' -D'USE_CPU_RECOMMENDED_FEATURES'='ON'
     ARCH_FLAGS := -march=native -mtune=native
 else
-    ARCH_FLAGS := -march=$(MARCH)
+    ARCH_FLAGS := -march=$(ARCH)
 endif
 
 getCompilerVersion = $(word 2,$(subst -, ,$1))
