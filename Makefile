@@ -41,6 +41,18 @@ else
     SYSPKG_DIR := $(shell echo "$${XDG_DATA_HOME:-$${HOME}/.local/share}/unvanquished/base/pkg")
 endif
 
+MACHINE := $(shell uname -m)
+
+ifeq ($(MACHINE),x86_64)
+    ARCH := amd64
+else ifeq ($(MACHINE),i686)
+    ARCH := i686
+else ifeq ($(MACHINE),armv7l)
+    ARCH := armhf
+else ifeq ($(MACHINE),aarch64)
+    ARCH := arm64
+endif
+
 ifeq ($(NPROC),)
     NPROC := $(shell ${NPROC_CMD})
 endif
@@ -521,8 +533,8 @@ ifneq ($(GAME_TOOLCHAIN),)
     GAME_TOOLCHAIN := daemon/${GAME_TOOLCHAIN}
 endif
 
-ENGINE_PREFIX := ${PREFIX}-${SYSTEM}-${COMPILER}-${LINK}-${BUILD_TYPE}-exe
-GAME_PREFIX := ${PREFIX}-${SYSTEM}-${GAME_COMPILER}-${LINK}-${BUILD_TYPE}-${VM}
+ENGINE_PREFIX := ${PREFIX}-${SYSTEM}-${ARCH}-${COMPILER}-${LINK}-${BUILD_TYPE}-exe
+GAME_PREFIX := ${PREFIX}-${SYSTEM}-${ARCH}-${GAME_COMPILER}-${LINK}-${BUILD_TYPE}-${VM}
 
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
 GAME_BUILD := ${BUILD_DIR}/game/${GAME_PREFIX}
