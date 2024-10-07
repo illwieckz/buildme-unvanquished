@@ -190,6 +190,19 @@ else ifeq ($(COMPILER),mingw)
     CXX_BIN := x86_64-w64-mingw32-g++
     TOOLCHAIN := cmake/cross-toolchain-mingw64.cmake
     ENGINE_EXT := .exe
+    OS_TARGET := windows
+else ifeq ($(COMPILER),amd64-mingw)
+    CC_BIN := x86_64-w64-mingw32-gcc
+    CXX_BIN := x86_64-w64-mingw32-g++
+    TOOLCHAIN := cmake/cross-toolchain-mingw64.cmake
+    ENGINE_EXT := .exe
+    OS_TARGET := windows
+else ifeq ($(COMPILER),i686-mingw)
+    CC_BIN := i686-w64-mingw32-gcc
+    CXX_BIN := i686-w64-mingw32-g++
+    TOOLCHAIN := cmake/cross-toolchain-mingw32.cmake
+    ENGINE_EXT := .exe
+    OS_TARGET := windows
 else ifeq ($(COMPILER),zig)
     # You may have to do:
     #   sudo ln -s /usr/include/asm-generic/ /usr/include/asm
@@ -366,7 +379,7 @@ else
     $(error Bad TYPE value: $(TYPE))
 endif
 
-ifeq ($(COMPILER),mingw)
+ifeq ($(OS_TARGET),windows)
     RUNNER := wine
     EXE_EXT := .exe
     export WINEPREFIX = $(shell realpath "${BUILD_DIR}/wine")
@@ -564,7 +577,7 @@ endif
 
 EXTRA_PAKPATH_ARGS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
 
-ifeq ($(COMPILER),mingw)
+ifeq ($(OS_TARGET),windows)
     SYSTEM_DEPS := windows
 else
     SYSTEM_DEPS := other
