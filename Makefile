@@ -101,7 +101,7 @@ else ifeq ($(BUILD),OFF)
 else ifeq ($(BUILD),)
     BUILD := ON
 else
-    $(error Bad BUILD value: $(VM))
+    $(error Bad BUILD value: $(BUILD))
 endif
 
 ifeq ($(BUILD),OFF)
