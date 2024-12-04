@@ -501,6 +501,22 @@ else
     $(error Bad WERROR value: $(WERROR))
 endif
 
+ifeq ($(FLOAT_EXCEPTIONS),ON)
+else ifeq ($(FLOAT_EXCEPTIONS),OFF)
+else ifeq ($(FLOAT_EXCEPTIONS),)
+    FLOAT_EXCEPTIONS := OFF
+else
+    $(error Bad FLOAT_EXCEPTIONS value: $(FLOAT_EXCEPTIONS))
+endif
+
+ifeq ($(FAST_MATH),ON)
+else ifeq ($(FAST_MATH),OFF)
+else ifeq ($(FAST_MATH),)
+    FAST_MATH := ON
+else
+    $(error Bad FAST_MATH value: $(FAST_MATH))
+endif
+
 ifeq ($(VM),dll)
     VM_TYPE := 3
     CMAKE_GAME_ARGS := \
@@ -638,6 +654,8 @@ configure-engine: set-current-engine $(post-clone-bin)
 		-D'USE_HARDENING'='${HARDENING}' \
 		-D'USE_PEDANTIC'='${PEDANTIC}' \
 		-D'USE_WERROR'='${WERROR}' \
+		-D'USE_FLOAT_EXCEPTIONS'='${FLOAT_EXCEPTIONS}' \
+		-D'USE_FAST_MATH'='${FAST_MATH}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='ON' -D'BUILD_CLIENT'='ON' -D'BUILD_TTY_CLIENT'='ON' \
 	|| ( rm -v '${ENGINE_BUILD}/CMakeCache.txt' ; false )
