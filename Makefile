@@ -126,6 +126,8 @@ ifeq ($(DPK),ON)
 else ifeq ($(DPK),OFF)
     PAK_PREFIX := _pakdir/pkg
     DATA_ACTION := build
+else
+    $(error Bad DPK value: $(DPK))
 endif
 
 ifeq ($(VM),nexe)
