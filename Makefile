@@ -25,18 +25,14 @@ NOW := $(shell date -u '+%Y%m%d-%H%M%S')
 SYSTEM := $(shell uname -s | tr '[:upper:]' '[:lower:]' | sed -e 's/[^a-z0-9]//g')
 
 ifeq ($(SYSTEM),darwin)
-    LN_BIN := gln
     NPROC_CMD := sysctl -n hw.logicalcpu
     SYSPKG_DIR := $(shell echo "$${HOME}/Games/Unvanquished/Unvanquished.app/Contents/MacOS")
 else ifeq ($(SYSTEM),freebsd)
-    LN_BIN := gln
-    NPROC_CMD := sysctl -n hw.ncpu
     # Mold produce weird bugs on FreeBSD, like the game not being loadable
     # by the engine, whatever the format (dll, exe, nexe).
     MOLD := OFF
     SYSPKG_DIR := $(shell echo "$${XDG_DATA_HOME:-$${HOME}/.local/share}/unvanquished/base/pkg")
 else
-    LN_BIN := ln
     NPROC_CMD := nproc
     SYSPKG_DIR := $(shell echo "$${XDG_DATA_HOME:-$${HOME}/.local/share}/unvanquished/base/pkg")
 endif
@@ -61,7 +57,7 @@ ifeq ($(CMAKE_BIN),)
     CMAKE_BIN := cmake
 endif
 
-LN_CMD := '${LN_BIN}' --verbose --symbolic --force 
+LN_CMD := ln -f -n -s -v
 
 # HACK: Pass every argument after "run" goal as game options.
 # This is only done if ARGS option is not set (which is safer to use).
@@ -636,8 +632,7 @@ pull: pull-bin pull-assets
 
 set-current-engine:
 	mkdir -p build/engine
-	${LN_CMD} --no-target-directory \
-		'${ENGINE_PREFIX}' build/engine/current
+	${LN_CMD} '${ENGINE_PREFIX}' build/engine/current
 
 configure-engine: set-current-engine $(post-clone-bin)
 	${MOLD_CMD} '${CMAKE_BIN}' '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
@@ -691,8 +686,7 @@ engine-extra: engine-${SYSTEM_DEPS}-extra
 
 set-current-game:
 	mkdir -p build/game
-	${LN_CMD} --no-target-directory \
-		'${GAME_PREFIX}' build/game/current
+	${LN_CMD} '${GAME_PREFIX}' build/game/current
 
 configure-game: configure-engine set-current-game
 	${MOLD_CMD} '${CMAKE_BIN}' '${GAME_DIR}' -B'${GAME_BUILD}' \
