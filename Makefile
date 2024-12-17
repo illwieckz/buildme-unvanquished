@@ -644,6 +644,7 @@ configure-engine: set-current-engine $(post-clone-bin)
 		${CMAKE_DEBUG_ARGS} \
 		${CMAKE_ENGINE_COMPILER_FLAGS} \
 		${CMAKE_ENGINE_LINKER_FLAGS} \
+		${CMAKE_ARCH_ARGS} \
 		${CMAKE_ARGS} \
 		-D'USE_PRECOMPILED_HEADER'='${PCH}' \
 		-D'USE_LTO'='${LTO}' \
@@ -698,6 +699,7 @@ configure-test: set-current-test $(post-clone-bin)
 		${CMAKE_DEBUG_ARGS} \
 		${CMAKE_ENGINE_COMPILER_FLAGS} \
 		${CMAKE_ENGINE_LINKER_FLAGS} \
+		${CMAKE_ARCH_ARGS} \
 		${CMAKE_ARGS} \
 		-D'USE_PRECOMPILED_HEADER'='${PCH}' \
 		-D'USE_LTO'='${LTO}' \
@@ -728,6 +730,7 @@ configure-game: configure-engine set-current-game
 		${CMAKE_GAME_ARGS} \
 		${CMAKE_GAME_COMPILER_FLAGS} \
 		${CMAKE_GAME_LINKER_FLAGS} \
+		${CMAKE_ARCH_ARGS} \
 		${CMAKE_ARGS} \
 		-D'USE_PRECOMPILED_HEADER'='${PCH}' \
 		-D'USE_LTO'='${LTO}' \
