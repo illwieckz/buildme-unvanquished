@@ -367,7 +367,7 @@ else ifeq ($(TYPE),Debug)
 else ifeq ($(TYPE),Profile)
     BUILD_TYPE := profile
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='ON'
-    NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fno-omit-frame-pointer
+    NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fno-omit-frame-pointer -fno-inline-functions
     DEBUG := gdb
 else ifeq ($(TYPE),RelWithDebInfo)
     BUILD_TYPE := reldeb
