@@ -564,6 +564,7 @@ ENGINE_PREFIX := ${PREFIX}-${SYSTEM}-${MACHINE}-${COMPILER}-${LINK}-${BUILD_TYPE
 GAME_PREFIX := ${PREFIX}-${SYSTEM}-${MACHINE}-${GAME_COMPILER}-${LINK}-${BUILD_TYPE}-${VM}
 
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
+TEST_BUILD := ${BUILD_DIR}/test/${ENGINE_PREFIX}
 GAME_BUILD := ${BUILD_DIR}/game/${GAME_PREFIX}
 
 DATA_BUILD_PREFIX := ${BUILD_DIR}/data
@@ -684,6 +685,35 @@ engine-other-extra:
 
 engine-extra: engine-${SYSTEM_DEPS}-extra
 
+set-current-test:
+	mkdir -p build/test
+	${LN_CMD} '${ENGINE_PREFIX}' build/test/current
+
+configure-test: set-current-test $(post-clone-bin)
+	'${CMAKE_BIN}' '${ENGINE_DIR}' -B'${TEST_BUILD}' \
+		-G'${GEN}' \
+		-D'CMAKE_TOOLCHAIN_FILE'='${TOOLCHAIN}' \
+		${CMAKE_COMPILER_ARGS} \
+		${CMAKE_USELD_ARGS} \
+		${CMAKE_DEBUG_ARGS} \
+		${CMAKE_ENGINE_COMPILER_FLAGS} \
+		${CMAKE_ENGINE_LINKER_FLAGS} \
+		${CMAKE_ARGS} \
+		-D'USE_PRECOMPILED_HEADER'='${PCH}' \
+		-D'USE_LTO'='${LTO}' \
+		-D'USE_HARDENING'='${HARDENING}' \
+		-D'USE_PEDANTIC'='${PEDANTIC}' \
+		-D'USE_WERROR'='${WERROR}' \
+		-D'USE_FLOAT_EXCEPTIONS'='${FLOAT_EXCEPTIONS}' \
+		-D'USE_FAST_MATH'='${FAST_MATH}' \
+		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
+		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
+		-D'BUILD_DUMMY_APP'='ON' -D' BUILD_TESTS'='ON' \
+	|| ( rm -v '${TEST_BUILD}/CMakeCache.txt' ; false )
+
+build-test: configure-test
+	'${CMAKE_BIN}' --build '${TEST_BUILD}' -- -j'${NPROC}' test-dummyapp
+
 set-current-game:
 	mkdir -p build/game
 	${LN_CMD} '${GAME_PREFIX}' build/game/current
@@ -743,6 +773,9 @@ bin-server-nobuild:
 build-tty: engine-tty game
 bin-tty: build-tty bin-extra
 bin-tty-nobuild:
+
+bin-test: build-test
+bin-test-nobuild:
 
 bin: engine game
 
@@ -840,7 +873,19 @@ run-tty: bin-tty${NOBUILD_SUFFIX} $(post_data) $(post_base)
 		${CLIENT_ARGS} \
 		${USER_ARGS}
 
+run-test: bin-test${NOBUILD_SUFFIX}
+	LD_PRELOAD='${LD_RUNNER}' \
+	${RUNNER} \
+	'${TEST_BUILD}/test-dummyapp${ENGINE_EXT}' \
+		-pakpath '${ENGINE_DIR}/pkg' \
+		${ENGINE_LOG_ARGS} \
+		${SERVER_ARGS} \
+		${CLIENT_ARGS} \
+		${USER_ARGS}
+
 run: run-client
+
+test: run-test
 
 load_map:
 	$(MAKE) run ARGS="${ARGS} +devmap plat23"
