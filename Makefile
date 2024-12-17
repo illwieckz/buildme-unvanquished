@@ -156,6 +156,26 @@ else
     ARCH_FLAGS := -march=$(ARCH)
 endif
 
+ifeq ($(ARCH_INTRINSICS),ON)
+else ifeq ($(ARCH_INTRINSICS),OFF)
+else ifeq ($(ARCH_INTRINSICS),)
+    ARCH_INTRINSICS := ON
+else
+    $(error Bad ARCH_INTRINSICS value: $(ARCH_INTRINSICS))
+endif
+
+CMAKE_ARCH_ARGS += -D'USE_ARCH_INTRINSICS'='${ARCH_INTRINSICS}'
+
+ifeq ($(COMPILER_INTRINSICS),ON)
+else ifeq ($(COMPILER_INTRINSICS),OFF)
+else ifeq ($(COMPILER_INTRINSICS),)
+    COMPILER_INTRINSICS := ON
+else
+    $(error Bad COMPILER_INTRINSICS value: $(COMPILER_INTRINSICS))
+endif
+
+CMAKE_ARCH_ARGS += -D'USE_COMPILER_INTRINSICS'='${COMPILER_INTRINSICS}'
+
 getCompilerVersion = $(word 2,$(subst -, ,$1))
 
 ifeq ($(COMPILER),)
