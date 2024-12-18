@@ -559,7 +559,20 @@ else ifeq ($(VM),nexe)
 endif
 
 ifeq ($(VM),nexe)
-    GAME_COMPILER := nacl
+    ifeq ($(NACL_COMPILER),saigo)
+    else ifeq ($(NACL_COMPILER),pnacl)
+    else ifeq ($(NACL_COMPILER),)
+        NACL_COMPILER := pnacl
+    else
+        $(error Bad NACL_COMPILER value: $(NACL_COMPILER))
+    endif
+
+    ifeq ($(NACL_COMPILER),saigo)
+        CMAKE_GAME_ARGS += -D'USE_NACL_SAIGO'='ON'
+    endif
+
+    GAME_COMPILER := $(NACL_COMPILER)
+
     CMAKE_GAME_COMPILER_FLAGS := \
         -D'CMAKE_C_FLAGS'='' \
         -D'CMAKE_CXX_FLAGS'=''
