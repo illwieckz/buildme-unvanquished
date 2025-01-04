@@ -534,6 +534,14 @@ else
     $(error Bad FAST_MATH value: $(FAST_MATH))
 endif
 
+ifeq ($(EXTERNAL_LIBS),ON)
+else ifeq ($(EXTERNAL_LIBS),OFF)
+else ifeq ($(EXTERNAL_LIBS),)
+	EXTERNAL_LIBS := ON
+else
+    $(error Bad EXTERNAL_LIBS value: $(EXTERNAL_LIBS))
+endif
+
 ifeq ($(VM),dll)
     VM_TYPE := 3
     CMAKE_GAME_ARGS := \
@@ -687,6 +695,7 @@ configure-engine: set-current-engine $(post-clone-bin)
 		-D'USE_WERROR'='${WERROR}' \
 		-D'USE_FLOAT_EXCEPTIONS'='${FLOAT_EXCEPTIONS}' \
 		-D'USE_FAST_MATH'='${FAST_MATH}' \
+		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='ON' -D'BUILD_CLIENT'='ON' -D'BUILD_TTY_CLIENT'='ON' \
 	|| ( rm -v '${ENGINE_BUILD}/CMakeCache.txt' ; false )
@@ -742,6 +751,7 @@ configure-test: set-current-test $(post-clone-bin)
 		-D'USE_WERROR'='${WERROR}' \
 		-D'USE_FLOAT_EXCEPTIONS'='${FLOAT_EXCEPTIONS}' \
 		-D'USE_FAST_MATH'='${FAST_MATH}' \
+		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
 		-D'BUILD_DUMMY_APP'='ON' -D' BUILD_TESTS'='ON' \
@@ -773,6 +783,7 @@ configure-game: configure-engine set-current-game
 		-D'USE_WERROR'='${WERROR}' \
 		-D'USE_FLOAT_EXCEPTIONS'='${FLOAT_EXCEPTIONS}' \
 		-D'USE_FAST_MATH'='${FAST_MATH}' \
+		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
 		-D'BUILD_SGAME'='ON' -D'BUILD_CGAME'='ON' \
