@@ -186,6 +186,21 @@ endif
 ifeq ($(COMPILER),gcc)
     CC_BIN := gcc
     CXX_BIN := g++
+else ifeq ($(COMPILER),amd64-gcc)
+    CC_BIN := x86_64-linux-gnu-gcc
+    CXX_BIN := x86_64-linux-gnu-g++
+else ifeq ($(COMPILER),i686-gcc)
+    CC_BIN := i686-linux-gnu-gcc
+    CXX_BIN := i686-linux-gnu-g++
+else ifeq ($(COMPILER),arm64-gcc)
+    CC_BIN := aarch64-linux-gnu-gcc
+    CXX_BIN := aarch64-linux-gnu-g++
+else ifeq ($(COMPILER),armhf-gcc)
+    CC_BIN := arm-linux-gnueabihf-gcc
+    CXX_BIN := arm-linux-gnueabihf-g++
+else ifeq ($(COMPILER),armel-gcc)
+    CC_BIN := arm-linux-gnueabi-gcc
+    CXX_BIN := arm-linux-gnueabi-g++
 else ifeq ($(findstring gcc-,$(COMPILER)),gcc-)
     COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
     CC_BIN := gcc-$(COMPILER_VERSION)
