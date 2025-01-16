@@ -819,8 +819,18 @@ game-nexe-windows-extra:
 game-nexe-other-extra: engine-runtime set-current-game
 	${LN_CMD} ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
 
-game-nexe-extra: game-nexe-${SYSTEM_DEPS}-extra engine-runtime set-current-game
+game-nexe-amd64-extra:
 	${LN_CMD} ${ENGINE_BUILD}/irt_core-amd64.nexe ${GAME_BUILD}/irt_core-amd64.nexe
+
+game-nexe-i686-extra:
+	${LN_CMD} ${ENGINE_BUILD}/irt_core-i686.nexe ${GAME_BUILD}/irt_core-i686.nexe
+
+game-nexe-armhf-extra:
+	${LN_CMD} ${ENGINE_BUILD}/irt_core-armhf.nexe ${GAME_BUILD}/irt_core-armhf.nexe
+
+game-nexe-all-extra: game-nexe-amd64-extra game-nexe-i686-extra game-nexe-armhf-extra
+
+game-nexe-extra: game-nexe-${SYSTEM_DEPS}-extra game-nexe-${NEXE}-extra engine-runtime set-current-game
 	${LN_CMD} ${ENGINE_BUILD}/nacl_loader${EXE_EXT} ${GAME_BUILD}/nacl_loader${EXE_EXT}
 
 game-exe-extra:
