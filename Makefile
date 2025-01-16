@@ -205,20 +205,23 @@ else ifeq ($(findstring clang-,$(COMPILER)),clang-)
     CC_BIN := clang-$(COMPILER_VERSION)
     CXX_BIN := clang++-$(COMPILER_VERSION)
 else ifeq ($(COMPILER),mingw)
-    CC_BIN := x86_64-w64-mingw32-gcc
-    CXX_BIN := x86_64-w64-mingw32-g++
+    MINGW_ARCH := x86_64-w64-mingw32
+    CC_BIN := ${MINGW_ARCH}-gcc
+    CXX_BIN := ${MINGW_ARCH}-g++
     TOOLCHAIN := cmake/cross-toolchain-mingw64.cmake
     ENGINE_EXT := .exe
     OS_TARGET := windows
 else ifeq ($(COMPILER),amd64-mingw)
-    CC_BIN := x86_64-w64-mingw32-gcc
-    CXX_BIN := x86_64-w64-mingw32-g++
+    MINGW_ARCH := x86_64-w64-mingw32
+    CC_BIN := ${MINGW_ARCH}-gcc
+    CXX_BIN := ${MINGW_ARCH}-g++
     TOOLCHAIN := cmake/cross-toolchain-mingw64.cmake
     ENGINE_EXT := .exe
     OS_TARGET := windows
 else ifeq ($(COMPILER),i686-mingw)
-    CC_BIN := i686-w64-mingw32-gcc
-    CXX_BIN := i686-w64-mingw32-g++
+    MINGW_ARCH := i686-w64-mingw32
+    CC_BIN := ${MINGW_ARCH}-gcc
+    CXX_BIN := ${MINGW_ARCH}-g++
     TOOLCHAIN := cmake/cross-toolchain-mingw32.cmake
     ENGINE_EXT := .exe
     OS_TARGET := windows
@@ -717,12 +720,13 @@ engine: configure-engine
 
 engine-windows-extra:
 	{ \
-		for dll_name in libssp-0.dll libwinpthread-1.dll libgcc_s_seh-1.dll libstdc++-6.dll; \
-		do \
-			mingw_arch='x86_64-w64-mingw32'; \
-			dll_location="$$(find '/usr' -name "$${dll_name}" -type f | sort | grep --max-count=1 "$${mingw_arch}")"; \
-			cp -av "$${dll_location}" "${ENGINE_BUILD}/$${dll_name}"; \
-		done; \
+		echo libssp-0.dll libwinpthread-1.dll libgcc_s_seh-1.dll libgcc_s_dw2-1.dll libstdc++-6.dll \
+		| tr ' ' '\n' \
+		| xargs -I{} -P1 -r find '/usr' -name {} -type f \
+		| grep '${MINGW_ARCH}' \
+		| grep -v 'win32' \
+		| sort \
+		| xargs -I{} -P1 -r cp -av {} '${ENGINE_BUILD}/'; \
 	}
 
 engine-other-extra:
