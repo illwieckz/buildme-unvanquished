@@ -817,7 +817,12 @@ game: configure-game
 game-nexe-windows-extra:
 
 game-nexe-other-extra: engine-runtime set-current-game
-	${LN_CMD} ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
+#	${LN_CMD} ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
+	find ${ENGINE_BUILD} \
+		\( -name nacl_helper_bootstrap \
+		-o -name nacl_helper_bootstrap-armhf \
+		-o -name lib-armhf \) \
+		-exec ${LN_CMD} {} ${GAME_BUILD}/ \;
 
 game-nexe-amd64-extra:
 	${LN_CMD} ${ENGINE_BUILD}/irt_core-amd64.nexe ${GAME_BUILD}/irt_core-amd64.nexe
