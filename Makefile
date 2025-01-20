@@ -276,6 +276,7 @@ else ifeq ($(COMPILER),icx)
     export LD_LIBRARY_PATH += :$(shell dirname "$(IMF_LIB)")
 #    NATIVE_C_COMPILER_FLAGS := -Rdebug-disables-optimization
 #    NATIVE_CXX_COMPILER_FLAGS := -Rdebug-disables-optimization
+    # ICX is incompatible with /usr/lib/gcc/x86_64-linux-gnu/14
     GCC_DIR := /usr/lib/gcc/x86_64-linux-gnu/13
     NATIVE_C_COMPILER_FLAGS := --gcc-install-dir=${GCC_DIR}
     NATIVE_CXX_COMPILER_FLAGS := ${NATIVE_C_COMPILER_FLAGS}
@@ -287,6 +288,7 @@ else ifeq ($(findstring icx-,$(COMPILER)),icx-)
     export LD_LIBRARY_PATH += :$(shell dirname "$(IMF_LIB)")
 #    NATIVE_C_COMPILER_FLAGS := -Rdebug-disables-optimization
 #    NATIVE_CXX_COMPILER_FLAGS := -Rdebug-disables-optimization
+    # ICX is incompatible with /usr/lib/gcc/x86_64-linux-gnu/14
     GCC_DIR := /usr/lib/gcc/x86_64-linux-gnu/13
     NATIVE_C_COMPILER_FLAGS := --gcc-install-dir=${GCC_DIR}
     NATIVE_CXX_COMPILER_FLAGS := ${NATIVE_C_COMPILER_FLAGS}
