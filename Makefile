@@ -41,12 +41,16 @@ UNAMEM := $(shell uname -m)
 
 ifeq ($(UNAMEM),x86_64)
     MACHINE := amd64
+    NATIVE_NEXE := amd64
 else ifeq ($(UNAMEM),i686)
     MACHINE := i686
+    NATIVE_NEXE := i686
 else ifeq ($(UNAMEM),armv7l)
     MACHINE := armhf
+    NATIVE_NEXE := armhf
 else ifeq ($(UNAMEM),aarch64)
     MACHINE := arm64
+    NATIVE_NEXE := armhf
 endif
 
 ifeq ($(NPROC),)
@@ -136,8 +140,20 @@ else
 endif
 
 ifeq ($(VM),nexe)
-    ifeq ($(NEXE),)
-        NEXE := native
+    ifeq ($(NEXE),all)
+        NACL_TARGET := ${NEXE}
+    else ifeq ($(NEXE),amd64)
+        NACL_TARGET := ${NEXE}
+    else ifeq ($(NEXE),i686)
+        NACL_TARGET := ${NEXE}
+    else ifeq ($(NEXE),armhf)
+        NACL_TARGET := ${NEXE}
+    else ifeq ($(NEXE),native)
+        NACL_TARGET := ${NATIVE_NEXE}
+    else ifeq ($(NEXE),)
+        NACL_TARGET := ${NATIVE_NEXE}
+    else
+        $(error Bad VM value: $(NACL_TARGET))
     endif
 endif
 
@@ -587,7 +603,7 @@ else ifeq ($(VM),nexe)
     CMAKE_GAME_ARGS := \
         -D'BUILD_GAME_NACL'='ON' \
         -D'BUILD_GAME_NACL_NEXE'='ON' \
-        -D'BUILD_GAME_NACL_TARGETS'="$(NEXE)" \
+        -D'BUILD_GAME_NACL_TARGETS'="$(NACL_TARGET)" \
         -D'BUILD_GAME_NATIVE_EXE'='OFF'\
         -D'BUILD_GAME_NATIVE_DLL'='OFF'
 endif
@@ -843,7 +859,7 @@ game-nexe-armhf-extra:
 
 game-nexe-all-extra: game-nexe-amd64-extra game-nexe-i686-extra game-nexe-armhf-extra
 
-game-nexe-extra: game-nexe-${SYSTEM_DEPS}-extra game-nexe-${NEXE}-extra engine-runtime set-current-game
+game-nexe-extra: game-nexe-${SYSTEM_DEPS}-extra game-nexe-${NACL_TARGET}-extra engine-runtime set-current-game
 	${LN_CMD} ${ENGINE_BUILD}/nacl_loader${EXE_EXT} ${GAME_BUILD}/nacl_loader${EXE_EXT}
 
 game-exe-extra:
