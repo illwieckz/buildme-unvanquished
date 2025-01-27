@@ -205,18 +205,28 @@ ifeq ($(COMPILER),gcc)
 else ifeq ($(COMPILER),amd64-gcc)
     CC_BIN := x86_64-linux-gnu-gcc
     CXX_BIN := x86_64-linux-gnu-g++
+    EXE_TARGET := amd64
+    COMPILER_SLUG := gcc
 else ifeq ($(COMPILER),i686-gcc)
     CC_BIN := i686-linux-gnu-gcc
     CXX_BIN := i686-linux-gnu-g++
+    EXE_TARGET := i686
+    COMPILER_SLUG := gcc
 else ifeq ($(COMPILER),arm64-gcc)
     CC_BIN := aarch64-linux-gnu-gcc
     CXX_BIN := aarch64-linux-gnu-g++
+    EXE_TARGET := arm64
+    COMPILER_SLUG := gcc
 else ifeq ($(COMPILER),armhf-gcc)
     CC_BIN := arm-linux-gnueabihf-gcc
     CXX_BIN := arm-linux-gnueabihf-g++
+    EXE_TARGET := armhf
+    COMPILER_SLUG := gcc
 else ifeq ($(COMPILER),armel-gcc)
     CC_BIN := arm-linux-gnueabi-gcc
     CXX_BIN := arm-linux-gnueabi-g++
+    EXE_TARGET := armel
+    COMPILER_SLUG := gcc
 else ifeq ($(findstring gcc-,$(COMPILER)),gcc-)
     COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
     CC_BIN := gcc-$(COMPILER_VERSION)
@@ -241,21 +251,26 @@ else ifeq ($(COMPILER),mingw)
     CXX_BIN := ${MINGW_ARCH}-g++
     TOOLCHAIN := cmake/cross-toolchain-mingw64.cmake
     ENGINE_EXT := .exe
-    OS_TARGET := windows
+    SYSTEM_TARGET := windows
+    EXE_TARGET := amd64
 else ifeq ($(COMPILER),amd64-mingw)
     MINGW_ARCH := x86_64-w64-mingw32
     CC_BIN := ${MINGW_ARCH}-gcc
     CXX_BIN := ${MINGW_ARCH}-g++
     TOOLCHAIN := cmake/cross-toolchain-mingw64.cmake
     ENGINE_EXT := .exe
-    OS_TARGET := windows
+    SYSTEM_TARGET := windows
+    EXE_TARGET := amd64
+    COMPILER_SLUG := mingw
 else ifeq ($(COMPILER),i686-mingw)
     MINGW_ARCH := i686-w64-mingw32
     CC_BIN := ${MINGW_ARCH}-gcc
     CXX_BIN := ${MINGW_ARCH}-g++
     TOOLCHAIN := cmake/cross-toolchain-mingw32.cmake
     ENGINE_EXT := .exe
-    OS_TARGET := windows
+    SYSTEM_TARGET := windows
+    EXE_TARGET := i686
+    COMPILER_SLUG := mingw
 else ifeq ($(COMPILER),zig)
     # You may have to do:
     #   sudo ln -s /usr/include/asm-generic /usr/include/asm
@@ -318,6 +333,26 @@ else ifeq ($(findstring aocc-,$(COMPILER)),aocc-)
     CC_BIN := /opt/AMD/aocc-compiler-${COMPILER_VERSION}/bin/clang
     CXX_BIN := $(shell dirname "${CC_BIN}")/clang++
     export LD_LIBRARY_PATH += :/opt/AMD/aocc-compiler-${COMPILER_VERSION}/lib/
+endif
+
+ifeq ($(EXE_TARGET),)
+    EXE_TARGET_SLUG := ${MACHINE}
+else ifeq ($(EXE_TARGET),${MACHINE})
+    EXE_TARGET_SLUG := ${MACHINE}
+else
+    EXE_TARGET_SLUG := ${EXE_TARGET}
+endif
+
+ifeq ($(SYSTEM_TARGET),)
+    SYSTEM_TARGET_SLUG := ${SYSTEM}
+else ifeq ($(SYSTEM_TARGET),${SYSTEM})
+    SYSTEM_TARGET_SLUG := ${SYSTEM}
+else
+    SYSTEM_TARGET_SLUG := ${SYSTEM_TARGET}
+endif
+
+ifeq ($(COMPILER_SLUG),)
+    COMPILER_SLUG := $(COMPILER)
 endif
 
 ifeq ($(CLANG_LIBCPP),ON)
@@ -440,7 +475,7 @@ else
     $(error Bad TYPE value: $(TYPE))
 endif
 
-ifeq ($(OS_TARGET),windows)
+ifeq ($(SYSTEM_TARGET),windows)
     RUNNER := wine
     EXE_EXT := .exe
     export WINEPREFIX = $(shell realpath "${BUILD_DIR}/wine")
@@ -621,7 +656,9 @@ ifeq ($(VM),nexe)
         CMAKE_GAME_ARGS += -D'USE_NACL_SAIGO'='ON'
     endif
 
-    GAME_COMPILER := $(NACL_COMPILER)
+    GAME_COMPILER_SLUG := $(NACL_COMPILER)
+    GAME_EXE_TARGET_SLUG := ${NACL_TARGET}
+    GAME_SYSTEM_TARGET_SLUG := nacl
 
     CMAKE_GAME_COMPILER_FLAGS := \
         -D'CMAKE_C_FLAGS'='' \
@@ -629,23 +666,28 @@ ifeq ($(VM),nexe)
     CMAKE_GAME_LINKER_FLAGS := \
         -D'CMAKE_EXE_LINKER_FLAGS'=''
 else
-    GAME_COMPILER := ${COMPILER}
     GAME_TOOLCHAIN := ${TOOLCHAIN}
-    CMAKE_GAME_COMPILER_ARGS := $(CMAKE_COMPILER_ARGS)
-    CMAKE_GAME_USELD_ARGS := $(CMAKE_USELD_ARGS)
+
+    GAME_COMPILER_SLUG := ${COMPILER_SLUG}
+    GAME_EXE_TARGET_SLUG := ${EXE_TARGET_SLUG}
+    GAME_SYSTEM_TARGET_SLUG := ${SYSTEM_TARGET_SLUG}
+
     CMAKE_GAME_COMPILER_FLAGS := \
         -D'CMAKE_C_FLAGS'='${ARCH_FLAGS} ${NATIVE_C_COMPILER_FLAGS} ${COMPILER_FLAGS}' \
         -D'CMAKE_CXX_FLAGS'='${ARCH_FLAGS} ${NATIVE_CXX_COMPILER_FLAGS} ${COMPILER_FLAGS}'
     CMAKE_GAME_LINKER_FLAGS := \
         -D'CMAKE_EXE_LINKER_FLAGS'='${NATIVE_LINKER_FLAGS} ${LINKER_FLAGS}'
+
+    CMAKE_GAME_COMPILER_ARGS := $(CMAKE_COMPILER_ARGS)
+    CMAKE_GAME_USELD_ARGS := $(CMAKE_USELD_ARGS)
 endif
 
 ifneq ($(GAME_TOOLCHAIN),)
     GAME_TOOLCHAIN := daemon/${GAME_TOOLCHAIN}
 endif
 
-ENGINE_PREFIX := ${PREFIX}-${SYSTEM}-${MACHINE}-${COMPILER}-${LINK}-${BUILD_TYPE}-exe
-GAME_PREFIX := ${PREFIX}-${SYSTEM}-${MACHINE}-${GAME_COMPILER}-${LINK}-${BUILD_TYPE}-${VM}
+ENGINE_PREFIX := ${PREFIX}-${SYSTEM_TARGET_SLUG}-${EXE_TARGET_SLUG}-${COMPILER_SLUG}-${LINK}-${BUILD_TYPE}-exe
+GAME_PREFIX := ${PREFIX}-${GAME_SYSTEM_TARGET_SLUG}-${GAME_EXE_TARGET_SLUG}-${GAME_COMPILER_SLUG}-${LINK}-${BUILD_TYPE}-${VM}
 
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
 TEST_BUILD := ${BUILD_DIR}/test/${ENGINE_PREFIX}
@@ -676,7 +718,7 @@ endif
 
 EXTRA_PAKPATH_ARGS := $(shell [ -f .pakpaths ] && ( grep -v '\#' .pakpaths | sed -e 's/^/-pakpath /' | tr '\n' ' '))
 
-ifeq ($(OS_TARGET),windows)
+ifeq ($(SYSTEM_TARGET),windows)
     SYSTEM_DEPS := windows
 else
     SYSTEM_DEPS := other
