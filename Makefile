@@ -476,9 +476,17 @@ else
 endif
 
 ifeq ($(SYSTEM_TARGET),windows)
-    RUNNER := wine
+    ifneq ($(SYSTEM_TARGET),${SYSTEM})
+        export WINEPREFIX = $(shell realpath "${BUILD_DIR}/wine")
+
+        ifeq ($(DEBUG),gdb)
+            DEBUG := winedbg
+        else
+            RUNNER := wine
+        endif
+    endif
+
     EXE_EXT := .exe
-    export WINEPREFIX = $(shell realpath "${BUILD_DIR}/wine")
 endif
 
 ifeq ($(DEBUG),)
