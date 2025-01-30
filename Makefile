@@ -227,6 +227,11 @@ else ifeq ($(COMPILER),armel-gcc)
     CXX_BIN := arm-linux-gnueabi-g++
     EXE_TARGET := armel
     COMPILER_SLUG := gcc
+else ifeq ($(COMPILER),riscv64-gcc)
+    CC_BIN := riscv64-linux-gnu-gcc
+    CXX_BIN := riscv64-linux-gnu-g++
+    EXE_TARGET := riscv64
+    COMPILER_SLUG := gcc
 else ifeq ($(findstring gcc-,$(COMPILER)),gcc-)
     COMPILER_VERSION := $(call getCompilerVersion,$(COMPILER))
     CC_BIN := gcc-$(COMPILER_VERSION)
