@@ -15,7 +15,7 @@ ENGINE_DIR := ${GAME_DIR}/daemon
 DATA_DIR := ${ROOT_DIR}/UnvanquishedAssets
 
 BUILD_DIR := ${ROOT_DIR}/build
-EXDEPS_DIR := ${BUILD_DIR}/deps
+DEPS_DIR := ${BUILD_DIR}/deps
 
 CLIENT_ARGS := -set common.pedanticShutdown on -set client.allowRemotePakDir on
 SERVER_ARGS := -set common.pedanticShutdown on -set sv_pure 0
@@ -694,9 +694,11 @@ ifneq ($(GAME_TOOLCHAIN),)
     GAME_TOOLCHAIN := daemon/${GAME_TOOLCHAIN}
 endif
 
+DEPS_PREFIX := default-${SYSTEM_TARGET_SLUG}-deps
 ENGINE_PREFIX := ${PREFIX}-${SYSTEM_TARGET_SLUG}-${EXE_TARGET_SLUG}-${COMPILER_SLUG}-${LINK}-${BUILD_TYPE}-exe
 GAME_PREFIX := ${PREFIX}-${GAME_SYSTEM_TARGET_SLUG}-${GAME_EXE_TARGET_SLUG}-${GAME_COMPILER_SLUG}-${LINK}-${BUILD_TYPE}-${VM}
 
+DEPS_BUILD := ${BUILD_DIR}/deps/${DEPS_PREFIX}
 ENGINE_BUILD := ${BUILD_DIR}/engine/${ENGINE_PREFIX}
 TEST_BUILD := ${BUILD_DIR}/test/${ENGINE_PREFIX}
 GAME_BUILD := ${BUILD_DIR}/game/${GAME_PREFIX}
@@ -774,11 +776,18 @@ pull-bin: pull-engine pull-game
 
 pull: pull-bin pull-assets
 
+configure-deps: $(post-clone-bin)
+	'${CMAKE_BIN}' '${ENGINE_DIR}' -B'${DEPS_BUILD}' \
+		-D'CMAKE_TOOLCHAIN_FILE'='${TOOLCHAIN}' \
+		-D'EXTERNAL_DEPS_DIR'='${DEPS_DIR}' \
+		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
+	|| ( rm -v '${DEPS_BUILD}/CMakeCache.txt' ; false )
+
 set-current-engine:
 	mkdir -p build/engine
 	${LN_CMD} '${ENGINE_PREFIX}' build/engine/current
 
-configure-engine: set-current-engine $(post-clone-bin)
+configure-engine: configure-deps set-current-engine $(post-clone-bin)
 	'${CMAKE_BIN}' '${ENGINE_DIR}' -B'${ENGINE_BUILD}' \
 		-G'${GEN}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${TOOLCHAIN}' \
@@ -798,7 +807,7 @@ configure-engine: set-current-engine $(post-clone-bin)
 		-D'USE_FAST_MATH'='${FAST_MATH}' \
 		-D'USE_CURSES'='${CURSES}' \
 		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
-		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
+		-D'EXTERNAL_DEPS_DIR'='${DEPS_DIR}' \
 		-D'BUILD_SERVER'='ON' -D'BUILD_CLIENT'='ON' -D'BUILD_TTY_CLIENT'='ON' \
 	|| ( rm -v '${ENGINE_BUILD}/CMakeCache.txt' ; false )
 
@@ -836,7 +845,7 @@ set-current-test:
 	mkdir -p build/test
 	${LN_CMD} '${ENGINE_PREFIX}' build/test/current
 
-configure-test: set-current-test $(post-clone-bin)
+configure-test: configure-deps set-current-test $(post-clone-bin)
 	'${CMAKE_BIN}' '${ENGINE_DIR}' -B'${TEST_BUILD}' \
 		-G'${GEN}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${TOOLCHAIN}' \
@@ -856,7 +865,7 @@ configure-test: set-current-test $(post-clone-bin)
 		-D'USE_FAST_MATH'='${FAST_MATH}' \
 		-D'USE_CURSES'='${CURSES}' \
 		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
-		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
+		-D'EXTERNAL_DEPS_DIR'='${DEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
 		-D'BUILD_DUMMY_APP'='ON' -D' BUILD_TESTS'='ON' \
 	|| ( rm -v '${TEST_BUILD}/CMakeCache.txt' ; false )
@@ -868,7 +877,7 @@ set-current-game:
 	mkdir -p build/game
 	${LN_CMD} '${GAME_PREFIX}' build/game/current
 
-configure-game: configure-engine set-current-game
+configure-game: configure-deps set-current-game
 	'${CMAKE_BIN}' '${GAME_DIR}' -B'${GAME_BUILD}' \
 		-G'${GEN}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${GAME_TOOLCHAIN}' \
@@ -889,7 +898,7 @@ configure-game: configure-engine set-current-game
 		-D'USE_FAST_MATH'='${FAST_MATH}' \
 		-D'USE_CURSES'='${CURSES}' \
 		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
-		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
+		-D'EXTERNAL_DEPS_DIR'='${DEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
 		-D'BUILD_SGAME'='ON' -D'BUILD_CGAME'='ON' \
 		-D'DAEMON_DIR'='${ENGINE_DIR}' \
