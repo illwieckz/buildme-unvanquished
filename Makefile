@@ -227,6 +227,11 @@ else ifeq ($(COMPILER),armel-gcc)
     CXX_BIN := arm-linux-gnueabi-g++
     EXE_TARGET := armel
     COMPILER_SLUG := gcc
+else ifeq ($(COMPILER),ppc64el-gcc)
+    CC_BIN := powerpc64le-linux-gnu-gcc
+    CXX_BIN := powerpc64le-linux-gnu-g++
+    EXE_TARGET := ppc64el
+    COMPILER_SLUG := gcc
 else ifeq ($(COMPILER),riscv64-gcc)
     CC_BIN := riscv64-linux-gnu-gcc
     CXX_BIN := riscv64-linux-gnu-g++
