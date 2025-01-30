@@ -736,6 +736,15 @@ ifneq ($(ARGS),)
     USER_ARGS := ${ARGS}
 endif
 
+ifeq ($(CURSES),ON)
+    USER_ARGS := -curses ${USER_ARGS}
+else ifeq ($(CURSES),OFF)
+else ifeq ($(CURSES),)
+	CURSES := OFF
+else
+    $(error Bad CURSES value: $(CURSES))
+endif
+
 ifneq ($(MAP),)
     USER_ARGS := ${USER_ARGS} +devmap ${MAP}
 endif
@@ -787,6 +796,7 @@ configure-engine: set-current-engine $(post-clone-bin)
 		-D'USE_WERROR'='${WERROR}' \
 		-D'USE_FLOAT_EXCEPTIONS'='${FLOAT_EXCEPTIONS}' \
 		-D'USE_FAST_MATH'='${FAST_MATH}' \
+		-D'USE_CURSES'='${CURSES}' \
 		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='ON' -D'BUILD_CLIENT'='ON' -D'BUILD_TTY_CLIENT'='ON' \
@@ -844,6 +854,7 @@ configure-test: set-current-test $(post-clone-bin)
 		-D'USE_WERROR'='${WERROR}' \
 		-D'USE_FLOAT_EXCEPTIONS'='${FLOAT_EXCEPTIONS}' \
 		-D'USE_FAST_MATH'='${FAST_MATH}' \
+		-D'USE_CURSES'='${CURSES}' \
 		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
@@ -876,6 +887,7 @@ configure-game: configure-engine set-current-game
 		-D'USE_WERROR'='${WERROR}' \
 		-D'USE_FLOAT_EXCEPTIONS'='${FLOAT_EXCEPTIONS}' \
 		-D'USE_FAST_MATH'='${FAST_MATH}' \
+		-D'USE_CURSES'='${CURSES}' \
 		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
 		-D'EXTERNAL_DEPS_DIR'='${EXDEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
