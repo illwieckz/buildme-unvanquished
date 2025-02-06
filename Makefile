@@ -955,7 +955,10 @@ game-nexe-armhf-extra:
 game-nexe-all-extra: game-nexe-amd64-extra game-nexe-i686-extra game-nexe-armhf-extra
 
 game-nexe-extra: game-nexe-${SYSTEM_DEPS}-extra game-nexe-${NACL_TARGET}-extra engine-runtime set-current-game
-	${LN_CMD} ${ENGINE_BUILD}/nacl_loader${EXE_EXT} ${GAME_BUILD}/nacl_loader${EXE_EXT}
+	find ${ENGINE_BUILD} \
+		\( -name nacl_loader${EXE_EXT} \
+		-o -name nacl_loader-amd64${EXE_EXT} \) \
+		-exec ${LN_CMD} {} ${GAME_BUILD}/ \;
 
 game-exe-extra:
 
