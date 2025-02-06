@@ -471,32 +471,46 @@ else ifeq ($(TYPE),Debug)
     BUILD_TYPE := debug
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='Debug' -D'USE_DEBUG_OPTIMIZE'='OFF'
     NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fno-omit-frame-pointer
-    DEBUG := gdb
+    DEBUG := default
 else ifeq ($(TYPE),Profile)
     BUILD_TYPE := profile
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='RelWithDebInfo' -D'USE_DEBUG_OPTIMIZE'='ON'
     NATIVE_COMPILER_FLAGS := ${NATIVE_COMPILER_FLAGS} -fno-omit-frame-pointer -fno-inline-functions
-    DEBUG := gdb
+    DEBUG := default
 else ifeq ($(TYPE),RelWithDebInfo)
     BUILD_TYPE := reldeb
     CMAKE_DEBUG_ARGS := -D'USE_BREAKPAD'='OFF' -D'CMAKE_BUILD_TYPE'='RelWithDebInfo' -D'USE_DEBUG_OPTIMIZE'='ON'
-    DEBUG := gdb
+    DEBUG := default
 else
     $(error Bad TYPE value: $(TYPE))
 endif
+
+GDB_PATH := $(shell command -v gdb || true)
+LLDB_PATH := $(shell command -v lldb || true)
+WINEDBG_PATH := $(shell command -v winedbg || true)
 
 ifeq ($(SYSTEM_TARGET),windows)
     ifneq ($(SYSTEM_TARGET),${SYSTEM})
         export WINEPREFIX = $(shell realpath "${BUILD_DIR}/wine")
 
-        ifeq ($(DEBUG),gdb)
-            DEBUG := winedbg
+        ifeq ($(DEBUG),default)
+            ifneq ($(WINEDBG_PATH),)
+                DEBUG := winedbg
+            endif
         else
             RUNNER := wine
         endif
     endif
 
     EXE_EXT := .exe
+endif
+
+ifeq ($(DEBUG),default)
+    ifneq ($(GDB_PATH),)
+        DEBUG := gdb
+    else ifneq ($(LLDB_PATH),)
+        DEBUG := lldb
+    endif
 endif
 
 ifeq ($(DEBUG),)
