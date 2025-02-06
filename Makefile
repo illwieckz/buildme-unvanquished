@@ -284,7 +284,7 @@ else ifeq ($(COMPILER),i686-mingw)
 else ifeq ($(COMPILER),zig)
     # You may have to do:
     #   sudo ln -s /usr/include/asm-generic /usr/include/asm
-	# if /usr/include/asm doesn't exist and if you get:
+    # if /usr/include/asm doesn't exist and if you get:
     #   /usr/include/linux/errno.h:1:10: fatal error: 'asm/errno.h' file not found
     CC_BIN := zig;cc
     CXX_BIN := zig;c++
@@ -646,7 +646,7 @@ endif
 ifeq ($(EXTERNAL_LIBS),ON)
 else ifeq ($(EXTERNAL_LIBS),OFF)
 else ifeq ($(EXTERNAL_LIBS),)
-	EXTERNAL_LIBS := ON
+    EXTERNAL_LIBS := ON
 else
     $(error Bad EXTERNAL_LIBS value: $(EXTERNAL_LIBS))
 endif
@@ -766,7 +766,7 @@ ifeq ($(CURSES),ON)
     USER_ARGS := -curses ${USER_ARGS}
 else ifeq ($(CURSES),OFF)
 else ifeq ($(CURSES),)
-	CURSES := OFF
+    CURSES := OFF
 else
     $(error Bad CURSES value: $(CURSES))
 endif
