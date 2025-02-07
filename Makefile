@@ -806,7 +806,9 @@ pull: pull-bin pull-assets
 
 configure-deps: $(post-clone-bin)
 	'${CMAKE_BIN}' '${ENGINE_DIR}' -B'${DEPS_BUILD}' \
+		-G'${GEN}' \
 		-D'CMAKE_TOOLCHAIN_FILE'='${TOOLCHAIN}' \
+		${CMAKE_COMPILER_ARGS} \
 		-D'EXTERNAL_DEPS_DIR'='${DEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
 	|| ( rm -v '${DEPS_BUILD}/CMakeCache.txt' ; false )
