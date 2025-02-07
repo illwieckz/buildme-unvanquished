@@ -775,6 +775,10 @@ ifneq ($(MAP),)
     USER_ARGS := ${USER_ARGS} +devmap ${MAP}
 endif
 
+SERVER := ON
+CLIENT := ON
+TTY := ON
+
 clone-game:
 	(! [ -d '${GAME_DIR}' ] && git clone '${GAME_REPO}' '${GAME_DIR}') || true
 
@@ -832,7 +836,7 @@ configure-engine: configure-deps set-current-engine $(post-clone-bin)
 		-D'USE_CURSES'='${CURSES}' \
 		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
 		-D'EXTERNAL_DEPS_DIR'='${DEPS_DIR}' \
-		-D'BUILD_SERVER'='ON' -D'BUILD_CLIENT'='ON' -D'BUILD_TTY_CLIENT'='ON' \
+		-D'BUILD_SERVER'='${SERVER}' -D'BUILD_CLIENT'='${CLIENT}' -D'BUILD_TTY_CLIENT'='${TTY}' \
 	|| ( rm -v '${ENGINE_BUILD}/CMakeCache.txt' ; false )
 
 engine-runtime: configure-engine
