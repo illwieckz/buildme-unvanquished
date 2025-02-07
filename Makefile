@@ -851,15 +851,13 @@ engine: configure-engine
 	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' server client ttyclient
 
 engine-windows-extra:
-	{ \
-		echo libssp-0.dll libwinpthread-1.dll libgcc_s_seh-1.dll libgcc_s_dw2-1.dll libstdc++-6.dll \
-		| tr ' ' '\n' \
-		| xargs -I{} -P1 -r find '/usr' -name {} -type f \
-		| grep '${MINGW_ARCH}' \
-		| grep -v 'win32' \
-		| sort \
-		| xargs -I{} -P1 -r cp -av {} '${ENGINE_BUILD}/'; \
-	}
+	echo libssp-0.dll libwinpthread-1.dll libgcc_s_seh-1.dll libgcc_s_dw2-1.dll libstdc++-6.dll \
+	| tr ' ' '\n' \
+	| xargs -I{} -P1 -r find '/usr' -name {} -type f \
+	| grep '${MINGW_ARCH}' \
+	| grep -v 'win32' \
+	| sort \
+	| xargs -I{} -P1 -r cp -av {} '${ENGINE_BUILD}/';
 
 engine-other-extra:
 
@@ -936,7 +934,6 @@ game: configure-game
 game-nexe-windows-extra:
 
 game-nexe-other-extra: engine-runtime set-current-game
-#	${LN_CMD} ${ENGINE_BUILD}/nacl_helper_bootstrap ${GAME_BUILD}/nacl_helper_bootstrap
 	find ${ENGINE_BUILD} \
 		\( -name nacl_helper_bootstrap \
 		-o -name nacl_helper_bootstrap-armhf \
