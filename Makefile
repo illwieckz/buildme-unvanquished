@@ -510,10 +510,13 @@ ifeq ($(DEBUG),default)
         DEBUG := gdb
     else ifneq ($(LLDB_PATH),)
         DEBUG := lldb
+    else
+        DEBUG := OFF
     endif
 endif
 
 ifeq ($(DEBUG),)
+else ifeq ($(DEBUG),OFF)
 else ifeq ($(DEBUG),gdb)
     # Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
     # Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
