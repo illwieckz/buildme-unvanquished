@@ -646,6 +646,14 @@ else
     $(error Bad FAST_MATH value: $(FAST_MATH))
 endif
 
+ifeq ($(STATIC),ON)
+else ifeq ($(STATIC),OFF)
+else ifeq ($(STATIC),)
+    STATIC := OFF
+else
+    $(error Bad STATIC value: $(STATIC))
+endif
+
 ifeq ($(EXTERNAL_LIBS),ON)
 else ifeq ($(EXTERNAL_LIBS),OFF)
 else ifeq ($(EXTERNAL_LIBS),)
@@ -842,6 +850,7 @@ configure-engine: configure-deps set-current-engine $(post-clone-bin)
 		-D'USE_FLOAT_EXCEPTIONS'='${FLOAT_EXCEPTIONS}' \
 		-D'USE_FAST_MATH'='${FAST_MATH}' \
 		-D'USE_CURSES'='${CURSES}' \
+		-D'USE_STATIC_LIBS'='${STATIC}' \
 		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
 		-D'EXTERNAL_DEPS_DIR'='${DEPS_DIR}' \
 		-D'BUILD_SERVER'='${SERVER}' -D'BUILD_CLIENT'='${CLIENT}' -D'BUILD_TTY_CLIENT'='${TTY}' \
@@ -898,6 +907,7 @@ configure-test: configure-deps set-current-test $(post-clone-bin)
 		-D'USE_FLOAT_EXCEPTIONS'='${FLOAT_EXCEPTIONS}' \
 		-D'USE_FAST_MATH'='${FAST_MATH}' \
 		-D'USE_CURSES'='${CURSES}' \
+		-D'USE_STATIC_LIBS'='${STATIC}' \
 		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
 		-D'EXTERNAL_DEPS_DIR'='${DEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
@@ -931,6 +941,7 @@ configure-game: configure-deps set-current-game
 		-D'USE_FLOAT_EXCEPTIONS'='${FLOAT_EXCEPTIONS}' \
 		-D'USE_FAST_MATH'='${FAST_MATH}' \
 		-D'USE_CURSES'='${CURSES}' \
+		-D'USE_STATIC_LIBS'='${STATIC}' \
 		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
 		-D'EXTERNAL_DEPS_DIR'='${DEPS_DIR}' \
 		-D'BUILD_SERVER'='OFF' -D'BUILD_CLIENT'='OFF' -D'BUILD_TTY_CLIENT'='OFF' \
