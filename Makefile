@@ -662,6 +662,20 @@ else
     $(error Bad EXTERNAL_LIBS value: $(EXTERNAL_LIBS))
 endif
 
+ifeq ($(VULKAN),ON)
+else ifeq ($(VULKAN),OFF)
+else ifeq ($(VULKAN),)
+    VULKAN := OFF
+else
+    $(error Bad VULKAN value: $(VULKAN))
+endif
+
+ifeq ($(VULKAN),ON)
+    ENGINE_CLIENT_BASENAME := daemon-vulkan
+else ifeq ($(VULKAN),OFF)
+    ENGINE_CLIENT_BASENAME := daemon
+endif
+
 ifeq ($(VM),dll)
     VM_TYPE := 3
     CMAKE_GAME_ARGS := \
@@ -853,6 +867,7 @@ configure-engine: configure-deps set-current-engine $(post-clone-bin)
 		-D'USE_STATIC_LIBS'='${STATIC}' \
 		-D'PREFER_EXTERNAL_LIBS'='${EXTERNAL_LIBS}' \
 		-D'EXTERNAL_DEPS_DIR'='${DEPS_DIR}' \
+		-D'USE_VULKAN'='${VULKAN}' \
 		-D'BUILD_SERVER'='${SERVER}' -D'BUILD_CLIENT'='${CLIENT}' -D'BUILD_TTY_CLIENT'='${TTY}' \
 	|| ( rm -v '${ENGINE_BUILD}/CMakeCache.txt' ; false )
 
@@ -1074,7 +1089,7 @@ run-server: bin-server${NOBUILD_SUFFIX} $(post_data) $(post_base)
 run-client: bin-client${NOBUILD_SUFFIX} $(post_data) $(post_base)
 	LD_PRELOAD='${LD_RUNNER}' \
 	${RUNNER} \
-	'${ENGINE_BUILD}/daemon${ENGINE_EXT}' \
+	'${ENGINE_BUILD}/${ENGINE_CLIENT_BASENAME}${ENGINE_EXT}' \
 		${ENGINE_LOG_ARGS} \
 		${ENGINE_VMTYPE_ARGS} \
 		-libpath '${GAME_BUILD}' \
