@@ -395,8 +395,10 @@ ifeq ($(GEN),)
     GEN := Unix Makefiles
 endif
 
+MOLD_BIN := mold
+
 ifeq ($(MOLD),)
-    MOLD_PATH := $(shell command -v mold || true)
+    MOLD_PATH := $(shell command -v "${MOLD_BIN}" || true)
 
     ifneq ($(MOLD_PATH),)
         MOLD := ON
@@ -411,7 +413,6 @@ else
 endif
 
 ifeq ($(MOLD),ON)
-   MOLD_BIN := mold
    LD_BIN := ${MOLD_BIN}
 endif
 
@@ -425,8 +426,10 @@ else
         -D'CMAKE_SHARED_LINKER_FLAGS_INIT'='-fuse-ld=${LD_BIN}'
 endif
 
+CCACHE_BIN := ccache
+
 ifeq ($(CCACHE),)
-    CCACHE_PATH := $(shell command -v ccache || true)
+    CCACHE_PATH := $(shell command -v "${CCACHE_BIN}" || true)
 
     ifneq ($(CCACHE_PATH),)
         CCACHE := ON
@@ -438,7 +441,8 @@ else
 endif
 
 ifeq ($(CCACHE),ON)
-    COMPILER_LAUNCHER := ccache
+
+    COMPILER_LAUNCHER := ${CCACHE_BIN}
 endif
 
 ifneq ($(COMPILER_LAUNCHER),)
@@ -491,9 +495,13 @@ else
     $(error Bad TYPE value: $(TYPE))
 endif
 
-GDB_PATH := $(shell command -v gdb || true)
-LLDB_PATH := $(shell command -v lldb || true)
-WINEDBG_PATH := $(shell command -v winedbg || true)
+GDB_BIN := gdb
+LLDB_BIN := lldb
+WINEDBG_BIN := winedbg
+
+GDB_PATH := $(shell command -v "${GDB_BIN}" || true)
+LLDB_PATH := $(shell command -v "${LLDB_BIN}" || true)
+WINEDBG_PATH := $(shell command -v "${WINEDBG_BIN}" || true)
 
 ifeq ($(SYSTEM_TARGET),windows)
     ifneq ($(SYSTEM_TARGET),${SYSTEM})
@@ -521,32 +529,39 @@ ifeq ($(DEBUG),default)
     endif
 endif
 
+NEMIVER_BIN := nemiver
+ALLEYOOP_BIN := alleyoop
+GPROFNG_BIN := gprofng
+VALGRIND_BIN := valgrind
+HEAPUSAGE_BIN := heapusage
+APITRACE_BIN := apitrace
+
 ifeq ($(DEBUG),)
 else ifeq ($(DEBUG),OFF)
 else ifeq ($(DEBUG),gdb)
     # Hardcode that .gdbinit.txt path since “auto-load safe-path” usually prevents loading .gdbinit from current dir
     # Use another name to prevent printing useless warnings saying it will not loaded since we force it to be loaded
-    RUNNER := gdb -x .gdbinit.txt -args
+    RUNNER := "${GDB_BIN}" -x .gdbinit.txt -args
 else ifeq ($(DEBUG),gdbgui)
     RUNNER := pipx run gdbgui --args
 else ifeq ($(DEBUG),lldb)
-    RUNNER := lldb -s .lldbinit.txt --
+    RUNNER := "${LLDB_BIN}" -s .lldbinit.txt --
 else ifeq ($(DEBUG),winedbg)
-    RUNNER := winedbg
-else ifeq ($(DEBUG),nemiver)
-    RUNNER := nemiver
-else ifeq ($(DEBUG),alleyoop)
-    RUNNER := alleyoop -R "${GAME_DIR}"
-else ifeq ($(DEBUG),gprofng)
-    RUNNER := gprofng collect app
-else ifeq ($(DEBUG),valgrind)
-    RUNNER := valgrind --tool=memcheck --num-callers=4 --track-origins=yes --time-stamp=yes --run-libc-freeres=yes --leak-check=full --leak-resolution=high --track-origins=yes --show-leak-kinds=all --log-file='logs/valgrind-${NOW}.log' --
+    RUNNER := ${WINEDBG_BIN}"
+else ifeq ($(DEBUG),"${NEMIVER_BIN}")
+    RUNNER := "${NEMIVER_BIN}"
+else ifeq ($(DEBUG),"${ALLEYOOP_BIN}")
+    RUNNER := "${ALLEYOOP_BIN}" -R "${GAME_DIR}"
+else ifeq ($(DEBUG),"${GPROFNG_BIN}")
+    RUNNER := "${GPROFNG_BIN}" collect app
+else ifeq ($(DEBUG),"${VALGRIND_BIN}")
+    RUNNER := "${VALGRIND_BIN}" --tool=memcheck --num-callers=4 --track-origins=yes --time-stamp=yes --run-libc-freeres=yes --leak-check=full --leak-resolution=high --track-origins=yes --show-leak-kinds=all --log-file='logs/valgrind-${NOW}.log' --
 else ifeq ($(DEBUG),massif)
-    RUNNER := valgrind --tool=massif --log-file='logs/massif-${NOW}.log' --massif-out-file='logs/massif.out.${NOW}.%p' --
-else ifeq ($(DEBUG),heapusage)
-    RUNNER := heapusage -m 0 -o 'logs/heapusage-${NOW}.log'
-else ifeq ($(DEBUG),apitrace)
-    RUNNER := apitrace trace --output='logs/apitrace-${NOW}.trace'
+    RUNNER := "${VALGRIND_BIN}" --tool=massif --log-file='logs/massif-${NOW}.log' --massif-out-file='logs/massif.out.${NOW}.%p' --
+else ifeq ($(DEBUG),"${HEAPUSAGE_BIN}")
+    RUNNER := "${HEAPUSAGE_BIN}" -m 0 -o 'logs/heapusage-${NOW}.log'
+else ifeq ($(DEBUG),"${APITRACE_BIN}")
+    RUNNER := "${APITRACE_BIN}" trace --output='logs/apitrace-${NOW}.trace'
 else ifeq ($(DEBUG),asan)
     # AddressSanitizer only builds with exe.
     # LeakSanitizer only works if program is built with Clang.
