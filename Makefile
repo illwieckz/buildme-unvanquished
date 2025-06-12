@@ -547,7 +547,7 @@ else ifeq ($(DEBUG),gdbgui)
 else ifeq ($(DEBUG),lldb)
     RUNNER := "${LLDB_BIN}" -s .lldbinit.txt --
 else ifeq ($(DEBUG),winedbg)
-    RUNNER := ${WINEDBG_BIN}"
+    RUNNER := "${WINEDBG_BIN}"
 else ifeq ($(DEBUG),"${NEMIVER_BIN}")
     RUNNER := "${NEMIVER_BIN}"
 else ifeq ($(DEBUG),"${ALLEYOOP_BIN}")
