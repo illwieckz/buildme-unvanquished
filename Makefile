@@ -130,7 +130,8 @@ else
     $(error Bad DPK value: $(DPK))
 endif
 
-ifeq ($(VM),nexe)
+ifeq ($(VM),dpk)
+else ifeq ($(VM),nexe)
 else ifeq ($(VM),exe)
 else ifeq ($(VM),dll)
 else ifeq ($(VM),)
@@ -139,7 +140,9 @@ else
     $(error Bad VM value: $(VM))
 endif
 
-ifeq ($(VM),nexe)
+ifeq ($(VM),dpk)
+    NACL_TARGET := ${NATIVE_NEXE}
+else ifeq ($(VM),nexe)
     ifeq ($(NEXE),all)
         NACL_TARGET := ${NEXE}
     else ifeq ($(NEXE),amd64)
@@ -548,19 +551,19 @@ else ifeq ($(DEBUG),lldb)
     RUNNER := "${LLDB_BIN}" -s .lldbinit.txt --
 else ifeq ($(DEBUG),winedbg)
     RUNNER := "${WINEDBG_BIN}"
-else ifeq ($(DEBUG),"${NEMIVER_BIN}")
+else ifeq ($(DEBUG),${NEMIVER_BIN})
     RUNNER := "${NEMIVER_BIN}"
-else ifeq ($(DEBUG),"${ALLEYOOP_BIN}")
+else ifeq ($(DEBUG),${ALLEYOOP_BIN})
     RUNNER := "${ALLEYOOP_BIN}" -R "${GAME_DIR}"
-else ifeq ($(DEBUG),"${GPROFNG_BIN}")
+else ifeq ($(DEBUG),${GPROFNG_BIN})
     RUNNER := "${GPROFNG_BIN}" collect app
-else ifeq ($(DEBUG),"${VALGRIND_BIN}")
+else ifeq ($(DEBUG),${VALGRIND_BIN})
     RUNNER := "${VALGRIND_BIN}" --tool=memcheck --num-callers=4 --track-origins=yes --time-stamp=yes --run-libc-freeres=yes --leak-check=full --leak-resolution=high --track-origins=yes --show-leak-kinds=all --log-file='logs/valgrind-${NOW}.log' --
 else ifeq ($(DEBUG),massif)
     RUNNER := "${VALGRIND_BIN}" --tool=massif --log-file='logs/massif-${NOW}.log' --massif-out-file='logs/massif.out.${NOW}.%p' --
-else ifeq ($(DEBUG),"${HEAPUSAGE_BIN}")
+else ifeq ($(DEBUG),${HEAPUSAGE_BIN})
     RUNNER := "${HEAPUSAGE_BIN}" -m 0 -o 'logs/heapusage-${NOW}.log'
-else ifeq ($(DEBUG),"${APITRACE_BIN}")
+else ifeq ($(DEBUG),${APITRACE_BIN})
     RUNNER := "${APITRACE_BIN}" trace --output='logs/apitrace-${NOW}.trace'
 else ifeq ($(DEBUG),asan)
     # AddressSanitizer only builds with exe.
@@ -717,6 +720,13 @@ else ifeq ($(VM),nexe)
         -D'BUILD_GAME_NACL'='ON' \
         -D'BUILD_GAME_NACL_NEXE'='ON' \
         -D'BUILD_GAME_NACL_TARGETS'="$(NACL_TARGET)" \
+        -D'BUILD_GAME_NATIVE_EXE'='OFF'\
+        -D'BUILD_GAME_NATIVE_DLL'='OFF'
+else ifeq ($(VM),dpk)
+    VM_TYPE := 0
+    CMAKE_GAME_ARGS := \
+        -D'BUILD_GAME_NACL'='OFF' \
+        -D'BUILD_GAME_NACL_NEXE'='OFF' \
         -D'BUILD_GAME_NATIVE_EXE'='OFF'\
         -D'BUILD_GAME_NATIVE_DLL'='OFF'
 endif
@@ -1015,6 +1025,8 @@ game-nexe-extra: game-nexe-${SYSTEM_DEPS}-extra game-nexe-${NACL_TARGET}-extra e
 		\( -name nacl_loader${EXE_EXT} \
 		-o -name nacl_loader-amd64${EXE_EXT} \) \
 		-exec ${LN_CMD} {} ${GAME_BUILD}/ \;
+
+game-dpk-extra: game-nexe-extra
 
 game-exe-extra:
 
