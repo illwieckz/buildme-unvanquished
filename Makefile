@@ -665,7 +665,7 @@ endif
 ifeq ($(FAST_MATH),ON)
 else ifeq ($(FAST_MATH),OFF)
 else ifeq ($(FAST_MATH),)
-    FAST_MATH := ON
+    FAST_MATH := OFF
 else
     $(error Bad FAST_MATH value: $(FAST_MATH))
 endif
