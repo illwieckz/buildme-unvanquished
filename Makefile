@@ -794,6 +794,16 @@ else
     ENGINE_LOG_ARGS := -set logs.suppression.enabled 1 -set logs.level.default notice -set logs.level.audio notice  -set logs.level.glconfig notice -set developer 0
 endif
 
+ifeq ($(POPUP),ON)
+    ENGINE_LOG_ARGS += -set client.errorPopup on
+else ifeq ($(POPUP),OFF)
+    ENGINE_LOG_ARGS += -set client.errorPopup off
+else ifeq ($(POPUP),)
+    ENGINE_LOG_ARGS += -set client.errorPopup off
+else
+    $(error Bad POPUP value: $(POPUP))
+endif
+
 ifeq ($(DATA),ON)
 else ifeq ($(DATA),OFF)
 else ifeq ($(DATA),)
