@@ -616,6 +616,14 @@ else
     $(error Bad PCH value: $(PCH))
 endif
 
+ifeq ($(CPP23),ON)
+else ifeq ($(CPP23),OFF)
+else ifeq ($(CPP23),)
+    CPP23 := OFF
+else
+    $(error Bad CPP23 value: $(CPP23))
+endif
+
 ifeq ($(LTO),ON)
 else ifeq ($(LTO),OFF)
 else ifeq ($(LTO),)
@@ -898,6 +906,7 @@ configure-engine: configure-deps set-current-engine $(post-clone-bin)
 		${CMAKE_ARCH_ARGS} \
 		${CMAKE_ARGS} \
 		-D'USE_PRECOMPILED_HEADER'='${PCH}' \
+		-D'USE_CPP23'='${CPP23}' \
 		-D'USE_LTO'='${LTO}' \
 		-D'USE_HARDENING'='${HARDENING}' \
 		-D'USE_PEDANTIC'='${PEDANTIC}' \
@@ -956,6 +965,7 @@ configure-test: configure-deps set-current-test $(post-clone-bin)
 		${CMAKE_ARCH_ARGS} \
 		${CMAKE_ARGS} \
 		-D'USE_PRECOMPILED_HEADER'='${PCH}' \
+		-D'USE_CPP23'='${CPP23}' \
 		-D'USE_LTO'='${LTO}' \
 		-D'USE_HARDENING'='${HARDENING}' \
 		-D'USE_PEDANTIC'='${PEDANTIC}' \
@@ -990,6 +1000,7 @@ configure-game: configure-deps set-current-game
 		${CMAKE_ARCH_ARGS} \
 		${CMAKE_ARGS} \
 		-D'USE_PRECOMPILED_HEADER'='${PCH}' \
+		-D'USE_CPP23'='${CPP23}' \
 		-D'USE_LTO'='${LTO}' \
 		-D'USE_HARDENING'='${HARDENING}' \
 		-D'USE_PEDANTIC'='${PEDANTIC}' \
