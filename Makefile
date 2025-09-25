@@ -41,16 +41,20 @@ UNAMEM := $(shell uname -m)
 
 ifeq ($(UNAMEM),x86_64)
     MACHINE := amd64
-    NATIVE_NEXE := amd64
+    NATIVE_NEXE := $(MACHINE)
 else ifeq ($(UNAMEM),i686)
     MACHINE := i686
-    NATIVE_NEXE := i686
+    NATIVE_NEXE := $(MACHINE)
 else ifeq ($(UNAMEM),armv7l)
     MACHINE := armhf
-    NATIVE_NEXE := armhf
+    NATIVE_NEXE := $(MACHINE)
 else ifeq ($(UNAMEM),aarch64)
     MACHINE := arm64
     NATIVE_NEXE := armhf
+else
+    $(warning Unknown UNAMEM value: $(UNAMEM))
+    MACHINE := $(UNAMEM)
+    NATIVE_EXE := $(MACHINE)
 endif
 
 ifeq ($(NPROC),)
