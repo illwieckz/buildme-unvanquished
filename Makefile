@@ -620,6 +620,14 @@ else
     $(error Bad PCH value: $(PCH))
 endif
 
+ifeq ($(STRIP_SOURCE),ON)
+else ifeq ($(STRIP_SOURCE),OFF)
+else ifeq ($(STRIP_SOURCE),)
+    STRIP_SOURCE := OFF
+else
+    $(error Bad STRIP_SOURCE value: $(STRIP_SOURCE))
+endif
+
 ifeq ($(CPP23),ON)
 else ifeq ($(CPP23),OFF)
 else ifeq ($(CPP23),)
@@ -910,6 +918,7 @@ configure-engine: configure-deps set-current-engine $(post-clone-bin)
 		${CMAKE_ARCH_ARGS} \
 		${CMAKE_ARGS} \
 		-D'USE_PRECOMPILED_HEADER'='${PCH}' \
+		-D'STRIP_SOURCE_PATHS'='${STRIP_SOURCE}' \
 		-D'USE_CPP23'='${CPP23}' \
 		-D'USE_LTO'='${LTO}' \
 		-D'USE_HARDENING'='${HARDENING}' \
@@ -969,6 +978,7 @@ configure-test: configure-deps set-current-test $(post-clone-bin)
 		${CMAKE_ARCH_ARGS} \
 		${CMAKE_ARGS} \
 		-D'USE_PRECOMPILED_HEADER'='${PCH}' \
+		-D'STRIP_SOURCE_PATHS'='${STRIP_SOURCE}' \
 		-D'USE_CPP23'='${CPP23}' \
 		-D'USE_LTO'='${LTO}' \
 		-D'USE_HARDENING'='${HARDENING}' \
@@ -1004,6 +1014,7 @@ configure-game: configure-deps set-current-game
 		${CMAKE_ARCH_ARGS} \
 		${CMAKE_ARGS} \
 		-D'USE_PRECOMPILED_HEADER'='${PCH}' \
+		-D'STRIP_SOURCE_PATHS'='${STRIP_SOURCE}' \
 		-D'USE_CPP23'='${CPP23}' \
 		-D'USE_LTO'='${LTO}' \
 		-D'USE_HARDENING'='${HARDENING}' \
