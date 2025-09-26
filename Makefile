@@ -42,6 +42,9 @@ UNAMEM := $(shell uname -m)
 ifeq ($(UNAMEM),x86_64)
     MACHINE := amd64
     NATIVE_NEXE := $(MACHINE)
+else ifeq ($(UNAMEM),amd64)
+    MACHINE := amd64
+    NATIVE_NEXE := $(MACHINE)
 else ifeq ($(UNAMEM),i686)
     MACHINE := i686
     NATIVE_NEXE := $(MACHINE)
