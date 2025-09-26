@@ -51,6 +51,9 @@ else ifeq ($(UNAMEM),armv7l)
 else ifeq ($(UNAMEM),aarch64)
     MACHINE := arm64
     NATIVE_NEXE := armhf
+else ifeq ($(UNAMEM),riscv64)
+    MACHINE := riscv64
+    NATIVE_NEXE := $(MACHINE)
 else
     $(warning Unknown UNAMEM value: $(UNAMEM))
     MACHINE := $(UNAMEM)
