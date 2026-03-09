@@ -453,9 +453,28 @@ else
     $(error Bad CCACHE value: $(CCACHE))
 endif
 
-ifeq ($(CCACHE),ON)
+ICECC_BIN := icecc
 
+ifeq ($(ICECC),)
+    ICECC_PATH := $(shell command -v "${ICECC_BIN}" || true)
+
+    ifneq ($(ICECC_PATH),)
+        ICECC := ON
+    endif
+else ifeq ($(ICECC),ON)
+else ifeq ($(ICECC),OFF)
+else
+    $(error Bad ICECC value: $(ICECC))
+endif
+
+ifeq ($(CCACHE),ON)
     COMPILER_LAUNCHER := ${CCACHE_BIN}
+
+    ifeq ($(ICECC),ON)
+        export CCACHE_PREFIX = ${ICECC_BIN}
+    endif
+else ifeq ($(ICECC),ON)
+    COMPILER_LAUNCHER := ${ICECC_BIN}
 endif
 
 ifneq ($(COMPILER_LAUNCHER),)
