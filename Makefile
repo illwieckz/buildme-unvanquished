@@ -984,7 +984,7 @@ engine: configure-engine
 	'${CMAKE_BIN}' --build '${ENGINE_BUILD}' -- -j'${NPROC}' server client ttyclient
 
 engine-windows-extra:
-	echo libssp-0.dll libwinpthread-1.dll libgcc_s_seh-1.dll libgcc_s_dw2-1.dll libstdc++-6.dll \
+	echo libssp-0.dll libwinpthread-1.dll libgcc_s_seh-1.dll libgcc_s_dw2-1.dll libgomp-1.dll libstdc++-6.dll \
 	| tr ' ' '\n' \
 	| xargs -I{} -P1 -r find '/usr' -name {} -type f \
 	| grep '${MINGW_ARCH}' \
