@@ -900,6 +900,7 @@ TTY := ON
 
 clone-game:
 	(! [ -d '${GAME_DIR}' ] && git clone '${GAME_REPO}' '${GAME_DIR}') || true
+	cd '${GAME_DIR}' && git submodule update --init --recursive
 
 clone-assets:
 	(! [ -d '${DATA_DIR}' ] && git clone '${DATA_REPO}' '${DATA_DIR}') || true
